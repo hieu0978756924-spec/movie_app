@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/constants/supabase_constants.dart';
 import 'core/di/injection.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (SupabaseConstants.supabaseUrl.isNotEmpty &&
+      SupabaseConstants.supabaseAnonKey.isNotEmpty) {
+    await Supabase.initialize(
+      url: SupabaseConstants.supabaseUrl,
+      publishableKey: SupabaseConstants.supabaseAnonKey,
+    );
+  }
+
   configureDependencies();
   runApp(const MovieApp());
 }
