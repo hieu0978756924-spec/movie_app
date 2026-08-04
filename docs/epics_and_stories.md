@@ -56,10 +56,10 @@ Epic 1 (Foundation) → Epic 2 (Auth) → Epic 3 (Home)
 **So that** Auth và Database feature hoạt động.
 
 **Acceptance Criteria:**
-- [ ] `Supabase.initialize()` trong `main.dart` với env variables
-- [ ] Tạo 3 tables trên Supabase: `profiles`, `watchlist`, `reviews`
-- [ ] RLS policies đúng theo schema trong Architecture doc
-- [ ] Kết nối test thành công (có thể dùng `supabase.from('profiles').select()`)
+- [x] `Supabase.initialize()` trong `main.dart` với env variables
+- [x] Tạo 3 tables trên Supabase: `profiles`, `watchlist`, `reviews`
+- [x] RLS policies đúng theo schema trong Architecture doc
+- [x] Kết nối test thành công (có thể dùng `supabase.from('profiles').select()`)
 
 **Story Points:** 3
 
