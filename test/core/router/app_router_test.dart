@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:get_it/get_it.dart';
+import 'package:movie_app/core/di/injection.dart';
 import 'package:movie_app/core/router/app_router.dart';
 import 'package:movie_app/core/router/route_names.dart';
 
@@ -32,6 +34,11 @@ void main() {
   });
 
   group('AppRouter Configuration & Redirect Tests', () {
+    setUp(() async {
+      await GetIt.instance.reset();
+      configureDependencies();
+    });
+
     tearDown(() {
       AppRouter.setAuthCheckOverride(null);
     });
