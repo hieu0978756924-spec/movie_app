@@ -1,0 +1,74 @@
+import 'package:dartz/dartz.dart';
+import 'package:injectable/injectable.dart';
+
+import '../../../../core/errors/failure.dart';
+import '../../domain/repositories/movie_repository.dart';
+import '../../models/movie.dart';
+import '../datasources/movie_remote_datasource.dart';
+
+@LazySingleton(as: MovieRepository)
+class MovieRepositoryImpl implements MovieRepository {
+  final MovieRemoteDataSource remoteDataSource;
+
+  MovieRepositoryImpl(this.remoteDataSource);
+
+  @override
+  Future<Either<Failure, List<Movie>>> getTrendingMovies(
+      {int page = 1}) async {
+    try {
+      final response = await remoteDataSource.getTrendingMovies(page: page);
+      final movies = response.results.map((model) => model.toEntity()).toList();
+      return Right(movies);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> getNowPlayingMovies(
+      {int page = 1}) async {
+    try {
+      final response = await remoteDataSource.getNowPlayingMovies(page: page);
+      final movies = response.results.map((model) => model.toEntity()).toList();
+      return Right(movies);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> getPopularMovies(
+      {int page = 1}) async {
+    try {
+      final response = await remoteDataSource.getPopularMovies(page: page);
+      final movies = response.results.map((model) => model.toEntity()).toList();
+      return Right(movies);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> getTopRatedMovies(
+      {int page = 1}) async {
+    try {
+      final response = await remoteDataSource.getTopRatedMovies(page: page);
+      final movies = response.results.map((model) => model.toEntity()).toList();
+      return Right(movies);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> getUpcomingMovies(
+      {int page = 1}) async {
+    try {
+      final response = await remoteDataSource.getUpcomingMovies(page: page);
+      final movies = response.results.map((model) => model.toEntity()).toList();
+      return Right(movies);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+}

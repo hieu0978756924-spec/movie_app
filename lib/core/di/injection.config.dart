@@ -27,6 +27,22 @@ import '../../features/auth/domain/usecases/register_usecase.dart' as _i941;
 import '../../features/auth/domain/usecases/reset_password_usecase.dart'
     as _i474;
 import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
+import '../../features/home/data/datasources/movie_remote_datasource.dart'
+    as _i514;
+import '../../features/home/data/repositories/movie_repository_impl.dart'
+    as _i449;
+import '../../features/home/domain/repositories/movie_repository.dart'
+    as _i1023;
+import '../../features/home/domain/usecases/get_now_playing_movies_usecase.dart'
+    as _i233;
+import '../../features/home/domain/usecases/get_popular_movies_usecase.dart'
+    as _i560;
+import '../../features/home/domain/usecases/get_top_rated_movies_usecase.dart'
+    as _i639;
+import '../../features/home/domain/usecases/get_trending_movies_usecase.dart'
+    as _i858;
+import '../../features/home/domain/usecases/get_upcoming_movies_usecase.dart'
+    as _i749;
 import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
 import '../router/router_module.dart' as _i948;
@@ -54,6 +70,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i161.AuthRemoteDataSourceImpl(gh<_i454.SupabaseClient>()));
     gh.lazySingleton<_i787.AuthRepository>(
         () => _i153.AuthRepositoryImpl(gh<_i161.AuthRemoteDataSource>()));
+    gh.lazySingleton<_i514.MovieRemoteDataSource>(
+        () => _i514.MovieRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i1023.MovieRepository>(
+        () => _i449.MovieRepositoryImpl(gh<_i514.MovieRemoteDataSource>()));
     gh.lazySingleton<_i17.GetCurrentUserUseCase>(
         () => _i17.GetCurrentUserUseCase(gh<_i787.AuthRepository>()));
     gh.lazySingleton<_i188.LoginUseCase>(
@@ -62,6 +82,16 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i941.RegisterUseCase(gh<_i787.AuthRepository>()));
     gh.lazySingleton<_i474.ResetPasswordUseCase>(
         () => _i474.ResetPasswordUseCase(gh<_i787.AuthRepository>()));
+    gh.lazySingleton<_i233.GetNowPlayingMoviesUseCase>(
+        () => _i233.GetNowPlayingMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i560.GetPopularMoviesUseCase>(
+        () => _i560.GetPopularMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i639.GetTopRatedMoviesUseCase>(
+        () => _i639.GetTopRatedMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i858.GetTrendingMoviesUseCase>(
+        () => _i858.GetTrendingMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i749.GetUpcomingMoviesUseCase>(
+        () => _i749.GetUpcomingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
           gh<_i188.LoginUseCase>(),
           gh<_i941.RegisterUseCase>(),

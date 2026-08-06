@@ -1,43 +1,83 @@
-class Movie {
-  //================ THÔNG TIN PHIM ================//
+import 'package:equatable/equatable.dart';
 
-  /// Tên phim
+// ignore: must_be_immutable
+class Movie extends Equatable {
+  final int id;
   final String tenPhim;
-
-  /// Đường dẫn hình ảnh
   final String hinhAnh;
-
-  /// Điểm đánh giá
+  final String? backdropPath;
   final double diemDanhGia;
-
-  /// Thể loại
   final String theLoai;
-
-  /// Thời lượng
   final String thoiLuong;
-
-  /// Nội dung phim
   final String moTa;
-
-  /// Năm phát hành
   final int namPhatHanh;
-
-  /// Đạo diễn
   final String daoDien;
- 
-
-  /// Trạng thái yêu thích
+  final List<int> genreIds;
+  final int voteCount;
   bool yeuThich;
 
   Movie({
+    this.id = 0,
     required this.tenPhim,
     required this.hinhAnh,
+    this.backdropPath,
     required this.diemDanhGia,
-    required this.theLoai,
-    required this.thoiLuong,
+    this.theLoai = 'Action',
+    this.thoiLuong = '120 min',
     required this.moTa,
-    required this.namPhatHanh,
-    required this.daoDien,
+    this.namPhatHanh = 2026,
+    this.daoDien = 'Góc Phim',
+    this.genreIds = const [],
+    this.voteCount = 0,
     this.yeuThich = false,
   });
+
+  Movie copyWith({
+    int? id,
+    String? tenPhim,
+    String? hinhAnh,
+    String? backdropPath,
+    double? diemDanhGia,
+    String? theLoai,
+    String? thoiLuong,
+    String? moTa,
+    int? namPhatHanh,
+    String? daoDien,
+    List<int>? genreIds,
+    int? voteCount,
+    bool? yeuThich,
+  }) {
+    return Movie(
+      id: id ?? this.id,
+      tenPhim: tenPhim ?? this.tenPhim,
+      hinhAnh: hinhAnh ?? this.hinhAnh,
+      backdropPath: backdropPath ?? this.backdropPath,
+      diemDanhGia: diemDanhGia ?? this.diemDanhGia,
+      theLoai: theLoai ?? this.theLoai,
+      thoiLuong: thoiLuong ?? this.thoiLuong,
+      moTa: moTa ?? this.moTa,
+      namPhatHanh: namPhatHanh ?? this.namPhatHanh,
+      daoDien: daoDien ?? this.daoDien,
+      genreIds: genreIds ?? this.genreIds,
+      voteCount: voteCount ?? this.voteCount,
+      yeuThich: yeuThich ?? this.yeuThich,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        tenPhim,
+        hinhAnh,
+        backdropPath,
+        diemDanhGia,
+        theLoai,
+        thoiLuong,
+        moTa,
+        namPhatHanh,
+        daoDien,
+        genreIds,
+        voteCount,
+        yeuThich,
+      ];
 }
