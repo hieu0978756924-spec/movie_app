@@ -8,6 +8,7 @@ import '../../../core/utils/image_url_helper.dart';
 import '../models/movie.dart';
 import '../presentation/bloc/movie_detail_bloc.dart';
 import '../presentation/widgets/cast_section_widget.dart';
+import '../presentation/widgets/trailer_player_dialog.dart';
 
 class MovieDetailView extends StatefulWidget {
   final Movie movie;
@@ -294,7 +295,7 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                             ),
                             const SizedBox(height: 24),
 
-                            // Action Button: Play / Watch Trailer
+                            // Action Button: Watch Trailer
                             SizedBox(
                               width: double.infinity,
                               height: 48,
@@ -306,16 +307,40 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor: AppColors.darkSurface,
-                                      content: Text(
-                                        'Đang mở xem phim: ${currentMovie.tenPhim}',
-                                        style: const TextStyle(
-                                            color: Colors.white),
+                                  String? trailerKey;
+                                  if (state is MovieDetailLoadedState &&
+                                      state.trailers.isNotEmpty) {
+                                    final youtubeTrailer =
+                                        state.trailers.firstWhere(
+                                      (v) =>
+                                          v.site.toLowerCase() == 'youtube' &&
+                                          (v.type.toLowerCase() == 'trailer' ||
+                                              v.type.toLowerCase() == 'teaser'),
+                                      orElse: () => state.trailers.first,
+                                    );
+                                    if (youtubeTrailer.key.isNotEmpty) {
+                                      trailerKey = youtubeTrailer.key;
+                                    }
+                                  }
+
+                                  if (trailerKey != null &&
+                                      trailerKey.isNotEmpty) {
+                                    TrailerPlayerDialog.show(
+                                      context,
+                                      youtubeKey: trailerKey,
+                                      title: currentMovie.tenPhim,
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: AppColors.darkSurface,
+                                        content: Text(
+                                          'Không tìm thấy trailer cho phim này',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  }
                                 },
                                 icon: const Icon(
                                   Icons.play_arrow,
@@ -323,7 +348,7 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                   size: 24,
                                 ),
                                 label: const Text(
-                                  'Xem Ngay',
+                                  'Xem Trailer',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,

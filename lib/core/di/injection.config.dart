@@ -37,6 +37,8 @@ import '../../features/home/domain/usecases/get_movie_credits_usecase.dart'
     as _i288;
 import '../../features/home/domain/usecases/get_movie_detail_usecase.dart'
     as _i978;
+import '../../features/home/domain/usecases/get_movie_trailers_usecase.dart'
+    as _i989;
 import '../../features/home/domain/usecases/get_now_playing_movies_usecase.dart'
     as _i233;
 import '../../features/home/domain/usecases/get_popular_movies_usecase.dart'
@@ -93,6 +95,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i288.GetMovieCreditsUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i978.GetMovieDetailUseCase>(
         () => _i978.GetMovieDetailUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i989.GetMovieTrailersUseCase>(
+        () => _i989.GetMovieTrailersUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i233.GetNowPlayingMoviesUseCase>(
         () => _i233.GetNowPlayingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i560.GetPopularMoviesUseCase>(
@@ -103,15 +107,16 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i858.GetTrendingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i749.GetUpcomingMoviesUseCase>(
         () => _i749.GetUpcomingMoviesUseCase(gh<_i1023.MovieRepository>()));
-    gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
-          gh<_i978.GetMovieDetailUseCase>(),
-          gh<_i288.GetMovieCreditsUseCase>(),
-        ));
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
           gh<_i188.LoginUseCase>(),
           gh<_i941.RegisterUseCase>(),
           gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
+        ));
+    gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
+          gh<_i978.GetMovieDetailUseCase>(),
+          gh<_i288.GetMovieCreditsUseCase>(),
+          gh<_i989.GetMovieTrailersUseCase>(),
         ));
     gh.factory<_i311.CategoryBloc>(() => _i311.CategoryBloc(
           gh<_i858.GetTrendingMoviesUseCase>(),

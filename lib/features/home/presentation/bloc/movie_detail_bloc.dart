@@ -5,8 +5,10 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/errors/failure.dart';
 import '../../domain/entities/cast.dart';
+import '../../domain/entities/video.dart';
 import '../../domain/usecases/get_movie_credits_usecase.dart';
 import '../../domain/usecases/get_movie_detail_usecase.dart';
+import '../../domain/usecases/get_movie_trailers_usecase.dart';
 import '../../models/movie.dart';
 
 // Events
@@ -48,21 +50,28 @@ class MovieDetailLoadingState extends MovieDetailState {
 class MovieDetailLoadedState extends MovieDetailState {
   final Movie movie;
   final List<Cast> castList;
+  final List<Video> trailers;
 
-  const MovieDetailLoadedState(this.movie, {this.castList = const []});
+  const MovieDetailLoadedState(
+    this.movie, {
+    this.castList = const [],
+    this.trailers = const [],
+  });
 
   MovieDetailLoadedState copyWith({
     Movie? movie,
     List<Cast>? castList,
+    List<Video>? trailers,
   }) {
     return MovieDetailLoadedState(
       movie ?? this.movie,
       castList: castList ?? this.castList,
+      trailers: trailers ?? this.trailers,
     );
   }
 
   @override
-  List<Object?> get props => [movie, castList];
+  List<Object?> get props => [movie, castList, trailers];
 }
 
 class MovieDetailErrorState extends MovieDetailState {
@@ -79,10 +88,12 @@ class MovieDetailErrorState extends MovieDetailState {
 class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
   final GetMovieDetailUseCase getMovieDetailUseCase;
   final GetMovieCreditsUseCase getMovieCreditsUseCase;
+  final GetMovieTrailersUseCase getMovieTrailersUseCase;
 
   MovieDetailBloc(
     this.getMovieDetailUseCase,
     this.getMovieCreditsUseCase,
+    this.getMovieTrailersUseCase,
   ) : super(MovieDetailInitialState()) {
     on<FetchMovieDetailEvent>(_onFetchMovieDetail);
     on<ToggleFavoriteMovieEvent>(_onToggleFavorite);
@@ -99,10 +110,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
 
     final detailFuture = getMovieDetailUseCase(event.movieId);
     final creditsFuture = getMovieCreditsUseCase(event.movieId);
+    final trailersFuture = getMovieTrailersUseCase(event.movieId);
 
-    final results = await Future.wait([detailFuture, creditsFuture]);
+    final results =
+        await Future.wait([detailFuture, creditsFuture, trailersFuture]);
     final detailResult = results[0] as Either<Failure, Movie>;
     final creditsResult = results[1] as Either<Failure, List<Cast>>;
+    final trailersResult = results[2] as Either<Failure, List<Video>>;
 
     Movie movie = event.initialMovie ??
         Movie(
@@ -124,8 +138,18 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
       (fetchedCast) => castList = fetchedCast,
     );
 
+    List<Video> trailers = [];
+    trailersResult.fold(
+      (failure) {},
+      (fetchedTrailers) => trailers = fetchedTrailers,
+    );
+
     if (movie.tenPhim.isNotEmpty || event.initialMovie != null) {
-      emit(MovieDetailLoadedState(movie, castList: castList));
+      emit(MovieDetailLoadedState(
+        movie,
+        castList: castList,
+        trailers: trailers,
+      ));
     } else {
       emit(MovieDetailErrorState(
         'Lỗi lấy chi tiết phim',
