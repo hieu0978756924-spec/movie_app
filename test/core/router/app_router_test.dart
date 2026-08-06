@@ -21,6 +21,7 @@ void main() {
       expect(RouteName.register, equals('register'));
       expect(RouteName.forgotPassword, equals('forgotPassword'));
       expect(RouteName.home, equals('home'));
+      expect(RouteName.category, equals('category'));
       expect(RouteName.movieDetail, equals('movieDetail'));
       expect(RouteName.search, equals('search'));
       expect(RouteName.watchlist, equals('watchlist'));
@@ -33,12 +34,14 @@ void main() {
       expect(RoutePath.register, equals('/register'));
       expect(RoutePath.forgotPassword, equals('/forgot-password'));
       expect(RoutePath.home, equals('/'));
+      expect(RoutePath.category, equals('/category/:type'));
       expect(RoutePath.movieDetail, equals('/movie/:id'));
       expect(RoutePath.search, equals('/search'));
       expect(RoutePath.watchlist, equals('/watchlist'));
       expect(RoutePath.profile, equals('/profile'));
 
       expect(RoutePath.movieDetailPath('456'), equals('/movie/456'));
+      expect(RoutePath.categoryPath('popular'), equals('/category/popular'));
     });
   });
 
@@ -63,16 +66,27 @@ void main() {
     });
 
     test('AppRouter contains all expected routes', () {
-      final routes = AppRouter.router.configuration.routes
-          .whereType<GoRoute>()
-          .map((r) => r.path)
-          .toList();
+      final routes = <String>[];
+      for (final r in AppRouter.router.configuration.routes) {
+        if (r is GoRoute) {
+          routes.add(r.path);
+        } else if (r is StatefulShellRoute) {
+          for (final branch in r.branches) {
+            for (final subRoute in branch.routes) {
+              if (subRoute is GoRoute) {
+                routes.add(subRoute.path);
+              }
+            }
+          }
+        }
+      }
 
       expect(routes, contains(RoutePath.splash));
       expect(routes, contains(RoutePath.login));
       expect(routes, contains(RoutePath.register));
       expect(routes, contains(RoutePath.forgotPassword));
       expect(routes, contains(RoutePath.home));
+      expect(routes, contains(RoutePath.category));
       expect(routes, contains(RoutePath.movieDetail));
       expect(routes, contains(RoutePath.search));
       expect(routes, contains(RoutePath.watchlist));

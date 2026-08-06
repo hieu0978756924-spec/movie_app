@@ -9,6 +9,7 @@ import '../../features/favorite/views/favorite_view.dart';
 import '../../features/home/models/movie.dart';
 import '../../features/home/views/category_view.dart';
 import '../../features/home/views/home_view.dart';
+import '../../features/home/views/main_layout_view.dart';
 import '../../features/home/views/movie_detail_view.dart';
 import '../../features/profile/views/profile_view.dart';
 import '../../features/search/views/search_view.dart';
@@ -56,10 +57,48 @@ class AppRouter {
         name: RouteName.forgotPassword,
         builder: (context, state) => const ForgotPasswordView(),
       ),
-      GoRoute(
-        path: RoutePath.home,
-        name: RouteName.home,
-        builder: (context, state) => const HomeView(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainLayoutView(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePath.home,
+                name: RouteName.home,
+                builder: (context, state) => const HomeView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePath.search,
+                name: RouteName.search,
+                builder: (context, state) => const SearchView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePath.watchlist,
+                name: RouteName.watchlist,
+                builder: (context, state) => const FavoriteView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePath.profile,
+                name: RouteName.profile,
+                builder: (context, state) => const ProfileView(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: RoutePath.category,
@@ -90,21 +129,6 @@ class AppRouter {
           );
           return MovieDetailView(movie: fallbackMovie);
         },
-      ),
-      GoRoute(
-        path: RoutePath.search,
-        name: RouteName.search,
-        builder: (context, state) => const SearchView(),
-      ),
-      GoRoute(
-        path: RoutePath.watchlist,
-        name: RouteName.watchlist,
-        builder: (context, state) => const FavoriteView(),
-      ),
-      GoRoute(
-        path: RoutePath.profile,
-        name: RouteName.profile,
-        builder: (context, state) => const ProfileView(),
       ),
     ],
     redirect: (context, state) {

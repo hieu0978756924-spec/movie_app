@@ -158,33 +158,6 @@ class HomeView extends StatelessWidget {
                 },
               ),
             ),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: 0,
-              selectedItemColor: AppColors.primaryRed,
-              unselectedItemColor: Colors.white54,
-              backgroundColor: AppColors.darkSurface,
-              onTap: (index) {
-                if (index == 1) {
-                  context.push(RoutePath.watchlist);
-                } else if (index == 2) {
-                  context.push(RoutePath.profile);
-                }
-              },
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: "Trang chủ",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite),
-                  label: "Yêu thích",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: "Cá nhân",
-                ),
-              ],
-            ),
           );
         },
       ),
