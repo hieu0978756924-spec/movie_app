@@ -118,18 +118,34 @@ class HomeView extends StatelessWidget {
                             MovieSectionWidget(
                               title: 'Phim Đang Chiếu',
                               movies: state.nowPlayingMovies,
+                              onSeeAll: () {
+                                context.push(
+                                    RoutePath.categoryPath('now_playing'));
+                              },
                             ),
                             MovieSectionWidget(
                               title: 'Phim Phổ Biến',
                               movies: state.popularMovies,
+                              onSeeAll: () {
+                                context
+                                    .push(RoutePath.categoryPath('popular'));
+                              },
                             ),
                             MovieSectionWidget(
                               title: 'Phim Đánh Giá Cao',
                               movies: state.topRatedMovies,
+                              onSeeAll: () {
+                                context
+                                    .push(RoutePath.categoryPath('top_rated'));
+                              },
                             ),
                             MovieSectionWidget(
                               title: 'Phim Sắp Chiếu',
                               movies: state.upcomingMovies,
+                              onSeeAll: () {
+                                context
+                                    .push(RoutePath.categoryPath('upcoming'));
+                              },
                             ),
                             const SizedBox(height: 20),
                           ],

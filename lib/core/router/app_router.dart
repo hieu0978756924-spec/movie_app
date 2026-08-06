@@ -7,6 +7,7 @@ import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
 import '../../features/favorite/views/favorite_view.dart';
 import '../../features/home/models/movie.dart';
+import '../../features/home/views/category_view.dart';
 import '../../features/home/views/home_view.dart';
 import '../../features/home/views/movie_detail_view.dart';
 import '../../features/profile/views/profile_view.dart';
@@ -59,6 +60,14 @@ class AppRouter {
         path: RoutePath.home,
         name: RouteName.home,
         builder: (context, state) => const HomeView(),
+      ),
+      GoRoute(
+        path: RoutePath.category,
+        name: RouteName.category,
+        builder: (context, state) {
+          final categoryType = state.pathParameters['type'] ?? 'popular';
+          return CategoryView(categoryType: categoryType);
+        },
       ),
       GoRoute(
         path: RoutePath.movieDetail,
