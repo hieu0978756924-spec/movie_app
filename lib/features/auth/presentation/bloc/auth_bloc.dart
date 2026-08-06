@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/reset_password_usecase.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -21,6 +23,21 @@ class LoginSubmittedEvent extends AuthEvent {
   const LoginSubmittedEvent(this.email, this.password);
   @override
   List<Object?> get props => [email, password];
+}
+
+class RegisterSubmittedEvent extends AuthEvent {
+  final String email;
+  final String password;
+  const RegisterSubmittedEvent(this.email, this.password);
+  @override
+  List<Object?> get props => [email, password];
+}
+
+class ResetPasswordSubmittedEvent extends AuthEvent {
+  final String email;
+  const ResetPasswordSubmittedEvent(this.email);
+  @override
+  List<Object?> get props => [email];
 }
 
 // States
@@ -43,6 +60,14 @@ class AuthenticatedState extends AuthState {
 
 class UnauthenticatedState extends AuthState {}
 
+class ResetPasswordSuccessState extends AuthState {
+  final String message;
+  const ResetPasswordSuccessState(
+      [this.message = 'Vui lòng kiểm tra email của bạn để đặt lại mật khẩu']);
+  @override
+  List<Object?> get props => [message];
+}
+
 class AuthErrorState extends AuthState {
   final String message;
   const AuthErrorState(this.message);
@@ -53,14 +78,20 @@ class AuthErrorState extends AuthState {
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final ResetPasswordUseCase resetPasswordUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
 
   AuthBloc(
     this.loginUseCase,
+    this.registerUseCase,
+    this.resetPasswordUseCase,
     this.getCurrentUserUseCase,
   ) : super(AuthInitialState()) {
     on<CheckAuthEvent>(_onCheckAuth);
     on<LoginSubmittedEvent>(_onLoginSubmitted);
+    on<RegisterSubmittedEvent>(_onRegisterSubmitted);
+    on<ResetPasswordSubmittedEvent>(_onResetPasswordSubmitted);
   }
 
   void _onCheckAuth(CheckAuthEvent event, Emitter<AuthState> emit) {
@@ -87,4 +118,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
     );
   }
+
+  Future<void> _onRegisterSubmitted(
+      RegisterSubmittedEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoadingState());
+    final result = await registerUseCase(event.email, event.password);
+    result.fold(
+      (failure) => emit(AuthErrorState(failure.message)),
+      (response) {
+        if (response.user != null) {
+          emit(AuthenticatedState(response.user!));
+        } else {
+          emit(const AuthErrorState(
+              'Đăng ký thành công. Vui lòng kiểm tra email để xác thực.'));
+        }
+      },
+    );
+  }
+
+  Future<void> _onResetPasswordSubmitted(
+      ResetPasswordSubmittedEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoadingState());
+    final result = await resetPasswordUseCase(event.email);
+    result.fold(
+      (failure) => emit(AuthErrorState(failure.message)),
+      (_) => emit(const ResetPasswordSuccessState()),
+    );
+  }
 }
+

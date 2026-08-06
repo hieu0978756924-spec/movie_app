@@ -23,6 +23,9 @@ import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart'
     as _i17;
 import '../../features/auth/domain/usecases/login_usecase.dart' as _i188;
+import '../../features/auth/domain/usecases/register_usecase.dart' as _i941;
+import '../../features/auth/domain/usecases/reset_password_usecase.dart'
+    as _i474;
 import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
 import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
@@ -55,8 +58,14 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i17.GetCurrentUserUseCase(gh<_i787.AuthRepository>()));
     gh.lazySingleton<_i188.LoginUseCase>(
         () => _i188.LoginUseCase(gh<_i787.AuthRepository>()));
+    gh.lazySingleton<_i941.RegisterUseCase>(
+        () => _i941.RegisterUseCase(gh<_i787.AuthRepository>()));
+    gh.lazySingleton<_i474.ResetPasswordUseCase>(
+        () => _i474.ResetPasswordUseCase(gh<_i787.AuthRepository>()));
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
           gh<_i188.LoginUseCase>(),
+          gh<_i941.RegisterUseCase>(),
+          gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
         ));
     return this;

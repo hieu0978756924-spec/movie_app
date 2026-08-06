@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'route_names.dart';
+import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
 import '../../features/favorite/views/favorite_view.dart';
@@ -48,6 +49,11 @@ class AppRouter {
         path: RoutePath.register,
         name: RouteName.register,
         builder: (context, state) => const RegisterView(),
+      ),
+      GoRoute(
+        path: RoutePath.forgotPassword,
+        name: RouteName.forgotPassword,
+        builder: (context, state) => const ForgotPasswordView(),
       ),
       GoRoute(
         path: RoutePath.home,
@@ -97,7 +103,8 @@ class AppRouter {
       final matchedLocation = state.matchedLocation;
 
       final isAuthRoute = matchedLocation == RoutePath.login ||
-          matchedLocation == RoutePath.register;
+          matchedLocation == RoutePath.register ||
+          matchedLocation == RoutePath.forgotPassword;
       final isSplashRoute = matchedLocation == RoutePath.splash;
 
       if (!loggedIn) {

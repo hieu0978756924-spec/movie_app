@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:movie_app/core/di/injection.dart';
 import 'package:movie_app/core/router/app_router.dart';
 import 'package:movie_app/core/router/route_names.dart';
+import 'package:movie_app/features/auth/presentation/bloc/auth_bloc.dart';
+
+class MockAuthBloc extends Mock implements AuthBloc {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late MockAuthBloc mockAuthBloc;
+
   group('RouteNames & RoutePaths Tests', () {
     test('RouteName constants are non-empty and unique', () {
       expect(RouteName.splash, equals('splash'));
       expect(RouteName.login, equals('login'));
       expect(RouteName.register, equals('register'));
+      expect(RouteName.forgotPassword, equals('forgotPassword'));
       expect(RouteName.home, equals('home'));
       expect(RouteName.movieDetail, equals('movieDetail'));
       expect(RouteName.search, equals('search'));
@@ -21,6 +31,7 @@ void main() {
       expect(RoutePath.splash, equals('/splash'));
       expect(RoutePath.login, equals('/login'));
       expect(RoutePath.register, equals('/register'));
+      expect(RoutePath.forgotPassword, equals('/forgot-password'));
       expect(RoutePath.home, equals('/'));
       expect(RoutePath.movieDetail, equals('/movie/:id'));
       expect(RoutePath.search, equals('/search'));
@@ -32,6 +43,21 @@ void main() {
   });
 
   group('AppRouter Configuration & Redirect Tests', () {
+    setUp(() async {
+      await GetIt.instance.reset();
+      configureDependencies();
+      mockAuthBloc = MockAuthBloc();
+
+      when(() => mockAuthBloc.state).thenReturn(AuthInitialState());
+      when(() => mockAuthBloc.stream).thenAnswer((_) => const Stream.empty());
+      when(() => mockAuthBloc.close()).thenAnswer((_) async {});
+
+      if (getIt.isRegistered<AuthBloc>()) {
+        getIt.unregister<AuthBloc>();
+      }
+      getIt.registerFactory<AuthBloc>(() => mockAuthBloc);
+    });
+
     tearDown(() {
       AppRouter.setAuthCheckOverride(null);
     });
@@ -45,6 +71,7 @@ void main() {
       expect(routes, contains(RoutePath.splash));
       expect(routes, contains(RoutePath.login));
       expect(routes, contains(RoutePath.register));
+      expect(routes, contains(RoutePath.forgotPassword));
       expect(routes, contains(RoutePath.home));
       expect(routes, contains(RoutePath.movieDetail));
       expect(routes, contains(RoutePath.search));
@@ -52,7 +79,8 @@ void main() {
       expect(routes, contains(RoutePath.profile));
     });
 
-    testWidgets('Unauthenticated user navigating to protected route is redirected to /login',
+    testWidgets(
+        'Unauthenticated user navigating to protected route is redirected to /login',
         (tester) async {
       AppRouter.setAuthCheckOverride(() => false);
 
