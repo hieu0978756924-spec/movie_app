@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
+import '../models/credits_response_model.dart';
 import '../models/movie_detail_model.dart';
 import '../models/movie_response_model.dart';
 
@@ -11,6 +12,7 @@ abstract class MovieRemoteDataSource {
   Future<MovieResponseModel> getTopRatedMovies({int page = 1});
   Future<MovieResponseModel> getUpcomingMovies({int page = 1});
   Future<MovieDetailModel> getMovieDetail(int movieId);
+  Future<CreditsResponseModel> getMovieCredits(int movieId);
 }
 
 @LazySingleton(as: MovieRemoteDataSource)
@@ -68,5 +70,11 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   Future<MovieDetailModel> getMovieDetail(int movieId) async {
     final response = await dio.get('/movie/$movieId');
     return MovieDetailModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<CreditsResponseModel> getMovieCredits(int movieId) async {
+    final response = await dio.get('/movie/$movieId/credits');
+    return CreditsResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

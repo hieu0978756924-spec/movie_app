@@ -1,7 +1,11 @@
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/errors/failure.dart';
+import '../../domain/entities/cast.dart';
+import '../../domain/usecases/get_movie_credits_usecase.dart';
 import '../../domain/usecases/get_movie_detail_usecase.dart';
 import '../../models/movie.dart';
 
@@ -43,14 +47,22 @@ class MovieDetailLoadingState extends MovieDetailState {
 
 class MovieDetailLoadedState extends MovieDetailState {
   final Movie movie;
-  const MovieDetailLoadedState(this.movie);
+  final List<Cast> castList;
 
-  MovieDetailLoadedState copyWith({Movie? movie}) {
-    return MovieDetailLoadedState(movie ?? this.movie);
+  const MovieDetailLoadedState(this.movie, {this.castList = const []});
+
+  MovieDetailLoadedState copyWith({
+    Movie? movie,
+    List<Cast>? castList,
+  }) {
+    return MovieDetailLoadedState(
+      movie ?? this.movie,
+      castList: castList ?? this.castList,
+    );
   }
 
   @override
-  List<Object?> get props => [movie];
+  List<Object?> get props => [movie, castList];
 }
 
 class MovieDetailErrorState extends MovieDetailState {
@@ -66,9 +78,12 @@ class MovieDetailErrorState extends MovieDetailState {
 @injectable
 class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
   final GetMovieDetailUseCase getMovieDetailUseCase;
+  final GetMovieCreditsUseCase getMovieCreditsUseCase;
 
-  MovieDetailBloc(this.getMovieDetailUseCase)
-      : super(MovieDetailInitialState()) {
+  MovieDetailBloc(
+    this.getMovieDetailUseCase,
+    this.getMovieCreditsUseCase,
+  ) : super(MovieDetailInitialState()) {
     on<FetchMovieDetailEvent>(_onFetchMovieDetail);
     on<ToggleFavoriteMovieEvent>(_onToggleFavorite);
   }
@@ -82,27 +97,51 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
       return;
     }
 
-    final result = await getMovieDetailUseCase(event.movieId);
-    result.fold(
-      (failure) {
-        if (event.initialMovie != null) {
-          emit(MovieDetailLoadedState(event.initialMovie!));
-        } else {
-          emit(MovieDetailErrorState(failure.message,
-              initialMovie: event.initialMovie));
-        }
-      },
-      (movie) => emit(MovieDetailLoadedState(movie)),
+    final detailFuture = getMovieDetailUseCase(event.movieId);
+    final creditsFuture = getMovieCreditsUseCase(event.movieId);
+
+    final results = await Future.wait([detailFuture, creditsFuture]);
+    final detailResult = results[0] as Either<Failure, Movie>;
+    final creditsResult = results[1] as Either<Failure, List<Cast>>;
+
+    Movie movie = event.initialMovie ??
+        Movie(
+          id: event.movieId,
+          tenPhim: '',
+          hinhAnh: '',
+          moTa: '',
+          diemDanhGia: 0,
+        );
+
+    detailResult.fold(
+      (failure) {},
+      (fetchedMovie) => movie = fetchedMovie,
     );
+
+    List<Cast> castList = [];
+    creditsResult.fold(
+      (failure) {},
+      (fetchedCast) => castList = fetchedCast,
+    );
+
+    if (movie.tenPhim.isNotEmpty || event.initialMovie != null) {
+      emit(MovieDetailLoadedState(movie, castList: castList));
+    } else {
+      emit(MovieDetailErrorState(
+        'Lỗi lấy chi tiết phim',
+        initialMovie: event.initialMovie,
+      ));
+    }
   }
 
   void _onToggleFavorite(
       ToggleFavoriteMovieEvent event, Emitter<MovieDetailState> emit) {
     if (state is MovieDetailLoadedState) {
-      final currentMovie = (state as MovieDetailLoadedState).movie;
+      final currentState = state as MovieDetailLoadedState;
       final updatedMovie =
-          currentMovie.copyWith(yeuThich: !currentMovie.yeuThich);
-      emit(MovieDetailLoadedState(updatedMovie));
+          currentState.movie.copyWith(yeuThich: !currentState.movie.yeuThich);
+      emit(currentState.copyWith(movie: updatedMovie));
     }
   }
 }
+

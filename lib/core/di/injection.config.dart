@@ -33,6 +33,8 @@ import '../../features/home/data/repositories/movie_repository_impl.dart'
     as _i449;
 import '../../features/home/domain/repositories/movie_repository.dart'
     as _i1023;
+import '../../features/home/domain/usecases/get_movie_credits_usecase.dart'
+    as _i288;
 import '../../features/home/domain/usecases/get_movie_detail_usecase.dart'
     as _i978;
 import '../../features/home/domain/usecases/get_now_playing_movies_usecase.dart'
@@ -87,6 +89,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i941.RegisterUseCase(gh<_i787.AuthRepository>()));
     gh.lazySingleton<_i474.ResetPasswordUseCase>(
         () => _i474.ResetPasswordUseCase(gh<_i787.AuthRepository>()));
+    gh.lazySingleton<_i288.GetMovieCreditsUseCase>(
+        () => _i288.GetMovieCreditsUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i978.GetMovieDetailUseCase>(
         () => _i978.GetMovieDetailUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i233.GetNowPlayingMoviesUseCase>(
@@ -99,8 +103,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i858.GetTrendingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i749.GetUpcomingMoviesUseCase>(
         () => _i749.GetUpcomingMoviesUseCase(gh<_i1023.MovieRepository>()));
-    gh.factory<_i379.MovieDetailBloc>(
-        () => _i379.MovieDetailBloc(gh<_i978.GetMovieDetailUseCase>()));
+    gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
+          gh<_i978.GetMovieDetailUseCase>(),
+          gh<_i288.GetMovieCreditsUseCase>(),
+        ));
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
           gh<_i188.LoginUseCase>(),
           gh<_i941.RegisterUseCase>(),

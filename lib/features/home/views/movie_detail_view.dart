@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/image_url_helper.dart';
 import '../models/movie.dart';
 import '../presentation/bloc/movie_detail_bloc.dart';
+import '../presentation/widgets/cast_section_widget.dart';
 
 class MovieDetailView extends StatefulWidget {
   final Movie movie;
@@ -377,7 +378,11 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                   ),
                                 ),
                               ),
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 24),
+                            if (state is MovieDetailLoadedState) ...[
+                              CastSectionWidget(castList: state.castList),
+                            ],
+                            const SizedBox(height: 10),
                           ],
                         ),
                       ),

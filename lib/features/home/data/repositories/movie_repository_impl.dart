@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../domain/entities/cast.dart';
 import '../../domain/repositories/movie_repository.dart';
 import '../../models/movie.dart';
 import '../datasources/movie_remote_datasource.dart';
@@ -77,6 +78,17 @@ class MovieRepositoryImpl implements MovieRepository {
     try {
       final detailModel = await remoteDataSource.getMovieDetail(movieId);
       return Right(detailModel.toEntity());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Cast>>> getMovieCredits(int movieId) async {
+    try {
+      final response = await remoteDataSource.getMovieCredits(movieId);
+      final castList = response.cast.map((model) => model.toEntity()).toList();
+      return Right(castList);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
