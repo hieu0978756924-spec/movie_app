@@ -37,7 +37,44 @@ class _MovieDetailViewState extends State<MovieDetailView> {
         builder: (context) {
           return Scaffold(
             backgroundColor: AppColors.darkBackground,
-            body: BlocBuilder<MovieDetailBloc, MovieDetailState>(
+            body: BlocConsumer<MovieDetailBloc, MovieDetailState>(
+              listenWhen: (previous, current) {
+                if (previous is MovieDetailLoadedState &&
+                    current is MovieDetailLoadedState) {
+                  return previous.movie.yeuThich != current.movie.yeuThich;
+                }
+                return false;
+              },
+              listener: (context, state) {
+                if (state is MovieDetailLoadedState) {
+                  final isFav = state.movie.yeuThich;
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: AppColors.darkSurface,
+                      content: Row(
+                        children: [
+                          Icon(
+                            isFav ? Icons.favorite : Icons.favorite_border,
+                            color:
+                                isFav ? AppColors.primaryRed : Colors.white70,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              isFav
+                                  ? 'Đã thêm "${state.movie.tenPhim}" vào yêu thích'
+                                  : 'Đã xóa "${state.movie.tenPhim}" khỏi yêu thích',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
               builder: (context, state) {
                 Movie currentMovie = widget.movie;
                 if (state is MovieDetailLoadedState) {
