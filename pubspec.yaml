@@ -24,6 +24,7 @@ dependencies:
 
   # Networking & Backend
   dio: ^5.9.0
+  json_annotation: ^4.9.0
   supabase_flutter: ^2.9.0
 
   # Offline Storage

@@ -9,4 +9,5 @@ abstract class MovieRepository {
   Future<Either<Failure, List<Movie>>> getPopularMovies({int page = 1});
   Future<Either<Failure, List<Movie>>> getTopRatedMovies({int page = 1});
   Future<Either<Failure, List<Movie>>> getUpcomingMovies({int page = 1});
+  Future<Either<Failure, Movie>> getMovieDetail(int movieId);
 }
