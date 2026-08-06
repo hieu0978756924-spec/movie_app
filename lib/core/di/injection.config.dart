@@ -43,6 +43,7 @@ import '../../features/home/domain/usecases/get_trending_movies_usecase.dart'
     as _i858;
 import '../../features/home/domain/usecases/get_upcoming_movies_usecase.dart'
     as _i749;
+import '../../features/home/presentation/bloc/home_bloc.dart' as _i202;
 import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
 import '../router/router_module.dart' as _i948;
@@ -97,6 +98,13 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i941.RegisterUseCase>(),
           gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
+        ));
+    gh.factory<_i202.HomeBloc>(() => _i202.HomeBloc(
+          gh<_i858.GetTrendingMoviesUseCase>(),
+          gh<_i233.GetNowPlayingMoviesUseCase>(),
+          gh<_i560.GetPopularMoviesUseCase>(),
+          gh<_i639.GetTopRatedMoviesUseCase>(),
+          gh<_i749.GetUpcomingMoviesUseCase>(),
         ));
     return this;
   }

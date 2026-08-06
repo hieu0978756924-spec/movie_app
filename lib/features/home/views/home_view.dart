@@ -1,246 +1,176 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../favorite/views/favorite_view.dart';
-import '../../profile/views/profile_view.dart';
-import '../../search/views/search_view.dart';
-import '../controllers/home_controller.dart';
-import '../views/movie_detail_view.dart';
-import '../widgets/movie_card.dart';
+import '../../../core/di/injection.dart';
+import '../../../core/router/route_names.dart';
+import '../../../core/theme/app_colors.dart';
+import '../presentation/bloc/home_bloc.dart';
+import '../presentation/widgets/movie_section_widget.dart';
+import '../presentation/widgets/movie_skeleton_loader.dart';
+import '../presentation/widgets/trending_carousel_widget.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final HomeController controller = HomeController.instance;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(
-              Icons.movie_creation_rounded,
-              color: Colors.red,
-            ),
-            SizedBox(width: 8),
-            Text(
-              "Góc Phim",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
+    return BlocProvider<HomeBloc>(
+      create: (_) => getIt<HomeBloc>()..add(FetchHomeMoviesEvent()),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppColors.darkBackground,
+              elevation: 0,
+              title: const Row(
+                children: [
+                  Icon(
+                    Icons.movie_creation_rounded,
+                    color: AppColors.primaryRed,
+                    size: 28,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    "Góc Phim",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: AppColors.primaryRed,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SearchView(),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search, color: Colors.white),
+                  onPressed: () {
+                    context.push(RoutePath.search);
+                  },
                 ),
-              );
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-
-            //---------------- Banner ----------------
-
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.asset(
-                "assets/images/banner.jpg",
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+                IconButton(
+                  icon: const Icon(Icons.person_outline, color: Colors.white),
+                  onPressed: () {
+                    context.push(RoutePath.profile);
+                  },
+                ),
+              ],
             ),
+            body: SafeArea(
+              child: BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  if (state is HomeLoadingState) {
+                    return const MovieSkeletonLoader();
+                  }
 
-            const SizedBox(height: 25),
+                  if (state is HomeErrorState) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: AppColors.error,
+                            size: 60,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.message,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              context
+                                  .read<HomeBloc>()
+                                  .add(FetchHomeMoviesEvent());
+                            },
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Thử lại'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-            //---------------- Phim nổi bật ----------------
+                  if (state is HomeLoadedState) {
+                    return RefreshIndicator(
+                      color: AppColors.primaryRed,
+                      backgroundColor: AppColors.darkSurface,
+                      onRefresh: () async {
+                        context
+                            .read<HomeBloc>()
+                            .add(RefreshHomeMoviesEvent());
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 12),
+                            TrendingCarouselWidget(
+                              movies: state.trendingMovies,
+                            ),
+                            MovieSectionWidget(
+                              title: 'Phim Đang Chiếu',
+                              movies: state.nowPlayingMovies,
+                            ),
+                            MovieSectionWidget(
+                              title: 'Phim Phổ Biến',
+                              movies: state.popularMovies,
+                            ),
+                            MovieSectionWidget(
+                              title: 'Phim Đánh Giá Cao',
+                              movies: state.topRatedMovies,
+                            ),
+                            MovieSectionWidget(
+                              title: 'Phim Sắp Chiếu',
+                              movies: state.upcomingMovies,
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
 
-            const Text(
-              "Phim nổi bật",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            SizedBox(
-              height: 500,
-
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-
-                itemCount: controller.danhSachPhim.length,
-
-                itemBuilder: (context, index) {
-                  return MovieCard(
-                    movie: controller.danhSachPhim[index],
-                  );
+                  return const SizedBox.shrink();
                 },
               ),
             ),
-
-            const SizedBox(height: 30),
-
-            //---------------- Thể loại ----------------
-
-            const Text(
-              "Thể loại",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            const Wrap(
-              spacing: 10,
-              runSpacing: 10,
-
-              children: [
-
-                Chip(label: Text("Hành động")),
-                Chip(label: Text("Marvel")),
-                Chip(label: Text("Tình cảm")),
-                Chip(label: Text("Hoạt hình")),
-                Chip(label: Text("Gia đình")),
-                Chip(label: Text("Tâm lý")),
-
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: 0,
+              selectedItemColor: AppColors.primaryRed,
+              unselectedItemColor: Colors.white54,
+              backgroundColor: AppColors.darkSurface,
+              onTap: (index) {
+                if (index == 1) {
+                  context.push(RoutePath.watchlist);
+                } else if (index == 2) {
+                  context.push(RoutePath.profile);
+                }
+              },
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: "Trang chủ",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: "Yêu thích",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: "Cá nhân",
+                ),
               ],
             ),
-
-            const SizedBox(height: 30),
-
-            //---------------- Mới cập nhật ----------------
-
-            const Text(
-              "Mới cập nhật",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-
-              itemCount: controller.danhSachPhim.length,
-
-              itemBuilder: (context, index) {
-
-                final movie = controller.danhSachPhim[index];
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 15),
-
-                  child: ListTile(
-
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-
-                      child: Image.asset(
-                        movie.hinhAnh,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-
-                    title: Text(movie.tenPhim),
-
-                    subtitle: Text(movie.theLoai),
-
-                    trailing: const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 18,
-                    ),
-
-                    onTap: () {
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MovieDetailView(
-                            movie: movie,
-                          ),
-                        ),
-                      );
-
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-
-        onTap: (index) {
-
-          if (index == 1) {
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const FavoriteView(),
-              ),
-            );
-
-          }
-
-          if (index == 2) {
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ProfileView(),
-              ),
-            );
-
-          }
-
+          );
         },
-
-        items: const [
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Trang chủ",
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: "Yêu thích",
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Cá nhân",
-          ),
-        ],
       ),
     );
   }
