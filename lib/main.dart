@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/supabase_constants.dart';
 import 'core/di/injection.dart';
+import 'core/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,15 +25,11 @@ class MovieApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Góc Phim',
       theme: ThemeData.dark(),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Góc Phim App Initialized'),
-        ),
-      ),
+      routerConfig: AppRouter.router,
     );
   }
-}
+}

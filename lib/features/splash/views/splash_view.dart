@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:movie_app/features/auth/views/login_view.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/route_names.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -11,21 +13,26 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
 
-    Timer(
+    _timer = Timer(
       const Duration(seconds: 2),
       () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LoginView(),
-          ),
-        );
+        if (mounted) {
+          context.go(RoutePath.home);
+        }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
