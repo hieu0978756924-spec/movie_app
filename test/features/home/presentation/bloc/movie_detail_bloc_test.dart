@@ -6,6 +6,7 @@ import 'package:movie_app/features/home/domain/entities/video.dart';
 import 'package:movie_app/features/home/domain/usecases/get_movie_credits_usecase.dart';
 import 'package:movie_app/features/home/domain/usecases/get_movie_detail_usecase.dart';
 import 'package:movie_app/features/home/domain/usecases/get_movie_trailers_usecase.dart';
+import 'package:movie_app/features/home/domain/usecases/get_similar_movies_usecase.dart';
 import 'package:movie_app/features/home/models/movie.dart';
 import 'package:movie_app/features/home/presentation/bloc/movie_detail_bloc.dart';
 
@@ -18,20 +19,26 @@ class MockGetMovieCreditsUseCase extends Mock
 class MockGetMovieTrailersUseCase extends Mock
     implements GetMovieTrailersUseCase {}
 
+class MockGetSimilarMoviesUseCase extends Mock
+    implements GetSimilarMoviesUseCase {}
+
 void main() {
   late MockGetMovieDetailUseCase mockGetMovieDetail;
   late MockGetMovieCreditsUseCase mockGetMovieCredits;
   late MockGetMovieTrailersUseCase mockGetMovieTrailers;
+  late MockGetSimilarMoviesUseCase mockGetSimilarMovies;
   late MovieDetailBloc movieDetailBloc;
 
   setUp(() {
     mockGetMovieDetail = MockGetMovieDetailUseCase();
     mockGetMovieCredits = MockGetMovieCreditsUseCase();
     mockGetMovieTrailers = MockGetMovieTrailersUseCase();
+    mockGetSimilarMovies = MockGetSimilarMoviesUseCase();
     movieDetailBloc = MovieDetailBloc(
       mockGetMovieDetail,
       mockGetMovieCredits,
       mockGetMovieTrailers,
+      mockGetSimilarMovies,
     );
   });
 
@@ -65,6 +72,14 @@ void main() {
     official: true,
   );
 
+  final tSimilarMovie = Movie(
+    id: 456,
+    tenPhim: 'Similar Movie',
+    hinhAnh: '/similar.jpg',
+    moTa: 'Overview',
+    diemDanhGia: 8.0,
+  );
+
   group('MovieDetailBloc Tests', () {
     test('initial state should be MovieDetailInitialState', () {
       expect(movieDetailBloc.state, equals(MovieDetailInitialState()));
@@ -79,6 +94,8 @@ void main() {
           .thenAnswer((_) async => const Right([tCast]));
       when(() => mockGetMovieTrailers(123))
           .thenAnswer((_) async => const Right([tVideo]));
+      when(() => mockGetSimilarMovies(123))
+          .thenAnswer((_) async => Right([tSimilarMovie]));
 
       final expectedStates = [
         MovieDetailLoadingState(initialMovie: tMovie),
@@ -86,6 +103,7 @@ void main() {
           tMovie,
           castList: const [tCast],
           trailers: const [tVideo],
+          similarMovies: [tSimilarMovie],
         ),
       ];
 
@@ -101,6 +119,8 @@ void main() {
           .thenAnswer((_) async => const Right([tCast]));
       when(() => mockGetMovieTrailers(123))
           .thenAnswer((_) async => const Right([tVideo]));
+      when(() => mockGetSimilarMovies(123))
+          .thenAnswer((_) async => Right([tSimilarMovie]));
 
       movieDetailBloc.add(FetchMovieDetailEvent(123, initialMovie: tMovie));
       await untilCalled(() => mockGetMovieDetail(123));

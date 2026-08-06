@@ -8,6 +8,7 @@ import '../../../core/utils/image_url_helper.dart';
 import '../models/movie.dart';
 import '../presentation/bloc/movie_detail_bloc.dart';
 import '../presentation/widgets/cast_section_widget.dart';
+import '../presentation/widgets/movie_section_widget.dart';
 import '../presentation/widgets/trailer_player_dialog.dart';
 
 class MovieDetailView extends StatefulWidget {
@@ -443,6 +444,13 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                             const SizedBox(height: 24),
                             if (state is MovieDetailLoadedState) ...[
                               CastSectionWidget(castList: state.castList),
+                              if (state.similarMovies.isNotEmpty) ...[
+                                const SizedBox(height: 16),
+                                MovieSectionWidget(
+                                  title: 'Phim Tương Tự',
+                                  movies: state.similarMovies,
+                                ),
+                              ],
                             ],
                             const SizedBox(height: 10),
                           ],

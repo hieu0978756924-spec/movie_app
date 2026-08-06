@@ -15,6 +15,7 @@ abstract class MovieRemoteDataSource {
   Future<MovieDetailModel> getMovieDetail(int movieId);
   Future<CreditsResponseModel> getMovieCredits(int movieId);
   Future<VideoResponseModel> getMovieTrailers(int movieId);
+  Future<MovieResponseModel> getSimilarMovies(int movieId);
 }
 
 @LazySingleton(as: MovieRemoteDataSource)
@@ -84,5 +85,11 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   Future<VideoResponseModel> getMovieTrailers(int movieId) async {
     final response = await dio.get('/movie/$movieId/videos');
     return VideoResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<MovieResponseModel> getSimilarMovies(int movieId) async {
+    final response = await dio.get('/movie/$movieId/similar');
+    return MovieResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

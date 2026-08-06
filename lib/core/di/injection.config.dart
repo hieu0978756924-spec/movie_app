@@ -43,6 +43,8 @@ import '../../features/home/domain/usecases/get_now_playing_movies_usecase.dart'
     as _i233;
 import '../../features/home/domain/usecases/get_popular_movies_usecase.dart'
     as _i560;
+import '../../features/home/domain/usecases/get_similar_movies_usecase.dart'
+    as _i639;
 import '../../features/home/domain/usecases/get_top_rated_movies_usecase.dart'
     as _i639;
 import '../../features/home/domain/usecases/get_trending_movies_usecase.dart'
@@ -101,6 +103,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i233.GetNowPlayingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i560.GetPopularMoviesUseCase>(
         () => _i560.GetPopularMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i639.GetSimilarMoviesUseCase>(
+        () => _i639.GetSimilarMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i639.GetTopRatedMoviesUseCase>(
         () => _i639.GetTopRatedMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i858.GetTrendingMoviesUseCase>(
@@ -112,11 +116,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i941.RegisterUseCase>(),
           gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
-        ));
-    gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
-          gh<_i978.GetMovieDetailUseCase>(),
-          gh<_i288.GetMovieCreditsUseCase>(),
-          gh<_i989.GetMovieTrailersUseCase>(),
         ));
     gh.factory<_i311.CategoryBloc>(() => _i311.CategoryBloc(
           gh<_i858.GetTrendingMoviesUseCase>(),
@@ -131,6 +130,12 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i560.GetPopularMoviesUseCase>(),
           gh<_i639.GetTopRatedMoviesUseCase>(),
           gh<_i749.GetUpcomingMoviesUseCase>(),
+        ));
+    gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
+          gh<_i978.GetMovieDetailUseCase>(),
+          gh<_i288.GetMovieCreditsUseCase>(),
+          gh<_i989.GetMovieTrailersUseCase>(),
+          gh<_i639.GetSimilarMoviesUseCase>(),
         ));
     return this;
   }
