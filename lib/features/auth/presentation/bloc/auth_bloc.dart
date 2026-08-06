@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/register_usecase.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -19,6 +20,14 @@ class LoginSubmittedEvent extends AuthEvent {
   final String email;
   final String password;
   const LoginSubmittedEvent(this.email, this.password);
+  @override
+  List<Object?> get props => [email, password];
+}
+
+class RegisterSubmittedEvent extends AuthEvent {
+  final String email;
+  final String password;
+  const RegisterSubmittedEvent(this.email, this.password);
   @override
   List<Object?> get props => [email, password];
 }
@@ -53,14 +62,17 @@ class AuthErrorState extends AuthState {
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
 
   AuthBloc(
     this.loginUseCase,
+    this.registerUseCase,
     this.getCurrentUserUseCase,
   ) : super(AuthInitialState()) {
     on<CheckAuthEvent>(_onCheckAuth);
     on<LoginSubmittedEvent>(_onLoginSubmitted);
+    on<RegisterSubmittedEvent>(_onRegisterSubmitted);
   }
 
   void _onCheckAuth(CheckAuthEvent event, Emitter<AuthState> emit) {
@@ -87,4 +99,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
     );
   }
+
+  Future<void> _onRegisterSubmitted(
+      RegisterSubmittedEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoadingState());
+    final result = await registerUseCase(event.email, event.password);
+    result.fold(
+      (failure) => emit(AuthErrorState(failure.message)),
+      (response) {
+        if (response.user != null) {
+          emit(AuthenticatedState(response.user!));
+        } else {
+          emit(const AuthErrorState('Đăng ký thành công. Vui lòng kiểm tra email để xác thực.'));
+        }
+      },
+    );
+  }
 }
+
