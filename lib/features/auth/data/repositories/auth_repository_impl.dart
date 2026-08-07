@@ -17,6 +17,26 @@ class AuthRepositoryImpl implements AuthRepository {
     return remoteDataSource.getCurrentUser();
   }
 
+  String _mapErrorMessage(Object e) {
+    if (e is AuthException) {
+      if (e.code == 'invalid_credentials' ||
+          e.message.contains('Invalid login credentials')) {
+        return 'Email hoặc mật khẩu không chính xác.';
+      }
+      if (e.code == 'user_already_exists' ||
+          e.message.contains('User already registered') ||
+          e.message.contains('already exists')) {
+        return 'Email này đã được đăng ký tài khoản. Vui lòng chọn Đăng nhập.';
+      }
+      if (e.code == 'over_email_send_rate_limit' ||
+          e.message.toLowerCase().contains('rate limit exceeded')) {
+        return 'Đã vượt quá giới hạn gửi email của Supabase. Vui lòng chờ 1-2 phút hoặc bấm "Đăng nhập ngay" bên dưới.';
+      }
+      return e.message;
+    }
+    return e.toString();
+  }
+
   @override
   Future<Either<Failure, AuthResponse>> login(
       String email, String password) async {
@@ -24,7 +44,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await remoteDataSource.login(email, password);
       return Right(response);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(_mapErrorMessage(e)));
     }
   }
 
@@ -35,7 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await remoteDataSource.register(email, password);
       return Right(response);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(_mapErrorMessage(e)));
     }
   }
 
@@ -45,7 +65,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await remoteDataSource.resetPassword(email);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(_mapErrorMessage(e)));
     }
   }
 
@@ -55,7 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await remoteDataSource.logout();
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(_mapErrorMessage(e)));
     }
   }
 }

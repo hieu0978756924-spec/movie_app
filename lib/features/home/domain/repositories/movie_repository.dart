@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failure.dart';
 import '../../models/movie.dart';
 import '../entities/cast.dart';
+import '../entities/genre.dart';
 import '../entities/video.dart';
 
 abstract class MovieRepository {
@@ -17,4 +18,13 @@ abstract class MovieRepository {
   Future<Either<Failure, List<Movie>>> getSimilarMovies(int movieId);
   Future<Either<Failure, List<Movie>>> searchMovies(
       {required String query, int page = 1});
+  Future<Either<Failure, List<Genre>>> getGenres();
+  Future<Either<Failure, List<Movie>>> discoverMovies({
+    List<int>? withGenres,
+    int? primaryReleaseYearGte,
+    int? primaryReleaseYearLte,
+    double? minRating,
+    String? sortBy,
+    int page = 1,
+  });
 }

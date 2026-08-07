@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../domain/entities/movie_filter.dart';
+
 abstract class SearchEvent extends Equatable {
   const SearchEvent();
 
@@ -18,4 +20,21 @@ class SearchQueryChangedEvent extends SearchEvent {
 
 class ClearSearchEvent extends SearchEvent {
   const ClearSearchEvent();
+}
+
+class FetchGenresEvent extends SearchEvent {
+  const FetchGenresEvent();
+}
+
+class ApplyFilterEvent extends SearchEvent {
+  final MovieFilter filter;
+
+  const ApplyFilterEvent(this.filter);
+
+  @override
+  List<Object?> get props => [filter];
+}
+
+class ResetFilterEvent extends SearchEvent {
+  const ResetFilterEvent();
 }

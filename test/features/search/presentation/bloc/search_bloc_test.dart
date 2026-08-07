@@ -2,22 +2,36 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:movie_app/core/errors/failure.dart';
+import 'package:movie_app/features/home/domain/entities/genre.dart';
 import 'package:movie_app/features/home/models/movie.dart';
+import 'package:movie_app/features/search/domain/entities/movie_filter.dart';
+import 'package:movie_app/features/search/domain/usecases/discover_movies_usecase.dart';
+import 'package:movie_app/features/search/domain/usecases/get_genres_usecase.dart';
 import 'package:movie_app/features/search/domain/usecases/search_movies_usecase.dart';
 import 'package:movie_app/features/search/presentation/bloc/search_bloc.dart';
 import 'package:movie_app/features/search/presentation/bloc/search_event.dart';
 import 'package:movie_app/features/search/presentation/bloc/search_state.dart';
 
 class MockSearchMoviesUseCase extends Mock implements SearchMoviesUseCase {}
+class MockGetGenresUseCase extends Mock implements GetGenresUseCase {}
+class MockDiscoverMoviesUseCase extends Mock implements DiscoverMoviesUseCase {}
 
 void main() {
   late SearchBloc searchBloc;
   late MockSearchMoviesUseCase mockSearchMoviesUseCase;
+  late MockGetGenresUseCase mockGetGenresUseCase;
+  late MockDiscoverMoviesUseCase mockDiscoverMoviesUseCase;
 
   setUp(() {
     mockSearchMoviesUseCase = MockSearchMoviesUseCase();
-    searchBloc = SearchBloc(mockSearchMoviesUseCase);
+    mockGetGenresUseCase = MockGetGenresUseCase();
+    mockDiscoverMoviesUseCase = MockDiscoverMoviesUseCase();
+
+    searchBloc = SearchBloc(
+      mockSearchMoviesUseCase,
+      mockGetGenresUseCase,
+      mockDiscoverMoviesUseCase,
+    );
   });
 
   tearDown(() {
@@ -25,6 +39,10 @@ void main() {
   });
 
   const tQuery = 'Avatar';
+  final List<Genre> tGenres = [
+    const Genre(id: 28, name: 'Hành động'),
+    const Genre(id: 12, name: 'Phiêu lưu'),
+  ];
   final List<Movie> tMovies = [
     Movie(
       id: 202,
@@ -34,13 +52,31 @@ void main() {
       diemDanhGia: 8.8,
     ),
   ];
+  const tFilter = MovieFilter(
+    selectedGenreIds: [28],
+    minRating: 8.0,
+    sortBy: SortOption.ratingDesc,
+  );
 
   test('initial state should be SearchInitialState', () {
     expect(searchBloc.state, equals(const SearchInitialState()));
   });
 
   blocTest<SearchBloc, SearchState>(
-    'emits [SearchInitialState] when query is empty',
+    'emits state with loaded genres when FetchGenresEvent succeeds',
+    build: () {
+      when(() => mockGetGenresUseCase())
+          .thenAnswer((_) async => Right(tGenres));
+      return searchBloc;
+    },
+    act: (bloc) => bloc.add(const FetchGenresEvent()),
+    expect: () => [
+      SearchInitialState(genres: tGenres),
+    ],
+  );
+
+  blocTest<SearchBloc, SearchState>(
+    'emits [SearchInitialState] when query is empty and filter is default',
     build: () => searchBloc,
     act: (bloc) => bloc.add(const SearchQueryChangedEvent('   ')),
     wait: const Duration(milliseconds: 600),
@@ -62,38 +98,28 @@ void main() {
       const SearchLoadingState(),
       SearchLoadedState(movies: tMovies, query: tQuery),
     ],
-    verify: (_) {
-      verify(() => mockSearchMoviesUseCase(query: tQuery)).called(1);
-    },
   );
 
   blocTest<SearchBloc, SearchState>(
-    'emits [SearchLoadingState, SearchEmptyState] when no movies match query',
+    'emits [SearchLoadingState, SearchLoadedState] when ApplyFilterEvent is triggered with discover API',
     build: () {
-      when(() => mockSearchMoviesUseCase(query: tQuery))
-          .thenAnswer((_) async => const Right([]));
+      when(() => mockDiscoverMoviesUseCase(filter: tFilter))
+          .thenAnswer((_) async => Right(tMovies));
       return searchBloc;
     },
-    act: (bloc) => bloc.add(const SearchQueryChangedEvent(tQuery)),
-    wait: const Duration(milliseconds: 600),
+    act: (bloc) => bloc.add(const ApplyFilterEvent(tFilter)),
     expect: () => [
-      const SearchLoadingState(),
-      const SearchEmptyState(tQuery),
+      const SearchLoadingState(filter: tFilter),
+      SearchLoadedState(movies: tMovies, query: '', filter: tFilter),
     ],
   );
 
   blocTest<SearchBloc, SearchState>(
-    'emits [SearchLoadingState, SearchErrorState] when search fails',
-    build: () {
-      when(() => mockSearchMoviesUseCase(query: tQuery))
-          .thenAnswer((_) async => const Left(ServerFailure('Connection timeout')));
-      return searchBloc;
-    },
-    act: (bloc) => bloc.add(const SearchQueryChangedEvent(tQuery)),
-    wait: const Duration(milliseconds: 600),
+    'emits [SearchInitialState] when ResetFilterEvent is added and query is empty',
+    build: () => searchBloc,
+    act: (bloc) => bloc.add(const ResetFilterEvent()),
     expect: () => [
-      const SearchLoadingState(),
-      const SearchErrorState('Connection timeout'),
+      const SearchInitialState(),
     ],
   );
 

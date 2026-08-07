@@ -32,20 +32,46 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponse> register(String email, String password) async {
-    final response = await supabaseClient.auth.signUp(
-      email: email,
-      password: password,
-    );
-    if (response.user != null) {
+    try {
+      final response = await supabaseClient.auth.signUp(
+        email: email,
+        password: password,
+      );
+      if (response.user != null) {
+        try {
+          await supabaseClient.from(SupabaseConstants.profilesTable).upsert({
+            'id': response.user!.id,
+            'email': email,
+            'created_at': DateTime.now().toIso8601String(),
+          });
+        } catch (_) {}
+      }
+
+      if (response.session == null) {
+        try {
+          final loginResponse = await supabaseClient.auth.signInWithPassword(
+            email: email,
+            password: password,
+          );
+          if (loginResponse.session != null) {
+            return loginResponse;
+          }
+        } catch (_) {}
+      }
+
+      return response;
+    } on AuthException catch (_) {
       try {
-        await supabaseClient.from(SupabaseConstants.profilesTable).upsert({
-          'id': response.user!.id,
-          'email': email,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        final loginResponse = await supabaseClient.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+        if (loginResponse.user != null) {
+          return loginResponse;
+        }
       } catch (_) {}
+      rethrow;
     }
-    return response;
   }
 
   @override

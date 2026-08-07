@@ -54,9 +54,20 @@ import '../../features/home/domain/usecases/get_upcoming_movies_usecase.dart'
 import '../../features/home/presentation/bloc/category_bloc.dart' as _i311;
 import '../../features/home/presentation/bloc/home_bloc.dart' as _i202;
 import '../../features/home/presentation/bloc/movie_detail_bloc.dart' as _i379;
+import '../../features/search/domain/usecases/discover_movies_usecase.dart'
+    as _i992;
+import '../../features/search/domain/usecases/get_genres_usecase.dart' as _i226;
 import '../../features/search/domain/usecases/search_movies_usecase.dart'
     as _i451;
 import '../../features/search/presentation/bloc/search_bloc.dart' as _i552;
+import '../../features/watchlist/data/datasources/watchlist_local_datasource.dart'
+    as _i105;
+import '../../features/watchlist/data/repositories/watchlist_repository_impl.dart'
+    as _i967;
+import '../../features/watchlist/domain/repositories/watchlist_repository.dart'
+    as _i974;
+import '../../features/watchlist/presentation/bloc/watchlist_bloc.dart'
+    as _i767;
 import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
 import '../router/router_module.dart' as _i948;
@@ -86,6 +97,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i153.AuthRepositoryImpl(gh<_i161.AuthRemoteDataSource>()));
     gh.lazySingleton<_i514.MovieRemoteDataSource>(
         () => _i514.MovieRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i105.WatchlistLocalDataSource>(
+        () => _i105.WatchlistLocalDataSourceImpl());
+    gh.lazySingleton<_i974.WatchlistRepository>(() =>
+        _i967.WatchlistRepositoryImpl(gh<_i105.WatchlistLocalDataSource>()));
     gh.lazySingleton<_i1023.MovieRepository>(
         () => _i449.MovieRepositoryImpl(gh<_i514.MovieRemoteDataSource>()));
     gh.lazySingleton<_i17.GetCurrentUserUseCase>(
@@ -96,6 +111,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i941.RegisterUseCase(gh<_i787.AuthRepository>()));
     gh.lazySingleton<_i474.ResetPasswordUseCase>(
         () => _i474.ResetPasswordUseCase(gh<_i787.AuthRepository>()));
+    gh.factory<_i767.WatchlistBloc>(
+        () => _i767.WatchlistBloc(gh<_i974.WatchlistRepository>()));
     gh.lazySingleton<_i288.GetMovieCreditsUseCase>(
         () => _i288.GetMovieCreditsUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i978.GetMovieDetailUseCase>(
@@ -114,6 +131,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i858.GetTrendingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i749.GetUpcomingMoviesUseCase>(
         () => _i749.GetUpcomingMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i992.DiscoverMoviesUseCase>(
+        () => _i992.DiscoverMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i226.GetGenresUseCase>(
+        () => _i226.GetGenresUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i451.SearchMoviesUseCase>(
         () => _i451.SearchMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
@@ -121,6 +142,11 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i941.RegisterUseCase>(),
           gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
+        ));
+    gh.factory<_i552.SearchBloc>(() => _i552.SearchBloc(
+          gh<_i451.SearchMoviesUseCase>(),
+          gh<_i226.GetGenresUseCase>(),
+          gh<_i992.DiscoverMoviesUseCase>(),
         ));
     gh.factory<_i311.CategoryBloc>(() => _i311.CategoryBloc(
           gh<_i858.GetTrendingMoviesUseCase>(),
@@ -136,8 +162,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i639.GetTopRatedMoviesUseCase>(),
           gh<_i749.GetUpcomingMoviesUseCase>(),
         ));
-    gh.factory<_i552.SearchBloc>(
-        () => _i552.SearchBloc(gh<_i451.SearchMoviesUseCase>()));
     gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
           gh<_i978.GetMovieDetailUseCase>(),
           gh<_i288.GetMovieCreditsUseCase>(),

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/router/app_router.dart';
+import '../../../../core/services/preference_service.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -39,6 +41,8 @@ class ResetPasswordSubmittedEvent extends AuthEvent {
   @override
   List<Object?> get props => [email];
 }
+
+class DemoLoginSubmittedEvent extends AuthEvent {}
 
 // States
 abstract class AuthState extends Equatable {
@@ -92,6 +96,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginSubmittedEvent>(_onLoginSubmitted);
     on<RegisterSubmittedEvent>(_onRegisterSubmitted);
     on<ResetPasswordSubmittedEvent>(_onResetPasswordSubmitted);
+    on<DemoLoginSubmittedEvent>(_onDemoLoginSubmitted);
   }
 
   void _onCheckAuth(CheckAuthEvent event, Emitter<AuthState> emit) {
@@ -144,6 +149,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthErrorState(failure.message)),
       (_) => emit(const ResetPasswordSuccessState()),
     );
+  }
+
+  Future<void> _onDemoLoginSubmitted(
+      DemoLoginSubmittedEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoadingState());
+    await PreferenceService.saveLogin(true);
+    AppRouter.setDemoLoggedIn(true);
+
+    const demoUser = User(
+      id: 'demo-user-id',
+      appMetadata: {},
+      userMetadata: {'full_name': 'Khách Trải Nghiệm'},
+      aud: 'authenticated',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      email: 'demo@gocphim.com',
+    );
+    emit(const AuthenticatedState(demoUser));
   }
 }
 

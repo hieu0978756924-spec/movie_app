@@ -7,9 +7,11 @@ import '../../../core/router/route_names.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/image_url_helper.dart';
 import '../../home/models/movie.dart';
+import '../domain/entities/movie_filter.dart';
 import '../presentation/bloc/search_bloc.dart';
 import '../presentation/bloc/search_event.dart';
 import '../presentation/bloc/search_state.dart';
+import '../presentation/widgets/filter_bottom_sheet_widget.dart';
 
 class SearchView extends StatelessWidget {
   const SearchView({super.key});
@@ -17,7 +19,7 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SearchBloc>(
-      create: (_) => getIt<SearchBloc>(),
+      create: (_) => getIt<SearchBloc>()..add(const FetchGenresEvent()),
       child: const _SearchViewContent(),
     );
   }
@@ -39,10 +41,21 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     super.dispose();
   }
 
-  void _onClear() {
+  void _onClearSearch() {
     _searchController.clear();
     context.read<SearchBloc>().add(const ClearSearchEvent());
     setState(() {});
+  }
+
+  void _openFilterBottomSheet(SearchState state) {
+    FilterBottomSheetWidget.show(
+      context: context,
+      initialFilter: state.filter,
+      availableGenres: state.genres,
+      onApply: (newFilter) {
+        context.read<SearchBloc>().add(ApplyFilterEvent(newFilter));
+      },
+    );
   }
 
   @override
@@ -61,59 +74,163 @@ class _SearchViewContentState extends State<_SearchViewContent> {
           ),
         ),
         centerTitle: false,
+        actions: [
+          BlocBuilder<SearchBloc, SearchState>(
+            builder: (context, state) {
+              final activeCount = state.filter.activeFilterCount;
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.tune_rounded,
+                        color: AppColors.darkTextPrimary,
+                      ),
+                      onPressed: () => _openFilterBottomSheet(state),
+                    ),
+                    if (activeCount > 0)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryRed,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$activeCount',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
           // Search Input Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.darkSurfaceVariant,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.glassBorder,
-                  width: 1,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.darkSurfaceVariant,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.glassBorder,
+                        width: 1,
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(color: AppColors.darkTextPrimary),
+                      onChanged: (query) {
+                        setState(() {});
+                        context
+                            .read<SearchBloc>()
+                            .add(SearchQueryChangedEvent(query));
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Nhập tên phim, diễn viên...',
+                        hintStyle: const TextStyle(
+                          color: AppColors.darkTextMuted,
+                          fontSize: 14,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: AppColors.primaryRed,
+                        ),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(
+                                  Icons.close_rounded,
+                                  color: AppColors.darkTextSecondary,
+                                ),
+                                onPressed: _onClearSearch,
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(color: AppColors.darkTextPrimary),
-                onChanged: (query) {
-                  setState(() {});
-                  context
-                      .read<SearchBloc>()
-                      .add(SearchQueryChangedEvent(query));
-                },
-                decoration: InputDecoration(
-                  hintText: 'Nhập tên phim, đạo diễn, diễn viên...',
-                  hintStyle: const TextStyle(
-                    color: AppColors.darkTextMuted,
-                    fontSize: 14,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: AppColors.primaryRed,
-                  ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(
-                            Icons.close_rounded,
-                            color: AppColors.darkTextSecondary,
-                          ),
-                          onPressed: _onClear,
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-              ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
+
+          // Active Filter Bar (if filter is active)
+          BlocBuilder<SearchBloc, SearchState>(
+            builder: (context, state) {
+              if (state.filter.isDefault) return const SizedBox.shrink();
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.filter_alt_outlined,
+                      size: 16,
+                      color: AppColors.accentGold,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        _buildFilterSummaryText(state.filter),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.darkTextSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.read<SearchBloc>().add(const ResetFilterEvent());
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'Xoá lọc',
+                        style: TextStyle(
+                          color: AppColors.primaryRed,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 4),
+
           // Body content based on BLoC state
           Expanded(
             child: BlocBuilder<SearchBloc, SearchState>(
@@ -125,7 +242,7 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                 } else if (state is SearchLoadedState) {
                   return _buildSearchResultsGrid(state.movies);
                 } else if (state is SearchEmptyState) {
-                  return _buildEmptyState(state.query);
+                  return _buildEmptyState(state.query, state.filter);
                 } else if (state is SearchErrorState) {
                   return _buildErrorState(state.message);
                 }
@@ -136,6 +253,23 @@ class _SearchViewContentState extends State<_SearchViewContent> {
         ],
       ),
     );
+  }
+
+  String _buildFilterSummaryText(MovieFilter filter) {
+    final parts = <String>[];
+    if (filter.selectedGenreIds.isNotEmpty) {
+      parts.add('${filter.selectedGenreIds.length} thể loại');
+    }
+    if (filter.startYear > 1980 || filter.endYear < 2026) {
+      parts.add('${filter.startYear}-${filter.endYear}');
+    }
+    if (filter.minRating > 0) {
+      parts.add('≥ ${filter.minRating.toStringAsFixed(1)}★');
+    }
+    if (filter.sortBy != SortOption.popularityDesc) {
+      parts.add(filter.sortBy.label);
+    }
+    return parts.join(' • ');
   }
 
   Widget _buildInitialState() {
@@ -159,7 +293,7 @@ class _SearchViewContentState extends State<_SearchViewContent> {
           ),
           SizedBox(height: 8),
           Text(
-            'Nhập tên phim vào thanh tìm kiếm ở trên',
+            'Nhập tên phim hoặc dùng nút bộ lọc ở trên',
             style: TextStyle(
               color: AppColors.darkTextMuted,
               fontSize: 13,
@@ -323,7 +457,7 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     );
   }
 
-  Widget _buildEmptyState(String query) {
+  Widget _buildEmptyState(String query, MovieFilter filter) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -346,13 +480,30 @@ class _SearchViewContentState extends State<_SearchViewContent> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Không có kết quả nào cho "$query"',
+              query.isNotEmpty
+                  ? 'Không có kết quả cho "$query" với bộ lọc đã chọn'
+                  : 'Không có phim nào phù hợp với bộ lọc hiện tại',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.darkTextMuted,
                 fontSize: 13,
               ),
             ),
+            if (!filter.isDefault) ...[
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  context.read<SearchBloc>().add(const ResetFilterEvent());
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryRed,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Xoá bộ lọc'),
+              ),
+            ],
           ],
         ),
       ),
@@ -397,6 +548,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                   context
                       .read<SearchBloc>()
                       .add(SearchQueryChangedEvent(currentQuery));
+                } else {
+                  context.read<SearchBloc>().add(const ResetFilterEvent());
                 }
               },
               style: ElevatedButton.styleFrom(

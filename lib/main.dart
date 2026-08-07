@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'core/constants/supabase_constants.dart';
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
@@ -10,6 +12,7 @@ import 'core/theme/theme_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
 
   if (SupabaseConstants.supabaseUrl.isNotEmpty &&
       SupabaseConstants.supabaseAnonKey.isNotEmpty) {

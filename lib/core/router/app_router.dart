@@ -5,7 +5,7 @@ import 'route_names.dart';
 import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
-import '../../features/favorite/views/favorite_view.dart';
+import '../../features/watchlist/presentation/views/watchlist_view.dart';
 import '../../features/home/models/movie.dart';
 import '../../features/home/views/category_view.dart';
 import '../../features/home/views/home_view.dart';
@@ -17,6 +17,11 @@ import '../../features/splash/views/splash_view.dart';
 
 class AppRouter {
   static bool Function()? _authCheckOverride;
+  static bool _demoLoggedIn = false;
+
+  static void setDemoLoggedIn(bool value) {
+    _demoLoggedIn = value;
+  }
 
   /// For testing purposes to override Supabase auth check
   static void setAuthCheckOverride(bool Function()? override) {
@@ -27,6 +32,7 @@ class AppRouter {
     if (_authCheckOverride != null) {
       return _authCheckOverride!();
     }
+    if (_demoLoggedIn) return true;
     try {
       return Supabase.instance.client.auth.currentSession != null;
     } catch (_) {
@@ -85,7 +91,7 @@ class AppRouter {
               GoRoute(
                 path: RoutePath.watchlist,
                 name: RouteName.watchlist,
-                builder: (context, state) => const FavoriteView(),
+                builder: (context, state) => const WatchlistView(),
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/errors/failure.dart';
 import '../../domain/entities/cast.dart';
+import '../../domain/entities/genre.dart';
 import '../../domain/entities/video.dart';
 import '../../domain/repositories/movie_repository.dart';
 import '../../models/movie.dart';
@@ -122,6 +123,42 @@ class MovieRepositoryImpl implements MovieRepository {
       {required String query, int page = 1}) async {
     try {
       final response = await remoteDataSource.searchMovies(query: query, page: page);
+      final movies = response.results.map((model) => model.toEntity()).toList();
+      return Right(movies);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Genre>>> getGenres() async {
+    try {
+      final response = await remoteDataSource.getGenres();
+      final genres = response.genres.map((model) => model.toEntity()).toList();
+      return Right(genres);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> discoverMovies({
+    List<int>? withGenres,
+    int? primaryReleaseYearGte,
+    int? primaryReleaseYearLte,
+    double? minRating,
+    String? sortBy,
+    int page = 1,
+  }) async {
+    try {
+      final response = await remoteDataSource.discoverMovies(
+        withGenres: withGenres,
+        primaryReleaseYearGte: primaryReleaseYearGte,
+        primaryReleaseYearLte: primaryReleaseYearLte,
+        minRating: minRating,
+        sortBy: sortBy,
+        page: page,
+      );
       final movies = response.results.map((model) => model.toEntity()).toList();
       return Right(movies);
     } catch (e) {

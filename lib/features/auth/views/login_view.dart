@@ -533,6 +533,45 @@ class _LoginViewState extends State<LoginView> {
                                           ],
                                         ),
                                       ),
+                                      const SizedBox(height: 12),
+
+                                      // --- Demo Guest Login Button ---
+                                      OutlinedButton(
+                                        key: const Key('login_demo_button'),
+                                        style: OutlinedButton.styleFrom(
+                                          minimumSize: const Size.fromHeight(48),
+                                          side: BorderSide(
+                                            color: AppColors.neonCoral.withValues(alpha: 0.5),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                        ),
+                                        onPressed: isLoading
+                                            ? null
+                                            : () {
+                                                authBloc.add(DemoLoginSubmittedEvent());
+                                              },
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.bolt_rounded,
+                                              color: AppColors.neonCoral,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Đăng nhập dùng thử (Khám phá ngay)",
+                                              style: TextStyle(
+                                                color: AppColors.neonCoral,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
