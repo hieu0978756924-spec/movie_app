@@ -34,4 +34,12 @@ abstract class AppColors {
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFEF4444);
   static const Color info = Color(0xFF3B82F6);
+
+  // Cinematic Noir Tokens (Stitch MCP Design System)
+  static const Color neonCoral = Color(0xFFFF5070);
+  static const Color neonCoralGlow = Color(0xFFFF2A5F);
+  static const Color glassSurface = Color(0x0DFFFFFF); // rgba(255,255,255,0.05)
+  static const Color glassInputSurface = Color(0x1AFFFFFF); // rgba(255,255,255,0.1)
+  static const Color glassBorder = Color(0x1AFFFFFF); // rgba(255,255,255,0.1)
 }
+

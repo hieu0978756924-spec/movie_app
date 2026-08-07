@@ -54,6 +54,9 @@ import '../../features/home/domain/usecases/get_upcoming_movies_usecase.dart'
 import '../../features/home/presentation/bloc/category_bloc.dart' as _i311;
 import '../../features/home/presentation/bloc/home_bloc.dart' as _i202;
 import '../../features/home/presentation/bloc/movie_detail_bloc.dart' as _i379;
+import '../../features/search/domain/usecases/search_movies_usecase.dart'
+    as _i451;
+import '../../features/search/presentation/bloc/search_bloc.dart' as _i552;
 import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
 import '../router/router_module.dart' as _i948;
@@ -111,6 +114,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i858.GetTrendingMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.lazySingleton<_i749.GetUpcomingMoviesUseCase>(
         () => _i749.GetUpcomingMoviesUseCase(gh<_i1023.MovieRepository>()));
+    gh.lazySingleton<_i451.SearchMoviesUseCase>(
+        () => _i451.SearchMoviesUseCase(gh<_i1023.MovieRepository>()));
     gh.factory<_i797.AuthBloc>(() => _i797.AuthBloc(
           gh<_i188.LoginUseCase>(),
           gh<_i941.RegisterUseCase>(),
@@ -131,6 +136,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i639.GetTopRatedMoviesUseCase>(),
           gh<_i749.GetUpcomingMoviesUseCase>(),
         ));
+    gh.factory<_i552.SearchBloc>(
+        () => _i552.SearchBloc(gh<_i451.SearchMoviesUseCase>()));
     gh.factory<_i379.MovieDetailBloc>(() => _i379.MovieDetailBloc(
           gh<_i978.GetMovieDetailUseCase>(),
           gh<_i288.GetMovieCreditsUseCase>(),
