@@ -10,4 +10,5 @@ abstract class WatchlistRepository {
   Future<Either<Failure, void>> removeFromWatchlist(int movieId);
   Future<Either<Failure, void>> toggleWatched(int movieId, bool daXem);
   Future<Either<Failure, bool>> isWatchlisted(int movieId);
+  Future<Either<Failure, void>> syncWatchlist();
 }

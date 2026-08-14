@@ -69,15 +69,16 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
   @override
   Widget build(BuildContext context) {
     final currentYear = DateTime.now().year;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.darkSurface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
@@ -93,7 +94,7 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.darkSurfaceVariant,
+                color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -104,10 +105,10 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Bộ Lọc & Sắp Xếp',
                   style: TextStyle(
-                    color: AppColors.darkTextPrimary,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -126,9 +127,9 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close_rounded,
-                        color: AppColors.darkTextSecondary,
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
@@ -137,7 +138,10 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
               ],
             ),
           ),
-          const Divider(color: AppColors.glassBorder, height: 1),
+          Divider(
+            color: isDark ? AppColors.glassBorder : AppColors.lightSurfaceVariant,
+            height: 1,
+          ),
 
           // Scrollable Filter Sections
           Flexible(
@@ -148,10 +152,10 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                 children: [
                   // Section 1: Genres
                   if (widget.availableGenres.isNotEmpty) ...[
-                    const Text(
+                    Text(
                       'Thể loại phim',
                       style: TextStyle(
-                        color: AppColors.darkTextPrimary,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -169,14 +173,14 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                           labelStyle: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : AppColors.darkTextSecondary,
+                                : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
                             fontSize: 13,
                             fontWeight: isSelected
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                           ),
                           selectedColor: AppColors.primaryRed,
-                          backgroundColor: AppColors.darkSurfaceVariant,
+                          backgroundColor: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
                           checkmarkColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -197,10 +201,10 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Năm phát hành',
                         style: TextStyle(
-                          color: AppColors.darkTextPrimary,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -224,7 +228,7 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                     max: currentYear.toDouble(),
                     divisions: currentYear - 1980,
                     activeColor: AppColors.primaryRed,
-                    inactiveColor: AppColors.darkSurfaceVariant,
+                    inactiveColor: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
                     labels: RangeLabels(
                       _tempFilter.startYear.toString(),
                       _tempFilter.endYear.toString(),
@@ -244,10 +248,10 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Điểm đánh giá tối thiểu',
                         style: TextStyle(
-                          color: AppColors.darkTextPrimary,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -275,13 +279,13 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                     ],
                   ),
                   Slider(
-                    value: _tempFilter.minRating,
+                    value: _tempFilter.minRating.clamp(0.0, 5.0),
                     min: 0.0,
-                    max: 10.0,
-                    divisions: 20,
+                    max: 5.0,
+                    divisions: 10,
                     activeColor: AppColors.accentGold,
-                    inactiveColor: AppColors.darkSurfaceVariant,
-                    label: '${_tempFilter.minRating.toStringAsFixed(1)} ★',
+                    inactiveColor: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+                    label: '${_tempFilter.minRating.clamp(0.0, 5.0).toStringAsFixed(1)} ★',
                     onChanged: (double val) {
                       setState(() {
                         _tempFilter = _tempFilter.copyWith(minRating: val);
@@ -291,10 +295,10 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                   const SizedBox(height: 24),
 
                   // Section 4: Sort Option
-                  const Text(
+                  Text(
                     'Sắp xếp theo',
                     style: TextStyle(
-                      color: AppColors.darkTextPrimary,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
@@ -311,14 +315,14 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                         labelStyle: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : AppColors.darkTextSecondary,
+                              : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
                           fontSize: 13,
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
                         ),
                         selectedColor: AppColors.primaryRed,
-                        backgroundColor: AppColors.darkSurfaceVariant,
+                        backgroundColor: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),

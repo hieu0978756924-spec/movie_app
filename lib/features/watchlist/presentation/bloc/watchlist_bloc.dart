@@ -13,6 +13,7 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
   WatchlistBloc(this.watchlistRepository)
       : super(const WatchlistInitialState()) {
     on<LoadWatchlistEvent>(_onLoadWatchlist);
+    on<SyncWatchlistEvent>(_onSyncWatchlist);
     on<AddMovieToWatchlistEvent>(_onAddMovieToWatchlist);
     on<AddItemToWatchlistEvent>(_onAddItemToWatchlist);
     on<RemoveFromWatchlistEvent>(_onRemoveFromWatchlist);
@@ -29,6 +30,20 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       (failure) => emit(WatchlistErrorState(failure.message)),
       (items) => emit(WatchlistLoadedState(items: items)),
     );
+  }
+
+  Future<void> _onSyncWatchlist(
+    SyncWatchlistEvent event,
+    Emitter<WatchlistState> emit,
+  ) async {
+    emit(const WatchlistLoadingState());
+    final syncResult = await watchlistRepository.syncWatchlist();
+    if (syncResult.isLeft()) {
+      final failure = syncResult.fold((l) => l, (_) => null)!;
+      emit(WatchlistErrorState(failure.message));
+      return;
+    }
+    await _fetchAndEmitWatchlist(emit);
   }
 
   Future<void> _onAddMovieToWatchlist(

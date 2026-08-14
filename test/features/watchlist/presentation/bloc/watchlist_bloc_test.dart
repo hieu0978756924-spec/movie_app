@@ -73,6 +73,22 @@ void main() {
     );
 
     blocTest<WatchlistBloc, WatchlistState>(
+      'emits [WatchlistLoadingState, WatchlistLoadedState] when SyncWatchlistEvent is added',
+      build: () {
+        when(() => mockRepository.syncWatchlist())
+            .thenAnswer((_) async => const Right(null));
+        when(() => mockRepository.getWatchlist())
+            .thenAnswer((_) async => Right([tItem]));
+        return watchlistBloc;
+      },
+      act: (bloc) => bloc.add(const SyncWatchlistEvent()),
+      expect: () => [
+        const WatchlistLoadingState(),
+        WatchlistLoadedState(items: [tItem]),
+      ],
+    );
+
+    blocTest<WatchlistBloc, WatchlistState>(
       'emits WatchlistLoadedState when AddMovieToWatchlistEvent is added',
       build: () {
         when(() => mockRepository.addToWatchlist(tMovie))

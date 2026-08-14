@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/image_url_helper.dart';
+import '../../../../core/utils/user_session.dart';
+import '../../controllers/home_controller.dart';
 import '../../models/movie.dart';
 
-class MovieCardWidget extends StatelessWidget {
+class MovieCardWidget extends StatefulWidget {
   final Movie movie;
 
   const MovieCardWidget({
@@ -15,14 +17,57 @@ class MovieCardWidget extends StatelessWidget {
   });
 
   @override
+  State<MovieCardWidget> createState() => _MovieCardWidgetState();
+}
+
+class _MovieCardWidgetState extends State<MovieCardWidget> {
+  void _toggleFavorite() {
+    UserSession.instance.requireAuth(
+      context,
+      actionName: 'thêm phim vào danh sách yêu thích',
+      onAuthenticated: () {
+        setState(() {
+          HomeController.instance.doiTrangThaiYeuThich(widget.movie);
+        });
+
+        final isFav = widget.movie.yeuThich;
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            backgroundColor: AppColors.darkSurface,
+            content: Row(
+              children: [
+                Icon(
+                  isFav ? Icons.favorite : Icons.favorite_border,
+                  color: isFav ? AppColors.primaryRed : Colors.white70,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    isFav
+                        ? 'Đã thêm "${widget.movie.tenPhim}" vào danh sách yêu thích'
+                        : 'Đã xóa "${widget.movie.tenPhim}" khỏi danh sách yêu thích',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final posterUrl = ImageUrlHelper.getPosterUrl(movie.hinhAnh);
+    final posterUrl = ImageUrlHelper.getPosterUrl(widget.movie.hinhAnh);
 
     return GestureDetector(
       onTap: () {
         context.push(
-          RoutePath.movieDetailPath(movie.id.toString()),
-          extra: movie,
+          RoutePath.movieDetailPath(widget.movie.id.toString()),
+          extra: widget.movie,
         );
       },
       child: Container(
@@ -45,14 +90,36 @@ class MovieCardWidget extends StatelessWidget {
                             errorBuilder: (_, __, ___) => _buildFallback(),
                           )
                         : Image.asset(
-                            movie.hinhAnh.isNotEmpty
-                                ? movie.hinhAnh
-                                : 'assets/images/latmat7.jpg',
+                            widget.movie.hinhAnh.startsWith('assets/')
+                                ? widget.movie.hinhAnh
+                                : ImageUrlHelper.getLocalFallbackImage(widget.movie.id),
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => _buildFallback(),
                           ),
+
+                    // Heart Favorite Button
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: GestureDetector(
+                        onTap: _toggleFavorite,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            widget.movie.yeuThich ? Icons.favorite : Icons.favorite_border,
+                            color: widget.movie.yeuThich ? AppColors.primaryRed : Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+
                     // Rating Badge
                     Positioned(
                       top: 8,
@@ -74,7 +141,7 @@ class MovieCardWidget extends StatelessWidget {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              movie.diemDanhGia.toStringAsFixed(1),
+                              widget.movie.diemDanhGia.toStringAsFixed(1),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -91,11 +158,13 @@ class MovieCardWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              movie.tenPhim,
+              widget.movie.tenPhim,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -107,13 +176,19 @@ class MovieCardWidget extends StatelessWidget {
   }
 
   Widget _buildFallback() {
-    return Container(
-      color: AppColors.darkSurfaceVariant,
-      child: const Center(
-        child: Icon(
-          Icons.movie_outlined,
-          color: Colors.white38,
-          size: 32,
+    return Image.asset(
+      ImageUrlHelper.getLocalFallbackImage(widget.movie.id),
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        color: AppColors.darkSurfaceVariant,
+        child: const Center(
+          child: Icon(
+            Icons.movie_outlined,
+            color: Colors.white38,
+            size: 32,
+          ),
         ),
       ),
     );

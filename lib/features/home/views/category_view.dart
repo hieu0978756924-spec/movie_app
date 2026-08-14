@@ -21,6 +21,7 @@ class CategoryView extends StatefulWidget {
 
 class _CategoryViewState extends State<CategoryView> {
   late final ScrollController _scrollController;
+  CategoryBloc? _categoryBloc;
 
   @override
   void initState() {
@@ -30,9 +31,10 @@ class _CategoryViewState extends State<CategoryView> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent * 0.8) {
-      context.read<CategoryBloc>().add(LoadMoreCategoryMoviesEvent());
+    if (_scrollController.hasClients &&
+        _scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.8) {
+      _categoryBloc?.add(LoadMoreCategoryMoviesEvent());
     }
   }
 
@@ -62,18 +64,28 @@ class _CategoryViewState extends State<CategoryView> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<CategoryBloc>(
-      create: (_) => getIt<CategoryBloc>()
-        ..add(FetchCategoryMoviesEvent(widget.categoryType)),
+      create: (_) {
+        final bloc = getIt<CategoryBloc>()
+          ..add(FetchCategoryMoviesEvent(widget.categoryType));
+        _categoryBloc = bloc;
+        return bloc;
+      },
       child: Builder(
         builder: (context) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
           return Scaffold(
+            backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
             appBar: AppBar(
-              backgroundColor: AppColors.darkBackground,
+              backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
               elevation: 0,
+              iconTheme: IconThemeData(
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              ),
               title: Text(
                 _getCategoryTitle(widget.categoryType),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -104,10 +116,10 @@ class _CategoryViewState extends State<CategoryView> {
                           const SizedBox(height: 20),
                           ElevatedButton.icon(
                             onPressed: () {
-                              context.read<CategoryBloc>().add(
-                                    FetchCategoryMoviesEvent(
-                                        widget.categoryType),
-                                  );
+                              _categoryBloc?.add(
+                                FetchCategoryMoviesEvent(
+                                    widget.categoryType),
+                              );
                             },
                             icon: const Icon(Icons.refresh),
                             label: const Text('Thử lại'),

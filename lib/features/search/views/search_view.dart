@@ -60,15 +60,20 @@ class _SearchViewContentState extends State<_SearchViewContent> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.darkBackground,
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
         elevation: 0,
-        title: const Text(
+        iconTheme: IconThemeData(
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+        ),
+        title: Text(
           'Tìm kiếm phim',
           style: TextStyle(
-            color: AppColors.darkTextPrimary,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -84,9 +89,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                   alignment: Alignment.center,
                   children: [
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.tune_rounded,
-                        color: AppColors.darkTextPrimary,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                       onPressed: () => _openFilterBottomSheet(state),
                     ),
@@ -132,16 +137,18 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.darkSurfaceVariant,
+                      color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.glassBorder,
+                        color: isDark ? AppColors.glassBorder : AppColors.lightSurfaceVariant,
                         width: 1,
                       ),
                     ),
                     child: TextField(
                       controller: _searchController,
-                      style: const TextStyle(color: AppColors.darkTextPrimary),
+                      style: TextStyle(
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      ),
                       onChanged: (query) {
                         setState(() {});
                         context
@@ -150,8 +157,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Nhập tên phim, diễn viên...',
-                        hintStyle: const TextStyle(
-                          color: AppColors.darkTextMuted,
+                        hintStyle: TextStyle(
+                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                           fontSize: 14,
                         ),
                         prefixIcon: const Icon(
@@ -160,9 +167,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                         ),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.close_rounded,
-                                  color: AppColors.darkTextSecondary,
+                                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                                 ),
                                 onPressed: _onClearSearch,
                               )
@@ -199,8 +206,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                         _buildFilterSummaryText(state.filter),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.darkTextSecondary,
+                        style: TextStyle(
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                           fontSize: 12,
                         ),
                       ),
@@ -236,15 +243,15 @@ class _SearchViewContentState extends State<_SearchViewContent> {
             child: BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
                 if (state is SearchInitialState) {
-                  return _buildInitialState();
+                  return _buildInitialState(isDark);
                 } else if (state is SearchLoadingState) {
                   return _buildLoadingState();
                 } else if (state is SearchLoadedState) {
-                  return _buildSearchResultsGrid(state.movies);
+                  return _buildSearchResultsGrid(state.movies, isDark);
                 } else if (state is SearchEmptyState) {
-                  return _buildEmptyState(state.query, state.filter);
+                  return _buildEmptyState(state.query, state.filter, isDark);
                 } else if (state is SearchErrorState) {
-                  return _buildErrorState(state.message);
+                  return _buildErrorState(state.message, isDark);
                 }
                 return const SizedBox.shrink();
               },
@@ -272,30 +279,30 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     return parts.join(' • ');
   }
 
-  Widget _buildInitialState() {
-    return const Center(
+  Widget _buildInitialState(bool isDark) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.movie_filter_outlined,
             size: 72,
-            color: AppColors.darkTextMuted,
+            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Tìm kiếm phim bạn yêu thích',
             style: TextStyle(
-              color: AppColors.darkTextSecondary,
+              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Nhập tên phim hoặc dùng nút bộ lọc ở trên',
             style: TextStyle(
-              color: AppColors.darkTextMuted,
+              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
               fontSize: 13,
             ),
           ),
@@ -312,7 +319,7 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     );
   }
 
-  Widget _buildSearchResultsGrid(List<Movie> movies) {
+  Widget _buildSearchResultsGrid(List<Movie> movies, bool isDark) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -335,13 +342,13 @@ class _SearchViewContentState extends State<_SearchViewContent> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.darkSurface,
+              color: isDark ? AppColors.darkSurface : AppColors.lightCard,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x4D000000),
+                  color: isDark ? const Color(0x4D000000) : const Color(0x1F000000),
                   blurRadius: 6,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -359,16 +366,16 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallbackPoster(),
+                                errorBuilder: (_, __, ___) => _buildFallbackPoster(isDark, movie.id),
                               )
                             : Image.asset(
-                                movie.hinhAnh.isNotEmpty
+                                movie.hinhAnh.startsWith('assets/')
                                     ? movie.hinhAnh
-                                    : 'assets/images/latmat7.jpg',
+                                    : ImageUrlHelper.getLocalFallbackImage(movie.id),
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallbackPoster(),
+                                errorBuilder: (_, __, ___) => _buildFallbackPoster(isDark, movie.id),
                               ),
                         // Rating Badge
                         Positioned(
@@ -416,8 +423,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                           movie.tenPhim,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.darkTextPrimary,
+                          style: TextStyle(
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -427,8 +434,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                           movie.theLoai.isNotEmpty ? movie.theLoai : 'Phim',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.darkTextMuted,
+                          style: TextStyle(
+                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                             fontSize: 11,
                           ),
                         ),
@@ -444,36 +451,42 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     );
   }
 
-  Widget _buildFallbackPoster() {
-    return Container(
-      color: AppColors.darkSurfaceVariant,
-      child: const Center(
-        child: Icon(
-          Icons.movie_outlined,
-          color: AppColors.darkTextMuted,
-          size: 40,
+  Widget _buildFallbackPoster(bool isDark, [int? movieId]) {
+    return Image.asset(
+      ImageUrlHelper.getLocalFallbackImage(movieId),
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+        child: Center(
+          child: Icon(
+            Icons.movie_outlined,
+            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+            size: 40,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState(String query, MovieFilter filter) {
+  Widget _buildEmptyState(String query, MovieFilter filter, bool isDark) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.search_off_rounded,
               size: 64,
-              color: AppColors.darkTextMuted,
+              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Không tìm thấy phim phù hợp',
               style: TextStyle(
-                color: AppColors.darkTextPrimary,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -484,8 +497,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                   ? 'Không có kết quả cho "$query" với bộ lọc đã chọn'
                   : 'Không có phim nào phù hợp với bộ lọc hiện tại',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.darkTextMuted,
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                 fontSize: 13,
               ),
             ),
@@ -510,7 +523,7 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     );
   }
 
-  Widget _buildErrorState(String message) {
+  Widget _buildErrorState(String message, bool isDark) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -523,10 +536,10 @@ class _SearchViewContentState extends State<_SearchViewContent> {
               color: AppColors.error,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Đã có lỗi xảy ra',
               style: TextStyle(
-                color: AppColors.darkTextPrimary,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -535,8 +548,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.darkTextMuted,
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                 fontSize: 13,
               ),
             ),
