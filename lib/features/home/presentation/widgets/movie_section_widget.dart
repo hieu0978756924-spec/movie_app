@@ -19,6 +19,7 @@ class MovieSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (movies.isEmpty) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,8 +31,10 @@ class MovieSectionWidget extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),

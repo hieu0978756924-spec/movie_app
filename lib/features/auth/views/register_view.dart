@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/router/route_names.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/user_session.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../profile/data/user_profile_manager.dart';
 import '../presentation/bloc/auth_bloc.dart';
 
 class RegisterView extends StatefulWidget {
@@ -18,6 +20,7 @@ class RegisterView extends StatefulWidget {
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmController = TextEditingController();
@@ -28,6 +31,7 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   void dispose() {
     nameController.dispose();
+    dobController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmController.dispose();
@@ -36,20 +40,22 @@ class _RegisterViewState extends State<RegisterView> {
 
   void _onRegisterPressed(BuildContext context, AuthBloc authBloc) {
     if (_formKey.currentState?.validate() ?? false) {
-      if (passwordController.text != confirmController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Mật khẩu nhập lại không khớp"),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        return;
-      }
+      final name = nameController.text.trim();
+      final dob = dobController.text.trim();
+      final email = emailController.text.trim();
+
+      UserProfileManager.instance.updateProfile(
+        name: name.isNotEmpty ? name : null,
+        dob: dob.isNotEmpty ? dob : null,
+        email: email.isNotEmpty ? email : null,
+      );
 
       authBloc.add(
         RegisterSubmittedEvent(
-          emailController.text.trim(),
+          email,
           passwordController.text,
+          name: name,
+          dob: dob,
         ),
       );
     }
@@ -66,7 +72,7 @@ class _RegisterViewState extends State<RegisterView> {
             backgroundColor: AppColors.darkBackground,
             body: Stack(
               children: [
-                // 1. Cinema Backdrop Image with Dark Gradients
+                // 1. Hero Cinema Backdrop Image with Dark Gradients
                 Positioned.fill(
                   child: Image.network(
                     'https://lh3.googleusercontent.com/aida-public/AB6AXuArjodFJ_eTrgS7gjTZ2abRhyWBgB88G4LKfXgV69TBYh3vBpn4gKkx8xf_kCZfexgoNlrlYfNGgEAMK-SP-Qd0Pk4m8UMYb9xKJ0pYXdrFGW0RJqT9C_ov6VBEtsJp_3CS9g3KgMBNszSZvk0hL9eaiie8aZQCECR0eXi22yUy1_MoKIqIoSOLD81QOTHUs_YcUd5kv95zRLB62eeqpcqZppUKqXM1WKhPOKkUaaDjmKxke38VTHJvRv0ekKWDhYrfork8rPC6O5BY',
@@ -78,6 +84,7 @@ class _RegisterViewState extends State<RegisterView> {
                     },
                   ),
                 ),
+                // Gradient Overlays for Cinematic Atmosphere
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -104,14 +111,21 @@ class _RegisterViewState extends State<RegisterView> {
                       ),
                       child: BlocConsumer<AuthBloc, AuthState>(
                         listener: (context, state) {
-                          if (state is AuthenticatedState) {
+                          if (state is RegisterSuccessState) {
+                            UserSession.instance.setGuestMode(false);
+                            UserProfileManager.instance.updateProfile(
+                              name: nameController.text.trim().isNotEmpty ? nameController.text.trim() : null,
+                              dob: dobController.text.trim().isNotEmpty ? dobController.text.trim() : null,
+                              email: emailController.text.trim().isNotEmpty ? emailController.text.trim() : null,
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Đăng ký & đăng nhập thành công!"),
+                              SnackBar(
+                                content: Text(state.message),
                                 backgroundColor: AppColors.success,
+                                duration: const Duration(seconds: 3),
                               ),
                             );
-                            context.go(RoutePath.home);
+                            context.go(RoutePath.login);
                           } else if (state is AuthErrorState) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -217,6 +231,15 @@ class _RegisterViewState extends State<RegisterView> {
                                         controller: nameController,
                                         enabled: !isLoading,
                                         style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        validator: (value) {
+                                          if (value == null || value.trim().isEmpty) {
+                                            return "Vui lòng nhập họ và tên";
+                                          }
+                                          if (value.trim().length < 2) {
+                                            return "Họ và tên phải có ít nhất 2 ký tự";
+                                          }
+                                          return null;
+                                        },
                                         decoration: InputDecoration(
                                           hintText: "Nhập họ và tên của bạn",
                                           hintStyle: TextStyle(
@@ -227,6 +250,89 @@ class _RegisterViewState extends State<RegisterView> {
                                             Icons.person_outline_rounded,
                                             color: Colors.white.withValues(alpha: 0.6),
                                             size: 20,
+                                          ),
+                                          filled: true,
+                                          fillColor: AppColors.glassInputSurface,
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(14),
+                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(14),
+                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(14),
+                                            borderSide: const BorderSide(color: AppColors.neonCoral, width: 1.5),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      // Date of Birth Field
+                                      Text(
+                                        "NGÀY THÁNG NĂM SINH",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white.withValues(alpha: 0.6),
+                                          letterSpacing: 1.1,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        key: const Key('register_dob_field'),
+                                        controller: dobController,
+                                        readOnly: true,
+                                        enabled: !isLoading,
+                                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        onTap: () async {
+                                          final pickedDate = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime(2000, 1, 1),
+                                            firstDate: DateTime(1930),
+                                            lastDate: DateTime.now(),
+                                            builder: (context, child) {
+                                              return Theme(
+                                                data: Theme.of(context).copyWith(
+                                                  colorScheme: const ColorScheme.dark(
+                                                    primary: AppColors.neonCoral,
+                                                    onPrimary: Colors.white,
+                                                    surface: AppColors.darkSurface,
+                                                    onSurface: Colors.white,
+                                                  ),
+                                                ),
+                                                child: child!,
+                                              );
+                                            },
+                                          );
+                                          if (pickedDate != null) {
+                                            dobController.text =
+                                                "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
+                                          }
+                                        },
+                                        validator: (value) {
+                                          if (value == null || value.trim().isEmpty) {
+                                            return "Vui lòng chọn ngày tháng năm sinh";
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          hintText: "DD/MM/YYYY (Nhấn chọn ngày sinh)",
+                                          hintStyle: TextStyle(
+                                            color: Colors.white.withValues(alpha: 0.35),
+                                            fontSize: 14,
+                                          ),
+                                          prefixIcon: Icon(
+                                            Icons.calendar_today_outlined,
+                                            color: Colors.white.withValues(alpha: 0.6),
+                                            size: 20,
+                                          ),
+                                          suffixIcon: Icon(
+                                            Icons.arrow_drop_down_rounded,
+                                            color: Colors.white.withValues(alpha: 0.6),
+                                            size: 24,
                                           ),
                                           filled: true,
                                           fillColor: AppColors.glassInputSurface,
@@ -266,15 +372,16 @@ class _RegisterViewState extends State<RegisterView> {
                                         style: const TextStyle(color: Colors.white, fontSize: 15),
                                         validator: (value) {
                                           if (value == null || value.trim().isEmpty) {
-                                            return "Vui lòng nhập email";
+                                            return "Vui lòng nhập địa chỉ email";
                                           }
-                                          if (!value.contains('@')) {
-                                            return "Email không hợp lệ";
+                                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                          if (!emailRegex.hasMatch(value.trim())) {
+                                            return "Email không đúng định dạng (vd: name@domain.com)";
                                           }
                                           return null;
                                         },
                                         decoration: InputDecoration(
-                                          hintText: "Nhập địa chỉ email",
+                                          hintText: "Nhập địa chỉ email của bạn",
                                           hintStyle: TextStyle(
                                             color: Colors.white.withValues(alpha: 0.35),
                                             fontSize: 14,
@@ -325,7 +432,12 @@ class _RegisterViewState extends State<RegisterView> {
                                             return "Vui lòng nhập mật khẩu";
                                           }
                                           if (value.length < 6) {
-                                            return "Mật khẩu phải từ 6 ký tự";
+                                            return "Mật khẩu phải từ 6 ký tự trở lên";
+                                          }
+                                          final hasLetter = value.contains(RegExp(r'[a-zA-Z]'));
+                                          final hasDigits = value.contains(RegExp(r'[0-9]'));
+                                          if (!hasLetter || !hasDigits) {
+                                            return "Mật khẩu bảo mật phải chứa cả chữ và số";
                                           }
                                           return null;
                                         },
@@ -472,45 +584,6 @@ class _RegisterViewState extends State<RegisterView> {
                                                     letterSpacing: 0.5,
                                                   ),
                                                 ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-
-                                      // Demo Guest Login Button
-                                      OutlinedButton(
-                                        key: const Key('register_demo_button'),
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size.fromHeight(48),
-                                          side: BorderSide(
-                                            color: AppColors.neonCoral.withValues(alpha: 0.5),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                        ),
-                                        onPressed: isLoading
-                                            ? null
-                                            : () {
-                                                authBloc.add(DemoLoginSubmittedEvent());
-                                              },
-                                        child: const Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.bolt_rounded,
-                                              color: AppColors.neonCoral,
-                                              size: 20,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              "Đăng nhập dùng thử (Khám phá ngay)",
-                                              style: TextStyle(
-                                                color: AppColors.neonCoral,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
                                         ),
                                       ),
                                     ],

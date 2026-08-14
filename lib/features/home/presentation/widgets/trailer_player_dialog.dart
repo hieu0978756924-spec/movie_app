@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import 'pip_trailer_manager.dart';
 
 class TrailerPlayerDialog extends StatefulWidget {
   final String youtubeKey;
@@ -18,13 +19,10 @@ class TrailerPlayerDialog extends StatefulWidget {
     required String youtubeKey,
     required String title,
   }) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => TrailerPlayerDialog(
-        youtubeKey: youtubeKey,
-        title: title,
-      ),
+    PipTrailerManager.instance.playTrailer(
+      context,
+      youtubeKey: youtubeKey,
+      title: title,
     );
   }
 

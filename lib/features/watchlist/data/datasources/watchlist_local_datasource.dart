@@ -14,53 +14,73 @@ abstract class WatchlistLocalDataSource {
 class WatchlistLocalDataSourceImpl implements WatchlistLocalDataSource {
   static const String boxName = 'watchlist_box';
 
-  Future<Box> _getBox() async {
-    if (Hive.isBoxOpen(boxName)) {
-      return Hive.box(boxName);
+  Future<Box?> _getBox() async {
+    try {
+      return await Future.value().then((_) => Hive.openBox(boxName));
+    } catch (_) {
+      return null;
     }
-    return await Hive.openBox(boxName);
   }
 
   @override
   Future<List<WatchlistItemModel>> getWatchlist() async {
-    final box = await _getBox();
-    final List<WatchlistItemModel> items = [];
-    for (var key in box.keys) {
-      final data = box.get(key);
-      if (data != null && data is Map) {
-        items.add(WatchlistItemModel.fromMap(data));
+    try {
+      final box = await _getBox();
+      if (box == null) return [];
+      final List<WatchlistItemModel> items = [];
+      for (var key in box.keys) {
+        final data = box.get(key);
+        if (data != null && data is Map) {
+          items.add(WatchlistItemModel.fromMap(data));
+        }
       }
+      items.sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      return items;
+    } catch (_) {
+      return [];
     }
-    items.sort((a, b) => b.addedAt.compareTo(a.addedAt));
-    return items;
   }
 
   @override
   Future<void> addToWatchlist(WatchlistItemModel item) async {
-    final box = await _getBox();
-    await box.put(item.id, item.toMap());
+    try {
+      final box = await _getBox();
+      if (box == null) return;
+      await box.put(item.id, item.toMap());
+    } catch (_) {}
   }
 
   @override
   Future<void> removeFromWatchlist(int id) async {
-    final box = await _getBox();
-    await box.delete(id);
+    try {
+      final box = await _getBox();
+      if (box == null) return;
+      await box.delete(id);
+    } catch (_) {}
   }
 
   @override
   Future<void> toggleWatched(int id, bool daXem) async {
-    final box = await _getBox();
-    final data = box.get(id);
-    if (data != null && data is Map) {
-      final updatedMap = Map<String, dynamic>.from(data);
-      updatedMap['daXem'] = daXem;
-      await box.put(id, updatedMap);
-    }
+    try {
+      final box = await _getBox();
+      if (box == null) return;
+      final data = box.get(id);
+      if (data != null && data is Map) {
+        final updatedMap = Map<String, dynamic>.from(data);
+        updatedMap['daXem'] = daXem;
+        await box.put(id, updatedMap);
+      }
+    } catch (_) {}
   }
 
   @override
   Future<bool> isWatchlisted(int id) async {
-    final box = await _getBox();
-    return box.containsKey(id);
+    try {
+      final box = await _getBox();
+      if (box == null) return false;
+      return box.containsKey(id);
+    } catch (_) {
+      return false;
+    }
   }
 }

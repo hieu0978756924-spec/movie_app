@@ -8,14 +8,16 @@ abstract class AppColors {
   static const Color darkCard = Color(0xFF1E2634);
 
   // Cinema Light Palette
-  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color lightBackground = Color(0xFFFFFFFF);
   static const Color lightSurface = Color(0xFFFFFFFF);
   static const Color lightSurfaceVariant = Color(0xFFF1F5F9);
   static const Color lightCard = Color(0xFFFFFFFF);
 
-  // Accents & Brand Colors
-  static const Color primaryRed = Color(0xFFE50914);
-  static const Color primaryRedHover = Color(0xFFB81D24);
+  // Accents & Brand Colors (Stitch Pink Tone)
+  static const Color primaryRed = Color(0xFFFF2A5F);
+  static const Color primaryRedHover = Color(0xFFD61E4E);
+  static const Color deepPink = Color(0xFFE91E63);
+  static const Color deepPinkDark = Color(0xFFD81B60);
   static const Color accentGold = Color(0xFFFFC107);
   static const Color accentGoldLight = Color(0xFFFFD54F);
 
@@ -25,9 +27,9 @@ abstract class AppColors {
   static const Color darkTextMuted = Color(0xFF64748B);
 
   // Neutral Text & Icons - Light Mode
-  static const Color lightTextPrimary = Color(0xFF0F172A);
-  static const Color lightTextSecondary = Color(0xFF475569);
-  static const Color lightTextMuted = Color(0xFF94A3B8);
+  static const Color lightTextPrimary = Color(0xFF000000);
+  static const Color lightTextSecondary = Color(0xFF222222);
+  static const Color lightTextMuted = Color(0xFF555555);
 
   // Functional Status Colors
   static const Color success = Color(0xFF10B981);

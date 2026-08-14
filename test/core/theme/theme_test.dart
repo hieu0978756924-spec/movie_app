@@ -18,9 +18,9 @@ void main() {
     test('AppColors palette values are properly configured', () {
       expect(AppColors.darkBackground, equals(const Color(0xFF0B0E14)));
       expect(AppColors.darkSurface, equals(const Color(0xFF151C28)));
-      expect(AppColors.primaryRed, equals(const Color(0xFFE50914)));
+      expect(AppColors.primaryRed, equals(const Color(0xFFFF2A5F)));
       expect(AppColors.accentGold, equals(const Color(0xFFFFC107)));
-      expect(AppColors.lightBackground, equals(const Color(0xFFF8FAFC)));
+      expect(AppColors.lightBackground, equals(const Color(0xFFFFFFFF)));
     });
   });
 

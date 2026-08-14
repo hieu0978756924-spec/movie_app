@@ -9,7 +9,9 @@ class ErrorInterceptor extends Interceptor {
         err.type == DioExceptionType.sendTimeout ||
         err.type == DioExceptionType.receiveTimeout ||
         err.type == DioExceptionType.connectionError) {
-      throw NetworkException(err.message ?? 'Lỗi kết nối mạng');
+      throw const NetworkException(
+        'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.',
+      );
     }
 
     final statusCode = err.response?.statusCode;
@@ -19,6 +21,6 @@ class ErrorInterceptor extends Interceptor {
       throw ServerException(message: message, statusCode: statusCode);
     }
 
-    super.onError(err, handler);
+    handler.next(err);
   }
 }

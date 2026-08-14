@@ -18,6 +18,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   String _mapErrorMessage(Object e) {
+    final str = e.toString().toLowerCase();
+    if (str.contains('socketexception') ||
+        str.contains('failed host lookup') ||
+        str.contains('clientexception') ||
+        str.contains('connection refused') ||
+        str.contains('no address associated with hostname')) {
+      return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng!';
+    }
     if (e is AuthException) {
       if (e.code == 'invalid_credentials' ||
           e.message.contains('Invalid login credentials')) {
@@ -34,7 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return e.message;
     }
-    return e.toString();
+    return 'Đã xảy ra lỗi kết nối: ${e.toString()}';
   }
 
   @override

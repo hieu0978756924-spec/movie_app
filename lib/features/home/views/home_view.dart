@@ -19,9 +19,12 @@ class HomeView extends StatelessWidget {
       create: (_) => getIt<HomeBloc>()..add(FetchHomeMoviesEvent()),
       child: Builder(
         builder: (context) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
           return Scaffold(
+            backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
             appBar: AppBar(
-              backgroundColor: AppColors.darkBackground,
+              backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
               elevation: 0,
               title: const Row(
                 children: [
@@ -43,13 +46,20 @@ class HomeView extends StatelessWidget {
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.search, color: Colors.white),
+                  tooltip: 'Tìm kiếm phim',
+                  icon: Icon(
+                    Icons.search,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
                   onPressed: () {
                     context.push(RoutePath.search);
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.person_outline, color: Colors.white),
+                  icon: Icon(
+                    Icons.person_outline,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
                   onPressed: () {
                     context.push(RoutePath.profile);
                   },

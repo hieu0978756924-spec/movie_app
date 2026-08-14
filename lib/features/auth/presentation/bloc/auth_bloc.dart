@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../core/router/app_router.dart';
-import '../../../../core/services/preference_service.dart';
+import '../../../profile/data/user_profile_manager.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -30,9 +30,11 @@ class LoginSubmittedEvent extends AuthEvent {
 class RegisterSubmittedEvent extends AuthEvent {
   final String email;
   final String password;
-  const RegisterSubmittedEvent(this.email, this.password);
+  final String? name;
+  final String? dob;
+  const RegisterSubmittedEvent(this.email, this.password, {this.name, this.dob});
   @override
-  List<Object?> get props => [email, password];
+  List<Object?> get props => [email, password, name, dob];
 }
 
 class ResetPasswordSubmittedEvent extends AuthEvent {
@@ -41,8 +43,6 @@ class ResetPasswordSubmittedEvent extends AuthEvent {
   @override
   List<Object?> get props => [email];
 }
-
-class DemoLoginSubmittedEvent extends AuthEvent {}
 
 // States
 abstract class AuthState extends Equatable {
@@ -72,6 +72,14 @@ class ResetPasswordSuccessState extends AuthState {
   List<Object?> get props => [message];
 }
 
+class RegisterSuccessState extends AuthState {
+  final String message;
+  const RegisterSuccessState(
+      [this.message = 'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.']);
+  @override
+  List<Object?> get props => [message];
+}
+
 class AuthErrorState extends AuthState {
   final String message;
   const AuthErrorState(this.message);
@@ -96,7 +104,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginSubmittedEvent>(_onLoginSubmitted);
     on<RegisterSubmittedEvent>(_onRegisterSubmitted);
     on<ResetPasswordSubmittedEvent>(_onResetPasswordSubmitted);
-    on<DemoLoginSubmittedEvent>(_onDemoLoginSubmitted);
   }
 
   void _onCheckAuth(CheckAuthEvent event, Emitter<AuthState> emit) {
@@ -127,18 +134,41 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegisterSubmitted(
       RegisterSubmittedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
-    final result = await registerUseCase(event.email, event.password);
-    result.fold(
-      (failure) => emit(AuthErrorState(failure.message)),
-      (response) {
-        if (response.user != null) {
-          emit(AuthenticatedState(response.user!));
-        } else {
-          emit(const AuthErrorState(
-              'Đăng ký thành công. Vui lòng kiểm tra email để xác thực.'));
-        }
-      },
+    UserProfileManager.instance.updateProfile(
+      name: (event.name != null && event.name!.isNotEmpty) ? event.name : null,
+      dob: (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
+      email: event.email,
     );
+    try {
+      final result = await registerUseCase(event.email, event.password)
+          .timeout(const Duration(seconds: 10));
+      await result.fold(
+        (failure) async {
+          if (!emit.isDone) {
+            emit(AuthErrorState(failure.message));
+          }
+        },
+        (response) async {
+          try {
+            await Supabase.instance.client.auth.signOut().timeout(
+                  const Duration(seconds: 3),
+                  onTimeout: () {},
+                );
+          } catch (_) {}
+          if (!emit.isDone) {
+            emit(const RegisterSuccessState());
+          }
+        },
+      );
+    } on TimeoutException {
+      if (!emit.isDone) {
+        emit(const AuthErrorState('Quá thời gian kết nối (Timeout). Vui lòng thử lại!'));
+      }
+    } catch (e) {
+      if (!emit.isDone) {
+        emit(AuthErrorState('Đã xảy ra lỗi: ${e.toString()}'));
+      }
+    }
   }
 
   Future<void> _onResetPasswordSubmitted(
@@ -149,23 +179,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthErrorState(failure.message)),
       (_) => emit(const ResetPasswordSuccessState()),
     );
-  }
-
-  Future<void> _onDemoLoginSubmitted(
-      DemoLoginSubmittedEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoadingState());
-    await PreferenceService.saveLogin(true);
-    AppRouter.setDemoLoggedIn(true);
-
-    const demoUser = User(
-      id: 'demo-user-id',
-      appMetadata: {},
-      userMetadata: {'full_name': 'Khách Trải Nghiệm'},
-      aud: 'authenticated',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      email: 'demo@gocphim.com',
-    );
-    emit(const AuthenticatedState(demoUser));
   }
 }
 

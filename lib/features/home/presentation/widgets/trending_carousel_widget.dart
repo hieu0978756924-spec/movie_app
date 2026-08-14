@@ -90,14 +90,14 @@ class _TrendingCarouselWidgetState extends State<TrendingCarouselWidget> {
                             ? Image.network(
                                 backdropUrl,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallback(),
+                                errorBuilder: (_, __, ___) => _buildFallback(movie.id),
                               )
                             : Image.asset(
-                                movie.hinhAnh.isNotEmpty
+                                movie.hinhAnh.startsWith('assets/')
                                     ? movie.hinhAnh
-                                    : 'assets/images/latmat7.jpg',
+                                    : ImageUrlHelper.getLocalFallbackImage(movie.id),
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallback(),
+                                errorBuilder: (_, __, ___) => _buildFallback(movie.id),
                               ),
                         // Gradient overlay
                         Container(
@@ -158,7 +158,7 @@ class _TrendingCarouselWidgetState extends State<TrendingCarouselWidget> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${movie.diemDanhGia.toStringAsFixed(1)} / 10',
+                                    '${movie.diemDanhGia.toStringAsFixed(1)} / 5',
                                     style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 12,
@@ -202,14 +202,18 @@ class _TrendingCarouselWidgetState extends State<TrendingCarouselWidget> {
     );
   }
 
-  Widget _buildFallback() {
-    return Container(
-      color: AppColors.darkSurfaceVariant,
-      child: const Center(
-        child: Icon(
-          Icons.local_movies_outlined,
-          color: Colors.white38,
-          size: 48,
+  Widget _buildFallback(int movieId) {
+    return Image.asset(
+      ImageUrlHelper.getLocalFallbackImage(movieId),
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        color: AppColors.darkSurfaceVariant,
+        child: const Center(
+          child: Icon(
+            Icons.local_movies_outlined,
+            color: Colors.white38,
+            size: 48,
+          ),
         ),
       ),
     );

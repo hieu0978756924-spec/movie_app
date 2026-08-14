@@ -1,20 +1,44 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:movie_app/features/home/models/movie.dart';
 import 'package:movie_app/features/watchlist/data/datasources/watchlist_local_datasource.dart';
+import 'package:movie_app/features/watchlist/data/datasources/watchlist_remote_datasource.dart';
 import 'package:movie_app/features/watchlist/data/models/watchlist_item_model.dart';
 import 'package:movie_app/features/watchlist/data/repositories/watchlist_repository_impl.dart';
 
 class MockWatchlistLocalDataSource extends Mock
     implements WatchlistLocalDataSource {}
 
+class MockWatchlistRemoteDataSource extends Mock
+    implements WatchlistRemoteDataSource {}
+
+class MockSupabaseClient extends Mock implements SupabaseClient {}
+class MockGoTrueClient extends Mock implements GoTrueClient {}
+class MockUser extends Mock implements User {}
+
 void main() {
   late MockWatchlistLocalDataSource mockLocalDataSource;
+  late MockWatchlistRemoteDataSource mockRemoteDataSource;
+  late MockSupabaseClient mockSupabaseClient;
+  late MockGoTrueClient mockGoTrueClient;
   late WatchlistRepositoryImpl repository;
 
   setUp(() {
     mockLocalDataSource = MockWatchlistLocalDataSource();
-    repository = WatchlistRepositoryImpl(mockLocalDataSource);
+    mockRemoteDataSource = MockWatchlistRemoteDataSource();
+    mockSupabaseClient = MockSupabaseClient();
+    mockGoTrueClient = MockGoTrueClient();
+
+    when(() => mockSupabaseClient.auth).thenReturn(mockGoTrueClient);
+    when(() => mockGoTrueClient.currentUser).thenReturn(null);
+
+    repository = WatchlistRepositoryImpl(
+      mockLocalDataSource,
+      mockRemoteDataSource,
+      mockSupabaseClient,
+    );
+
     registerFallbackValue(
       const WatchlistItemModel(
         id: 1,
@@ -96,6 +120,29 @@ void main() {
 
       expect(result.isRight(), isTrue);
       verify(() => mockLocalDataSource.toggleWatched(1, true)).called(1);
+    });
+
+    test('syncWatchlist returns Right(null) when user is not logged in', () async {
+      final result = await repository.syncWatchlist();
+      expect(result.isRight(), isTrue);
+    });
+
+    test('syncWatchlist performs bidirectional merge when user is logged in', () async {
+      final mockUser = MockUser();
+      when(() => mockUser.id).thenReturn('user_123');
+      when(() => mockGoTrueClient.currentUser).thenReturn(mockUser);
+
+      when(() => mockLocalDataSource.getWatchlist())
+          .thenAnswer((_) async => [tModel]);
+      when(() => mockRemoteDataSource.getRemoteWatchlist('user_123'))
+          .thenAnswer((_) async => []);
+      when(() => mockRemoteDataSource.upsertRemoteWatchlist('user_123', any()))
+          .thenAnswer((_) async {});
+
+      final result = await repository.syncWatchlist();
+
+      expect(result.isRight(), isTrue);
+      verify(() => mockRemoteDataSource.upsertRemoteWatchlist('user_123', tModel)).called(1);
     });
   });
 }

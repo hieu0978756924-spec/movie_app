@@ -13,6 +13,10 @@ class LoadWatchlistEvent extends WatchlistEvent {
   const LoadWatchlistEvent();
 }
 
+class SyncWatchlistEvent extends WatchlistEvent {
+  const SyncWatchlistEvent();
+}
+
 class AddMovieToWatchlistEvent extends WatchlistEvent {
   final Movie movie;
 

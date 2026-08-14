@@ -6,6 +6,8 @@ import '../../../core/di/injection.dart';
 import '../../../core/router/route_names.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../core/utils/user_session.dart';
+import '../../profile/data/user_profile_manager.dart';
 import '../presentation/bloc/auth_bloc.dart';
 
 class LoginView extends StatefulWidget {
@@ -104,6 +106,17 @@ class _LoginViewState extends State<LoginView> {
                       child: BlocConsumer<AuthBloc, AuthState>(
                         listener: (context, state) {
                           if (state is AuthenticatedState) {
+                            UserSession.instance.setGuestMode(false);
+                            final loggedEmail = state.user.email ?? emailController.text.trim();
+                            final metaName = state.user.userMetadata?['name'] ?? state.user.userMetadata?['full_name'];
+                            final nameToUse = (metaName != null && metaName.toString().isNotEmpty)
+                                ? metaName.toString()
+                                : null;
+
+                            UserProfileManager.instance.updateProfile(
+                              email: loggedEmail.isNotEmpty ? loggedEmail : null,
+                              name: nameToUse,
+                            );
                             context.go(RoutePath.home);
                           } else if (state is AuthErrorState) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -510,7 +523,7 @@ class _LoginViewState extends State<LoginView> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Image.network(
-                                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/480px-Google_%22G%22_logo.svg.png',
                                               height: 20,
                                               width: 20,
                                               errorBuilder:
@@ -534,42 +547,34 @@ class _LoginViewState extends State<LoginView> {
                                         ),
                                       ),
                                       const SizedBox(height: 12),
-
-                                      // --- Demo Guest Login Button ---
-                                      OutlinedButton(
-                                        key: const Key('login_demo_button'),
+                                      // --- Guest Mode Experience Button ---
+                                      OutlinedButton.icon(
                                         style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size.fromHeight(48),
-                                          side: BorderSide(
-                                            color: AppColors.neonCoral.withValues(alpha: 0.5),
+                                          minimumSize: const Size.fromHeight(50),
+                                          backgroundColor: AppColors.primaryRed.withAlpha(25),
+                                          side: const BorderSide(
+                                            color: AppColors.primaryRed,
+                                            width: 1.5,
                                           ),
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(14),
                                           ),
                                         ),
-                                        onPressed: isLoading
-                                            ? null
-                                            : () {
-                                                authBloc.add(DemoLoginSubmittedEvent());
-                                              },
-                                        child: const Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.bolt_rounded,
-                                              color: AppColors.neonCoral,
-                                              size: 20,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              "Đăng nhập dùng thử (Khám phá ngay)",
-                                              style: TextStyle(
-                                                color: AppColors.neonCoral,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
+                                        onPressed: () {
+                                          UserSession.instance.setGuestMode(true);
+                                          context.go(RoutePath.home);
+                                        },
+                                        icon: const Icon(
+                                          Icons.visibility_outlined,
+                                          color: AppColors.primaryRed,
+                                        ),
+                                        label: const Text(
+                                          "Trải nghiệm Giao diện (Khách)",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],

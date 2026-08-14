@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/app_colors.dart';
 
 class MainLayoutView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -25,9 +24,6 @@ class MainLayoutView extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
         onTap: _onTap,
-        selectedItemColor: AppColors.primaryRed,
-        unselectedItemColor: Colors.white54,
-        backgroundColor: AppColors.darkSurface,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
@@ -36,9 +32,9 @@ class MainLayoutView extends StatelessWidget {
             label: "Trang chủ",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: "Tìm kiếm",
+            icon: Icon(Icons.bookmark_outline_rounded),
+            activeIcon: Icon(Icons.bookmark_rounded),
+            label: "Watchlist",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite_outline),

@@ -5,23 +5,21 @@ import 'route_names.dart';
 import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
+import '../../features/favorites/views/favorites_view.dart';
 import '../../features/watchlist/presentation/views/watchlist_view.dart';
 import '../../features/home/models/movie.dart';
 import '../../features/home/views/category_view.dart';
 import '../../features/home/views/home_view.dart';
 import '../../features/home/views/main_layout_view.dart';
 import '../../features/home/views/movie_detail_view.dart';
+import '../../features/profile/views/personal_info_view.dart';
 import '../../features/profile/views/profile_view.dart';
+import '../../features/profile/views/watched_videos_view.dart';
 import '../../features/search/views/search_view.dart';
 import '../../features/splash/views/splash_view.dart';
 
 class AppRouter {
   static bool Function()? _authCheckOverride;
-  static bool _demoLoggedIn = false;
-
-  static void setDemoLoggedIn(bool value) {
-    _demoLoggedIn = value;
-  }
 
   /// For testing purposes to override Supabase auth check
   static void setAuthCheckOverride(bool Function()? override) {
@@ -32,7 +30,6 @@ class AppRouter {
     if (_authCheckOverride != null) {
       return _authCheckOverride!();
     }
-    if (_demoLoggedIn) return true;
     try {
       return Supabase.instance.client.auth.currentSession != null;
     } catch (_) {
@@ -40,8 +37,28 @@ class AppRouter {
     }
   }
 
-  static final GoRouter router = GoRouter(
+  static final router = GoRouter(
     initialLocation: RoutePath.splash,
+    redirect: (context, state) {
+      final isSplash = state.matchedLocation == RoutePath.splash;
+      final isLoggingIn = state.matchedLocation == RoutePath.login;
+      final isRegistering = state.matchedLocation == RoutePath.register;
+      final isForgotPassword = state.matchedLocation == RoutePath.forgotPassword;
+
+      if (isSplash || isRegistering || isForgotPassword) {
+        return null;
+      }
+
+      if (!isAuthenticated && !isLoggingIn) {
+        return RoutePath.login;
+      }
+
+      if (isAuthenticated && isLoggingIn) {
+        return RoutePath.home;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: RoutePath.splash,
@@ -80,18 +97,18 @@ class AppRouter {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePath.search,
-                name: RouteName.search,
-                builder: (context, state) => const SearchView(),
+                path: RoutePath.watchlist,
+                name: RouteName.watchlist,
+                builder: (context, state) => const WatchlistView(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePath.watchlist,
-                name: RouteName.watchlist,
-                builder: (context, state) => const WatchlistView(),
+                path: RoutePath.favorites,
+                name: RouteName.favorites,
+                builder: (context, state) => const FavoritesView(),
               ),
             ],
           ),
@@ -105,6 +122,21 @@ class AppRouter {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: RoutePath.search,
+        name: RouteName.search,
+        builder: (context, state) => const SearchView(),
+      ),
+      GoRoute(
+        path: RoutePath.personalInfo,
+        name: RouteName.personalInfo,
+        builder: (context, state) => const PersonalInfoView(),
+      ),
+      GoRoute(
+        path: RoutePath.watchedVideos,
+        name: RouteName.watchedVideos,
+        builder: (context, state) => const WatchedVideosView(),
       ),
       GoRoute(
         path: RoutePath.category,
@@ -125,7 +157,7 @@ class AppRouter {
           final movieId = state.pathParameters['id'] ?? '0';
           final fallbackMovie = Movie(
             tenPhim: 'Phim #$movieId',
-            hinhAnh: 'assets/images/latmat7.jpg',
+            hinhAnh: 'assets/images/dune2.jpg',
             theLoai: 'Action',
             diemDanhGia: 8.0,
             thoiLuong: '120 min',
@@ -137,26 +169,5 @@ class AppRouter {
         },
       ),
     ],
-    redirect: (context, state) {
-      final loggedIn = isAuthenticated;
-      final matchedLocation = state.matchedLocation;
-
-      final isAuthRoute = matchedLocation == RoutePath.login ||
-          matchedLocation == RoutePath.register ||
-          matchedLocation == RoutePath.forgotPassword;
-      final isSplashRoute = matchedLocation == RoutePath.splash;
-
-      if (!loggedIn) {
-        if (!isAuthRoute && !isSplashRoute) {
-          return RoutePath.login;
-        }
-      } else {
-        if (isAuthRoute) {
-          return RoutePath.home;
-        }
-      }
-
-      return null;
-    },
   );
 }
