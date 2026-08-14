@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/constants/supabase_constants.dart';
 import 'core/di/injection.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
 
   if (SupabaseConstants.supabaseUrl.isNotEmpty &&
       SupabaseConstants.supabaseAnonKey.isNotEmpty) {
@@ -24,15 +31,21 @@ class MovieApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Góc Phim',
-      theme: ThemeData.dark(),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Góc Phim App Initialized'),
-        ),
+    return BlocProvider<ThemeCubit>(
+      create: (_) => getIt<ThemeCubit>(),
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: 'Góc Phim',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeMode,
+            routerConfig: AppRouter.router,
+          );
+        },
       ),
     );
   }
 }
+
