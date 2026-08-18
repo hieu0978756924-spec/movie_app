@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../home/models/movie.dart';
 
 class WatchedVideoItem {
@@ -11,11 +13,48 @@ class WatchedVideoItem {
     required this.watchedAt,
     required this.progress,
   });
+
+  Map<String, dynamic> toJson() => {
+        'movie': movie.toJson(),
+        'watchedAt': watchedAt,
+        'progress': progress,
+      };
+
+  factory WatchedVideoItem.fromJson(Map<String, dynamic> json) =>
+      WatchedVideoItem(
+        movie: Movie.fromJson(json['movie'] as Map<String, dynamic>),
+        watchedAt: json['watchedAt'] as String? ?? 'Mới xong',
+        progress: (json['progress'] as num?)?.toDouble() ?? 1.0,
+      );
 }
 
 class WatchHistoryManager {
+  static const String _key = 'watched_video_history_json';
+
   WatchHistoryManager._internal() {
-    history = ValueNotifier<List<WatchedVideoItem>>([
+    history = ValueNotifier<List<WatchedVideoItem>>([]);
+    _loadHistory();
+  }
+
+  static final WatchHistoryManager instance = WatchHistoryManager._internal();
+
+  late final ValueNotifier<List<WatchedVideoItem>> history;
+
+  Future<void> _loadHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? jsonStr = prefs.getString(_key);
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final List<dynamic> list = jsonDecode(jsonStr);
+        history.value = list
+            .map((e) => WatchedVideoItem.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return;
+      }
+    } catch (_) {}
+
+    // Fallback initial sample data if no saved history exists yet
+    history.value = [
       WatchedVideoItem(
         movie: Movie(
           id: 693134,
@@ -64,12 +103,17 @@ class WatchHistoryManager {
         watchedAt: '3 ngày trước',
         progress: 0.45,
       ),
-    ]);
+    ];
   }
 
-  static final WatchHistoryManager instance = WatchHistoryManager._internal();
-
-  late final ValueNotifier<List<WatchedVideoItem>> history;
+  Future<void> _saveHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr =
+          jsonEncode(history.value.map((e) => e.toJson()).toList());
+      await prefs.setString(_key, jsonStr);
+    } catch (_) {}
+  }
 
   void addWatchedVideo(Movie movie, {double progress = 1.0}) {
     final currentList = List<WatchedVideoItem>.from(history.value);
@@ -83,6 +127,7 @@ class WatchHistoryManager {
       ),
     );
     history.value = currentList;
+    _saveHistory();
   }
 
   void removeItemAt(int index) {
@@ -90,6 +135,7 @@ class WatchHistoryManager {
       final currentList = List<WatchedVideoItem>.from(history.value);
       currentList.removeAt(index);
       history.value = currentList;
+      _saveHistory();
     }
   }
 
@@ -97,9 +143,11 @@ class WatchHistoryManager {
     final currentList = List<WatchedVideoItem>.from(history.value);
     currentList.removeWhere((item) => item.movie.id == movieId);
     history.value = currentList;
+    _saveHistory();
   }
 
   void clearHistory() {
     history.value = [];
+    _saveHistory();
   }
 }

@@ -134,14 +134,18 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     result.fold(
       (failure) => emit(currentState.copyWith(isLoadingMore: false)),
       (newMovies) {
-        if (newMovies.isEmpty) {
+        final existingIds = currentState.movies.map((m) => m.id).toSet();
+        final uniqueNewMovies =
+            newMovies.where((m) => !existingIds.contains(m.id)).toList();
+
+        if (uniqueNewMovies.isEmpty) {
           emit(currentState.copyWith(
             hasReachedMax: true,
             isLoadingMore: false,
           ));
         } else {
           emit(currentState.copyWith(
-            movies: List.of(currentState.movies)..addAll(newMovies),
+            movies: List.of(currentState.movies)..addAll(uniqueNewMovies),
             currentPage: nextPage,
             hasReachedMax: false,
             isLoadingMore: false,
@@ -150,6 +154,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       },
     );
   }
+
 
   Future<Either<Failure, List<Movie>>> _fetchMoviesForCategory(
       String categoryType, int page) {

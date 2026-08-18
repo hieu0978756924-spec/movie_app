@@ -1,0 +1,60 @@
+[
+  {
+    "id": 101,
+    "name": "Timothée Chalamet",
+    "profilePath": "assets/images/actor_1.jpg",
+    "biography": "Timothée Hal Chalamet là một nam diễn viên người Mỹ gốc Pháp. Anh nhận được nhiều giải thưởng lớn bao gồm đề cử giải Oscar, giải BAFTA và ba giải Quả cầu vàng. Anh được biết đến qua các tác phẩm Call Me by Your Name, Dune, Wonka.",
+    "birthday": "1995-12-27",
+    "placeOfBirth": "New York City, New York, USA",
+    "knownFor": [
+      { "id": 1, "title": "Dune: Hành Tinh Cát - Phần Two", "posterPath": "assets/images/dune2.jpg" },
+      { "id": 6, "title": "Interstellar", "posterPath": "assets/images/interstellar.jpg" }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Zendaya",
+    "profilePath": "assets/images/actor_2.jpg",
+    "biography": "Zendaya Maree Stoermer Coleman là một nữ diễn viên và ca sĩ người Mỹ. Cô từng nhận nhiều giải thưởng uy tín như hai giải Emmy và giải Quả cầu vàng. Cô nổi tiếng với các vai diễn trong Euphoria, Spider-Man, Dune và Furiosa.",
+    "birthday": "1996-09-01",
+    "placeOfBirth": "Oakland, California, USA",
+    "knownFor": [
+      { "id": 1, "title": "Dune: Hành Tinh Cát - Phần Two", "posterPath": "assets/images/dune2.jpg" },
+      { "id": 10, "title": "Furiosa: A Mad Max Saga", "posterPath": "assets/images/furiosa.jpg" }
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Cillian Murphy",
+    "profilePath": "assets/images/actor_1.jpg",
+    "biography": "Cillian Murphy là một nam diễn viên người Ireland. Anh nổi tiếng qua vai diễn Thomas Shelby trong Peaky Blinders và J. Robert Oppenheimer trong tác phẩm Oppenheimer của Christopher Nolan giúp anh đoạt giải Oscar.",
+    "birthday": "1976-05-25",
+    "placeOfBirth": "Douglas, Cork, Ireland",
+    "knownFor": [
+      { "id": 2, "title": "Oppenheimer", "posterPath": "assets/images/oppenheimer.jpg" },
+      { "id": 6, "title": "Interstellar", "posterPath": "assets/images/interstellar.jpg" }
+    ]
+  },
+  {
+    "id": 105,
+    "name": "Ryan Reynolds",
+    "profilePath": "assets/images/avatar.jpg",
+    "biography": "Ryan Rodney Reynolds là một nam diễn viên và nhà sản xuất phim người Canada-Mỹ. Anh nổi tiếng thế giới qua nhân vật Deadpool của Marvel.",
+    "birthday": "1976-10-23",
+    "placeOfBirth": "Vancouver, British Columbia, Canada",
+    "knownFor": [
+      { "id": 3, "title": "Deadpool & Wolverine", "posterPath": "assets/images/deadpool.jpg" }
+    ]
+  },
+  {
+    "id": 106,
+    "name": "Hugh Jackman",
+    "profilePath": "assets/images/avatar2.jpg",
+    "biography": "Hugh Michael Jackman là nam diễn viên người Úc. Anh giữ kỷ lục Guinness thế giới về sự nghiệp dài nhất với vai diễn siêu hận Wolverine của Marvel.",
+    "birthday": "1968-10-12",
+    "placeOfBirth": "Sydney, Australia",
+    "knownFor": [
+      { "id": 3, "title": "Deadpool & Wolverine", "posterPath": "assets/images/deadpool.jpg" }
+    ]
+  }
+]

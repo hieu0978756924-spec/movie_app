@@ -81,6 +81,9 @@ import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
 import '../router/router_module.dart' as _i948;
 import '../theme/theme_cubit.dart' as _i611;
+import '../localization/language_cubit.dart';
+import '../services/local_json_service.dart';
+
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -100,6 +103,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i454.SupabaseClient>(() => supabaseModule.supabase);
     gh.singleton<_i583.GoRouter>(() => routerModule.router);
     gh.lazySingleton<_i611.ThemeCubit>(() => _i611.ThemeCubit());
+    gh.lazySingleton<LanguageCubit>(() => LanguageCubit());
+    gh.lazySingleton<LocalJsonService>(() => LocalJsonService());
+
     gh.lazySingleton<_i205.WatchlistRemoteDataSource>(
         () => _i205.WatchlistRemoteDataSourceImpl(gh<_i454.SupabaseClient>()));
     gh.lazySingleton<_i161.AuthRemoteDataSource>(
@@ -191,6 +197,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i288.GetMovieCreditsUseCase>(),
           gh<_i989.GetMovieTrailersUseCase>(),
           gh<_i639.GetSimilarMoviesUseCase>(),
+          gh<_i974.WatchlistRepository>(),
         ));
     return this;
   }

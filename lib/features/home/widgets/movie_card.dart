@@ -83,36 +83,26 @@ class _MovieCardState extends State<MovieCard> {
                 Positioned(
                   right: 10,
                   top: 10,
-
-                  child: CircleAvatar(
-                    backgroundColor: Colors.black54,
-
-                    child: IconButton(
-
-                      onPressed: () {
-
-                        setState(() {
-
-                          controller.doiTrangThaiYeuThich(
-                            widget.movie,
-                          );
-
-                        });
-
-                        if (widget.onReload != null) {
-                          widget.onReload!();
-                        }
-                      },
-
-                      icon: Icon(
-
-                        widget.movie.yeuThich
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-
-                        color: Colors.red,
-                      ),
-                    ),
+                  child: ListenableBuilder(
+                    listenable: controller,
+                    builder: (context, _) {
+                      final isFav = controller.favoriteMovieIds.contains(widget.movie.id) || widget.movie.yeuThich;
+                      return CircleAvatar(
+                        backgroundColor: Colors.black54,
+                        child: IconButton(
+                          onPressed: () {
+                            controller.doiTrangThaiYeuThich(widget.movie);
+                            if (widget.onReload != null) {
+                              widget.onReload!();
+                            }
+                          },
+                          icon: Icon(
+                            isFav ? Icons.favorite : Icons.favorite_border,
+                            color: Colors.red,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -156,7 +146,7 @@ class _MovieCardState extends State<MovieCard> {
                         const SizedBox(width: 5),
 
                         Text(
-                          widget.movie.diemDanhGia.toString(),
+                          '${widget.movie.diemDanhGia.toStringAsFixed(1)}/10',
                         ),
                       ],
                     ),

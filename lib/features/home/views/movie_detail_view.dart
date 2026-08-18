@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../presentation/widgets/pip_trailer_manager.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../core/router/route_names.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
+
+
 import '../../../core/utils/image_url_helper.dart';
 import '../../../core/utils/user_session.dart';
+import '../../../core/utils/youtube_utils.dart';
 import '../controllers/home_controller.dart';
+import '../domain/entities/cast.dart';
 import '../models/movie.dart';
+
 import '../presentation/bloc/movie_detail_bloc.dart';
 import '../presentation/widgets/movie_section_widget.dart';
 import '../../review/presentation/widgets/review_list_widget.dart';
@@ -34,14 +39,24 @@ class _MovieDetailViewState extends State<MovieDetailView> {
   YoutubePlayerController? _youtubeController;
   String? _currentTrailerKey;
 
-
-
   void _playTrailerInline(String youtubeKey, [Movie? movie]) {
+    final targetMovie = movie ?? widget.movie;
     final keyToPlay = youtubeKey.trim();
-    if (keyToPlay.isEmpty) return;
 
-    WatchHistoryManager.instance.addWatchedVideo(movie ?? widget.movie);
-    
+    WatchHistoryManager.instance.addWatchedVideo(targetMovie);
+
+    if (keyToPlay.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Trailer cho phim "${targetMovie.tenPhim}" chưa có sẵn.'),
+            backgroundColor: AppColors.primaryRed,
+          ),
+        );
+      }
+      return;
+    }
+
     if (_currentTrailerKey != keyToPlay || _youtubeController == null) {
       _youtubeController?.dispose();
       _currentTrailerKey = keyToPlay;
@@ -54,14 +69,7 @@ class _MovieDetailViewState extends State<MovieDetailView> {
           isLive: false,
           forceHD: false,
         ),
-      )..addListener(() async {
-          if (_youtubeController != null && _youtubeController!.value.hasError) {
-            final youtubeUrl = Uri.parse('https://www.youtube.com/watch?v=$keyToPlay');
-            if (await canLaunchUrl(youtubeUrl)) {
-              await launchUrl(youtubeUrl, mode: LaunchMode.externalApplication);
-            }
-          }
-        });
+      );
     } else {
       _youtubeController?.play();
     }
@@ -70,55 +78,6 @@ class _MovieDetailViewState extends State<MovieDetailView> {
       setState(() {
         _isPlayingTrailer = true;
       });
-    }
-  }
-
-  String _getFallbackTrailerKeyForMovie(int movieId) {
-    switch (movieId) {
-      case 693134:
-        return 'Way9Dexny3w'; // Dune: Part Two
-      case 872585:
-        return 'uYPbbksJxIg'; // Oppenheimer
-      case 533535:
-        return '73_1biulkYk'; // Deadpool & Wolverine
-      case 299534:
-        return 'TcMBFSGVi1c'; // Avengers: Endgame
-      case 634649:
-        return 'JfVOs4VSpmA'; // Spider-Man: No Way Home
-      case 76600:
-        return 'd9MyW72ELq0'; // Avatar: The Way of Water
-      case 475557:
-        return 'zAGVQLHvwOY'; // Joker
-      case 1011985:
-        return '_inKs4eeHiI'; // Kung Fu Panda 4
-      case 1022789:
-        return 'LEjhY15eCx0'; // Inside Out 2
-      case 414906:
-        return 'mqqft2x_Aa4'; // The Batman
-      case 361743:
-        return 'qSqVVswa420'; // Top Gun Maverick
-      case 157336:
-        return 'zSWdZVtXT7E'; // Interstellar
-      case 558449:
-        return '4mgUU-f4n_w'; // Gladiator II
-      case 786892:
-        return 'XJMuhwVwcaU'; // Furiosa
-      case 572802:
-        return 'UGc5Tzaiac0'; // Aquaman 2
-      case 575264:
-        return '2m1drlOZSDw'; // Mission Impossible 7
-      case 385687:
-        return 'eoOaKN4qCKw'; // Fast X
-      case 698687:
-        return 'u2NuUW3W1e0'; // Transformers One
-      case 823464:
-        return 'lV1OOlGwExM'; // Godzilla x Kong
-      case 569094:
-        return 'cqGjhVJWtEg'; // Spider-Man Spider-Verse
-      case 27205:
-        return 'YoHD9XEInc0'; // Inception
-      default:
-        return 'Way9Dexny3w';
     }
   }
 
@@ -140,11 +99,25 @@ class _MovieDetailViewState extends State<MovieDetailView> {
           ),
         ),
       );
-      if (officialTrailer.key.trim().isNotEmpty) {
-        return officialTrailer.key.trim();
+      final key = YoutubeUtils.extractYoutubeKey(officialTrailer.key);
+      if (key.isNotEmpty) {
+        return key;
       }
     }
-    return _getFallbackTrailerKeyForMovie(widget.movie.id);
+
+    final fromWidgetMovie = YoutubeUtils.extractYoutubeKey(widget.movie.trailerUrl);
+    if (fromWidgetMovie.isNotEmpty) {
+      return fromWidgetMovie;
+    }
+
+    if (state is MovieDetailLoadedState) {
+      final fromStateMovie = YoutubeUtils.extractYoutubeKey(state.movie.trailerUrl);
+      if (fromStateMovie.isNotEmpty) {
+        return fromStateMovie;
+      }
+    }
+
+    return YoutubeUtils.getFallbackTrailerKeyForMovieId(widget.movie.id);
   }  @override
   void dispose() {
     _youtubeController?.dispose();
@@ -288,15 +261,20 @@ class _MovieDetailViewState extends State<MovieDetailView> {
               ],
               child: BlocBuilder<MovieDetailBloc, MovieDetailState>(
               builder: (context, state) {
+                final locale = AppLocalizations.of(context);
                 Movie currentMovie = widget.movie;
+
                 final indexInHome = HomeController.instance.danhSachPhim.indexWhere((m) => m.id == widget.movie.id);
                 if (indexInHome != -1) {
                   currentMovie = currentMovie.copyWith(yeuThich: HomeController.instance.danhSachPhim[indexInHome].yeuThich);
                 }
                 bool isWatchlisted = false;
+                List<Movie> similarMoviesList = [];
                 if (state is MovieDetailLoadedState) {
                   isWatchlisted = state.isWatchlisted;
+                  similarMoviesList = state.similarMovies;
                   currentMovie = state.movie.copyWith(
+
                     hinhAnh: widget.movie.hinhAnh.startsWith('assets/')
                         ? widget.movie.hinhAnh
                         : state.movie.hinhAnh,
@@ -541,7 +519,8 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            '${currentMovie.diemDanhGia.toStringAsFixed(1)} / 5',
+                                            '${currentMovie.diemDanhGia.toStringAsFixed(1)} / 10',
+
                                             style: TextStyle(
                                               color: isDark ? Colors.white : AppColors.lightTextPrimary,
                                               fontSize: 15,
@@ -712,13 +691,18 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                           context,
                                           actionName: 'xem phim',
                                           onAuthenticated: () {
-                                            const dedicatedMovieKey = 'cSR2yoExSxw';
+                                            String dedicatedMovieKey = _getTmdbTrailerKey(state);
+                                            if (dedicatedMovieKey.isEmpty) {
+                                              dedicatedMovieKey = 'ARA6Bfqfo8c'; // Doraemon trailer fallback key
+                                            }
                                             _playTrailerInline(dedicatedMovieKey, currentMovie);
-                                            PipTrailerManager.instance.playTrailer(
-                                              context,
-                                              youtubeKey: dedicatedMovieKey,
-                                              title: currentMovie.tenPhim,
-                                              movie: currentMovie,
+                                            context.pushNamed(
+                                              RouteName.moviePlayer,
+                                              pathParameters: {'id': currentMovie.id.toString()},
+                                              extra: {
+                                                'movie': currentMovie,
+                                                'key': dedicatedMovieKey,
+                                              },
                                             );
                                           },
                                         );
@@ -743,11 +727,9 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 24),
-
-                            // Overview Section
+                                    // Overview Section
                             Text(
-                              'Nội dung phim',
+                              locale.translate('synopsis'),
                               style: TextStyle(
                                 color: isDark ? Colors.white : AppColors.lightTextPrimary,
                                 fontSize: 18,
@@ -779,8 +761,8 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                   padding: const EdgeInsets.only(top: 6),
                                   child: Text(
                                     _isOverviewExpanded
-                                        ? 'Thu gọn'
-                                        : 'Xem thêm',
+                                        ? locale.translate('show_less')
+                                        : locale.translate('see_more'),
                                     style: const TextStyle(
                                       color: AppColors.primaryRed,
                                       fontWeight: FontWeight.bold,
@@ -790,15 +772,175 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                 ),
                               ),
                             const SizedBox(height: 24),
-                            if (state is MovieDetailLoadedState) ...[
-                              if (state.similarMovies.isNotEmpty) ...[
-                                const SizedBox(height: 16),
-                                MovieSectionWidget(
-                                  title: 'Phim Tương Tự',
-                                  movies: state.similarMovies,
-                                ),
-                              ],
-                            ],
+
+                            // Cast & Crew Section
+                            Text(
+                              locale.translate('cast'),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+
+                            SizedBox(
+                              height: 140,
+                              child: Builder(
+                                builder: (context) {
+                                  List<Cast> apiCastList = [];
+                                  if (state is MovieDetailLoadedState &&
+                                      state.castList.isNotEmpty) {
+                                    apiCastList = state.castList;
+                                  }
+
+                                  if (apiCastList.isNotEmpty) {
+                                    return ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: apiCastList.length,
+                                      itemBuilder: (context, index) {
+                                        final castItem = apiCastList[index];
+                                        final imgUrl = ImageUrlHelper.getProfileUrl(castItem.profilePath);
+
+                                        return GestureDetector(
+                                          onTap: () {
+                                            context.push(RoutePath.actorPath(castItem.id));
+                                          },
+                                          child: Container(
+                                            width: 90,
+                                            margin: const EdgeInsets.only(right: 14),
+                                            child: Column(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 34,
+                                                  backgroundColor: AppColors.darkSurfaceVariant,
+                                                  child: ClipOval(
+                                                    child: imgUrl != null
+                                                        ? Image.network(
+                                                            imgUrl,
+                                                            width: 68,
+                                                            height: 68,
+                                                            fit: BoxFit.cover,
+                                                            errorBuilder: (_, __, ___) => Image.asset(
+                                                              'assets/images/actor_1.jpg',
+                                                              width: 68,
+                                                              height: 68,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          )
+                                                        : Image.asset(
+                                                            castItem.profilePath?.startsWith('assets/') == true
+                                                                ? castItem.profilePath!
+                                                                : 'assets/images/actor_1.jpg',
+                                                            width: 68,
+                                                            height: 68,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  castItem.name,
+                                                  textAlign: TextAlign.center,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  castItem.character,
+                                                  textAlign: TextAlign.center,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: isDark ? Colors.white54 : AppColors.lightTextMuted,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+
+                                  return ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: currentMovie.cast.isNotEmpty
+                                        ? currentMovie.cast.length
+                                        : 2,
+                                    itemBuilder: (context, index) {
+                                      final castItem = currentMovie.cast.isNotEmpty
+                                          ? currentMovie.cast[index]
+                                          : MovieCastMember(
+                                              actorId: index == 0 ? 101 : 102,
+                                              characterName: index == 0 ? 'Nam chính' : 'Nữ chính',
+                                            );
+                                      final actor = HomeController.instance.getActorById(castItem.actorId);
+                                      final actorName = actor?.name ?? (index == 0 ? 'Timothée Chalamet' : 'Zendaya');
+                                      final profileImage = actor?.profilePath ?? (index == 0 ? 'assets/images/actor_1.jpg' : 'assets/images/actor_2.jpg');
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          context.push(RoutePath.actorPath(castItem.actorId));
+                                        },
+                                        child: Container(
+                                          width: 85,
+                                          margin: const EdgeInsets.only(right: 14),
+                                          child: Column(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 34,
+                                                backgroundColor: AppColors.darkSurfaceVariant,
+                                                backgroundImage: AssetImage(profileImage),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                actorName,
+                                                textAlign: TextAlign.center,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                                                ),
+                                              ),
+                                              Text(
+                                                castItem.characterName,
+                                                textAlign: TextAlign.center,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: isDark ? Colors.white54 : AppColors.lightTextMuted,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+
+                            if (similarMoviesList.isNotEmpty)
+                              MovieSectionWidget(
+                                title: locale.translate('similar_movies'),
+                                movies: similarMoviesList,
+                              ),
+
+
+
+
+
                             const SizedBox(height: 24),
                             ReviewListWidget(movieId: currentMovie.id),
                             const SizedBox(height: 10),

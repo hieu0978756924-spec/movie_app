@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/router/route_names.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_cubit.dart';
 import '../presentation/bloc/home_bloc.dart';
 import '../presentation/widgets/movie_section_widget.dart';
 import '../presentation/widgets/movie_skeleton_loader.dart';
@@ -15,6 +17,8 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
+
     return BlocProvider<HomeBloc>(
       create: (_) => getIt<HomeBloc>()..add(FetchHomeMoviesEvent()),
       child: Builder(
@@ -22,21 +26,24 @@ class HomeView extends StatelessWidget {
           final isDark = Theme.of(context).brightness == Brightness.dark;
 
           return Scaffold(
-            backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+            backgroundColor:
+                isDark ? AppColors.darkBackground : AppColors.lightBackground,
             appBar: AppBar(
-              backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+              backgroundColor: isDark
+                  ? AppColors.darkBackground
+                  : AppColors.lightBackground,
               elevation: 0,
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.movie_creation_rounded,
                     color: AppColors.primaryRed,
                     size: 28,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
-                    "Góc Phim",
-                    style: TextStyle(
+                    locale.translate('app_title'),
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
                       color: AppColors.primaryRed,
@@ -46,19 +53,36 @@ class HomeView extends StatelessWidget {
               ),
               actions: [
                 IconButton(
-                  tooltip: 'Tìm kiếm phim',
+                  tooltip: 'Đổi Giao diện',
+                  icon: Icon(
+                    isDark ? Icons.light_mode : Icons.dark_mode,
+                    color: isDark
+                        ? AppColors.accentGold
+                        : AppColors.darkBackground,
+                  ),
+                  onPressed: () {
+                    getIt<ThemeCubit>().toggleTheme();
+                  },
+                ),
+                IconButton(
+                  tooltip: locale.translate('search_placeholder'),
                   icon: Icon(
                     Icons.search,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                   onPressed: () {
                     context.push(RoutePath.search);
                   },
                 ),
                 IconButton(
+                  tooltip: locale.translate('profile'),
                   icon: Icon(
                     Icons.person_outline,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                   onPressed: () {
                     context.push(RoutePath.profile);
@@ -69,9 +93,10 @@ class HomeView extends StatelessWidget {
             body: SafeArea(
               child: BlocBuilder<HomeBloc, HomeState>(
                 builder: (context, state) {
-                  if (state is HomeLoadingState) {
+                  if (state is HomeLoadingState || state is HomeInitialState) {
                     return const MovieSkeletonLoader();
                   }
+
 
                   if (state is HomeErrorState) {
                     return Center(
@@ -86,8 +111,8 @@ class HomeView extends StatelessWidget {
                           const SizedBox(height: 16),
                           Text(
                             state.message,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
                               fontSize: 16,
                             ),
                             textAlign: TextAlign.center,
@@ -126,7 +151,7 @@ class HomeView extends StatelessWidget {
                               movies: state.trendingMovies,
                             ),
                             MovieSectionWidget(
-                              title: 'Phim Đang Chiếu',
+                              title: locale.translate('now_playing'),
                               movies: state.nowPlayingMovies,
                               onSeeAll: () {
                                 context.push(
@@ -134,7 +159,7 @@ class HomeView extends StatelessWidget {
                               },
                             ),
                             MovieSectionWidget(
-                              title: 'Phim Phổ Biến',
+                              title: locale.translate('popular'),
                               movies: state.popularMovies,
                               onSeeAll: () {
                                 context
@@ -142,7 +167,7 @@ class HomeView extends StatelessWidget {
                               },
                             ),
                             MovieSectionWidget(
-                              title: 'Phim Đánh Giá Cao',
+                              title: locale.translate('top_rated'),
                               movies: state.topRatedMovies,
                               onSeeAll: () {
                                 context
@@ -150,7 +175,7 @@ class HomeView extends StatelessWidget {
                               },
                             ),
                             MovieSectionWidget(
-                              title: 'Phim Sắp Chiếu',
+                              title: locale.translate('upcoming'),
                               movies: state.upcomingMovies,
                               onSeeAll: () {
                                 context

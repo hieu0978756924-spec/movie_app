@@ -34,7 +34,7 @@ void main() {
       expect(entity.id, equals(550));
       expect(entity.tenPhim, equals('Fight Club'));
       expect(entity.hinhAnh, equals('/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg'));
-      expect(entity.diemDanhGia, equals(4.2));
+      expect(entity.diemDanhGia, equals(8.4));
       expect(entity.namPhatHanh, equals(1999));
     });
 

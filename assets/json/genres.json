@@ -1,0 +1,11 @@
+[
+  { "id": 1, "name": "Tất cả" },
+  { "id": 2, "name": "Hành động" },
+  { "id": 3, "name": "Phiêu lưu" },
+  { "id": 4, "name": "Khoa học viễn tưởng" },
+  { "id": 5, "name": "Hoạt hình" },
+  { "id": 6, "name": "Hài hước" },
+  { "id": 7, "name": "Tiểu sử" },
+  { "id": 8, "name": "Chính kịch" },
+  { "id": 9, "name": "Lịch sử" }
+]

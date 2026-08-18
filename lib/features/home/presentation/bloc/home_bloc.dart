@@ -7,6 +7,7 @@ import '../../domain/usecases/get_popular_movies_usecase.dart';
 import '../../domain/usecases/get_top_rated_movies_usecase.dart';
 import '../../domain/usecases/get_trending_movies_usecase.dart';
 import '../../domain/usecases/get_upcoming_movies_usecase.dart';
+import '../../controllers/home_controller.dart';
 import '../../models/movie.dart';
 
 // Events
@@ -95,6 +96,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> _loadMovies(Emitter<HomeState> emit) async {
+    await HomeController.instance.init();
+
     final results = await Future.wait([
       getTrendingMoviesUseCase(),
       getNowPlayingMoviesUseCase(),
@@ -109,25 +112,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final topRatedResult = results[3];
     final upcomingResult = results[4];
 
-    if (trendingResult.isLeft() &&
-        nowPlayingResult.isLeft() &&
-        popularResult.isLeft() &&
-        topRatedResult.isLeft() &&
-        upcomingResult.isLeft()) {
-      final failureMessage = trendingResult.fold(
-        (failure) => failure.message,
-        (_) => 'Không thể tải danh sách phim',
-      );
-      emit(HomeErrorState(failureMessage));
-      return;
-    }
+    var trending = trendingResult.fold((_) => <Movie>[], (movies) => movies);
+    var nowPlaying = nowPlayingResult.fold((_) => <Movie>[], (movies) => movies);
+    var popular = popularResult.fold((_) => <Movie>[], (movies) => movies);
+    var topRated = topRatedResult.fold((_) => <Movie>[], (movies) => movies);
+    var upcoming = upcomingResult.fold((_) => <Movie>[], (movies) => movies);
 
-    final trending = trendingResult.fold((_) => <Movie>[], (movies) => movies);
-    final nowPlaying =
-        nowPlayingResult.fold((_) => <Movie>[], (movies) => movies);
-    final popular = popularResult.fold((_) => <Movie>[], (movies) => movies);
-    final topRated = topRatedResult.fold((_) => <Movie>[], (movies) => movies);
-    final upcoming = upcomingResult.fold((_) => <Movie>[], (movies) => movies);
+    if (trending.isEmpty) trending = HomeController.instance.danhSachPhimHot;
+    if (nowPlaying.isEmpty) nowPlaying = HomeController.instance.danhSachPhimDangChieu;
+    if (popular.isEmpty) popular = HomeController.instance.danhSachPhimPhoBien;
+    if (topRated.isEmpty) topRated = HomeController.instance.danhSachPhimDanhGiaCao;
+    if (upcoming.isEmpty) upcoming = HomeController.instance.danhSachPhimSapChieu;
 
     emit(
       HomeLoadedState(

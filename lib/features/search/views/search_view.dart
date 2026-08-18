@@ -400,10 +400,10 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
-                                  movie.diemDanhGia.toStringAsFixed(1),
+                                  '${movie.diemDanhGia.toStringAsFixed(1)}/10',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

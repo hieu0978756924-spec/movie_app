@@ -17,6 +17,10 @@ import '../../features/profile/views/profile_view.dart';
 import '../../features/profile/views/watched_videos_view.dart';
 import '../../features/search/views/search_view.dart';
 import '../../features/splash/views/splash_view.dart';
+import '../../features/actor/presentation/pages/actor_detail_page.dart';
+import '../../features/movie_detail/presentation/pages/movie_player_page.dart';
+import '../../features/home/controllers/home_controller.dart';
+
 
 class AppRouter {
   static bool Function()? _authCheckOverride;
@@ -168,6 +172,49 @@ class AppRouter {
           return MovieDetailView(movie: fallbackMovie);
         },
       ),
+      GoRoute(
+        path: RoutePath.actorDetail,
+        name: RouteName.actorDetail,
+        builder: (context, state) {
+          final actorIdStr = state.pathParameters['id'] ?? '101';
+          final actorId = int.tryParse(actorIdStr) ?? 101;
+          return ActorDetailPage(actorId: actorId);
+        },
+      ),
+      GoRoute(
+        path: RoutePath.moviePlayer,
+        name: RouteName.moviePlayer,
+        builder: (context, state) {
+          final movieExtra = state.extra;
+          final keyQuery = state.uri.queryParameters['key'];
+
+          if (movieExtra is Movie) {
+            return MoviePlayerPage(
+              movie: movieExtra,
+              youtubeKey: keyQuery ?? (movieExtra.trailerUrl.isNotEmpty ? movieExtra.trailerUrl : null),
+            );
+          }
+          if (movieExtra is Map<String, dynamic>) {
+            final movie = movieExtra['movie'] as Movie;
+            final youtubeKey = movieExtra['key'] as String?;
+            return MoviePlayerPage(
+              movie: movie,
+              youtubeKey: youtubeKey ?? keyQuery,
+            );
+          }
+          final movieIdStr = state.pathParameters['id'] ?? '1';
+          final movieId = int.tryParse(movieIdStr) ?? 1;
+          final movie = HomeController.instance.danhSachPhim.firstWhere(
+            (m) => m.id == movieId,
+            orElse: () => HomeController.instance.danhSachPhim.first,
+          );
+          return MoviePlayerPage(
+            movie: movie,
+            youtubeKey: keyQuery,
+          );
+        },
+      ),
     ],
   );
 }
+

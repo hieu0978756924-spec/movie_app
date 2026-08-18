@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/utils/youtube_utils.dart';
 import '../../../watchlist/domain/repositories/watchlist_repository.dart';
 import '../../../watchlist/presentation/bloc/watchlist_bloc.dart';
 import '../../../watchlist/presentation/bloc/watchlist_event.dart';
@@ -105,15 +106,15 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
   final GetMovieCreditsUseCase getMovieCreditsUseCase;
   final GetMovieTrailersUseCase getMovieTrailersUseCase;
   final GetSimilarMoviesUseCase getSimilarMoviesUseCase;
-  final WatchlistRepository? watchlistRepository;
+  final WatchlistRepository watchlistRepository;
 
   MovieDetailBloc(
     this.getMovieDetailUseCase,
     this.getMovieCreditsUseCase,
     this.getMovieTrailersUseCase,
-    this.getSimilarMoviesUseCase, {
+    this.getSimilarMoviesUseCase,
     this.watchlistRepository,
-  }) : super(MovieDetailInitialState()) {
+  ) : super(MovieDetailInitialState()) {
     on<FetchMovieDetailEvent>(_onFetchMovieDetail);
     on<ToggleFavoriteMovieEvent>(_onToggleFavorite);
     on<ToggleWatchlistMovieEvent>(_onToggleWatchlist);
@@ -123,26 +124,26 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
       FetchMovieDetailEvent event, Emitter<MovieDetailState> emit) async {
     emit(MovieDetailLoadingState(initialMovie: event.initialMovie));
 
-    if (event.movieId == 0 && event.initialMovie != null) {
-      bool isWatchlisted = false;
-      if (watchlistRepository != null) {
-        try {
-          final res = await watchlistRepository!.isWatchlisted(event.initialMovie!.id);
-          res.fold((l) {}, (r) => isWatchlisted = r);
-        } catch (_) {}
-      }
+    final targetId = event.movieId != 0 ? event.movieId : (event.initialMovie?.id ?? 0);
 
-      emit(MovieDetailLoadedState(
-        event.initialMovie!,
-        isWatchlisted: isWatchlisted,
-      ));
+    if (targetId == 0) {
+      if (event.initialMovie != null) {
+        emit(MovieDetailLoadedState(
+          event.initialMovie!,
+        ));
+      } else {
+        emit(MovieDetailErrorState(
+          'Lỗi lấy chi tiết phim',
+          initialMovie: event.initialMovie,
+        ));
+      }
       return;
     }
 
-    final detailFuture = getMovieDetailUseCase(event.movieId);
-    final creditsFuture = getMovieCreditsUseCase(event.movieId);
-    final trailersFuture = getMovieTrailersUseCase(event.movieId);
-    final similarFuture = getSimilarMoviesUseCase(event.movieId);
+    final detailFuture = getMovieDetailUseCase(targetId);
+    final creditsFuture = getMovieCreditsUseCase(targetId);
+    final trailersFuture = getMovieTrailersUseCase(targetId);
+    final similarFuture = getSimilarMoviesUseCase(targetId);
 
     final results = await Future.wait([
       detailFuture,
@@ -158,14 +159,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
 
     Movie movie = event.initialMovie ??
         Movie(
-          id: event.movieId,
+          id: targetId,
           tenPhim: '',
           hinhAnh: '',
           moTa: '',
           diemDanhGia: 0,
         );
 
-    final targetId = event.movieId != 0 ? event.movieId : (event.initialMovie?.id ?? 0);
     bool initialFav = event.initialMovie?.yeuThich ?? false;
     if (targetId != 0) {
       final existingIndex = HomeController.instance.danhSachPhim.indexWhere((m) => m.id == targetId);
@@ -194,7 +194,30 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
     List<Video> trailers = [];
     trailersResult.fold(
       (failure) {},
-      (fetchedTrailers) => trailers = fetchedTrailers,
+      (fetchedTrailers) {
+        trailers = fetchedTrailers;
+        if (trailers.isNotEmpty) {
+          final officialTrailer = trailers.firstWhere(
+            (v) =>
+                v.site.toLowerCase() == 'youtube' &&
+                v.type.toLowerCase() == 'trailer' &&
+                (v.official == true || v.name.toLowerCase().contains('official')),
+            orElse: () => trailers.firstWhere(
+              (v) =>
+                  v.site.toLowerCase() == 'youtube' &&
+                  (v.type.toLowerCase() == 'trailer' || v.type.toLowerCase() == 'teaser'),
+              orElse: () => trailers.firstWhere(
+                (v) => v.site.toLowerCase() == 'youtube',
+                orElse: () => trailers.first,
+              ),
+            ),
+          );
+          final key = YoutubeUtils.extractYoutubeKey(officialTrailer.key);
+          if (key.isNotEmpty) {
+            movie = movie.copyWith(trailerUrl: 'https://www.youtube.com/watch?v=$key');
+          }
+        }
+      },
     );
 
     List<Movie> similarMovies = [];
@@ -204,9 +227,9 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
     );
 
     bool isWatchlisted = false;
-    if (targetId != 0 && watchlistRepository != null) {
+    if (targetId != 0) {
       try {
-        final res = await watchlistRepository!.isWatchlisted(targetId);
+        final res = await watchlistRepository.isWatchlisted(targetId);
         res.fold((l) {}, (r) => isWatchlisted = r);
       } catch (_) {}
     }
@@ -253,15 +276,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
       final newStatus = !currentState.isWatchlisted;
       emit(currentState.copyWith(isWatchlisted: newStatus));
 
-      if (watchlistRepository != null) {
-        try {
-          if (newStatus) {
-            await watchlistRepository!.addToWatchlist(currentState.movie);
-          } else {
-            await watchlistRepository!.removeFromWatchlist(currentState.movie.id);
-          }
-        } catch (_) {}
-      }
+      try {
+        if (newStatus) {
+          await watchlistRepository.addToWatchlist(currentState.movie);
+        } else {
+          await watchlistRepository.removeFromWatchlist(currentState.movie.id);
+        }
+      } catch (_) {}
 
       try {
         if (newStatus) {

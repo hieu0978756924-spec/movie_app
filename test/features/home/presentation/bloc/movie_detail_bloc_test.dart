@@ -10,6 +10,8 @@ import 'package:movie_app/features/home/domain/usecases/get_similar_movies_useca
 import 'package:movie_app/features/home/models/movie.dart';
 import 'package:movie_app/features/home/presentation/bloc/movie_detail_bloc.dart';
 
+import 'package:movie_app/features/watchlist/domain/repositories/watchlist_repository.dart';
+
 class MockGetMovieDetailUseCase extends Mock
     implements GetMovieDetailUseCase {}
 
@@ -22,11 +24,15 @@ class MockGetMovieTrailersUseCase extends Mock
 class MockGetSimilarMoviesUseCase extends Mock
     implements GetSimilarMoviesUseCase {}
 
+class MockWatchlistRepository extends Mock
+    implements WatchlistRepository {}
+
 void main() {
   late MockGetMovieDetailUseCase mockGetMovieDetail;
   late MockGetMovieCreditsUseCase mockGetMovieCredits;
   late MockGetMovieTrailersUseCase mockGetMovieTrailers;
   late MockGetSimilarMoviesUseCase mockGetSimilarMovies;
+  late MockWatchlistRepository mockWatchlistRepository;
   late MovieDetailBloc movieDetailBloc;
 
   setUp(() {
@@ -34,11 +40,15 @@ void main() {
     mockGetMovieCredits = MockGetMovieCreditsUseCase();
     mockGetMovieTrailers = MockGetMovieTrailersUseCase();
     mockGetSimilarMovies = MockGetSimilarMoviesUseCase();
+    mockWatchlistRepository = MockWatchlistRepository();
+    when(() => mockWatchlistRepository.isWatchlisted(any()))
+        .thenAnswer((_) async => const Right(false));
     movieDetailBloc = MovieDetailBloc(
       mockGetMovieDetail,
       mockGetMovieCredits,
       mockGetMovieTrailers,
       mockGetSimilarMovies,
+      mockWatchlistRepository,
     );
   });
 
@@ -100,7 +110,7 @@ void main() {
       final expectedStates = [
         MovieDetailLoadingState(initialMovie: tMovie),
         MovieDetailLoadedState(
-          tMovie,
+          tMovie.copyWith(trailerUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
           castList: const [tCast],
           trailers: const [tVideo],
           similarMovies: [tSimilarMovie],

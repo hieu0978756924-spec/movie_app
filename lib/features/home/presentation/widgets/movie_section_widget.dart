@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+
 import '../../models/movie.dart';
 import 'movie_card_widget.dart';
 
@@ -42,14 +44,15 @@ class MovieSectionWidget extends StatelessWidget {
               if (onSeeAll != null)
                 TextButton(
                   onPressed: onSeeAll,
-                  child: const Text(
-                    'Xem tất cả',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context).translate('see_all'),
+                    style: const TextStyle(
                       color: AppColors.primaryRed,
                       fontSize: 13,
                     ),
                   ),
                 ),
+
             ],
           ),
         ),

@@ -94,7 +94,13 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
 
   @override
   Future<VideoResponseModel> getMovieTrailers(int movieId) async {
-    final response = await dio.get('/movie/$movieId/videos');
+    final response = await dio.get(
+      '/movie/$movieId/videos',
+      queryParameters: {
+        'language': 'en-US',
+        'include_video_language': 'en,vi,null',
+      },
+    );
     return VideoResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 

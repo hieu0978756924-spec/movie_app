@@ -1,6 +1,14 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/movie.dart';
+import '../../actor/models/actor.dart';
 
-class HomeController {
+class HomeController extends ChangeNotifier {
+  static const String _favIdsKey = 'favorite_movie_ids';
+  static const String _favMoviesKey = 'favorite_movies_json';
+
   //==========================================================
   // Singleton
   //==========================================================
@@ -9,326 +17,261 @@ class HomeController {
 
   static final HomeController instance = HomeController._();
 
-  //==========================================================
-  // Danh sách phim
-  //==========================================================
+  final List<Movie> danhSachPhim = [];
+  final List<Actor> danhSachDienVien = [];
+  final Set<int> favoriteMovieIds = {1, 2, 5, 8};
+  bool _isInitialized = false;
 
-  final List<Movie> danhSachPhim = [
-    Movie(
-      id: 693134,
-      tenPhim: "Dune: Part Two",
-      hinhAnh: "assets/images/dune2.jpg",
-      backdropPath: "/xOMo8ScRjWyZJPZQuexSTtS2JeE.jpg",
-      diemDanhGia: 4.9,
-      theLoai: "Khoa học viễn tưởng • Hành động",
-      thoiLuong: "2 giờ 46 phút",
-      moTa:
-          "Paul Atreides tái hợp với Chani và người Fremen khi anh tìm kiếm sự trả thù những kẻ âm mưu hủy hoại gia đình mình.",
-      namPhatHanh: 2024,
-      daoDien: "Denis Villeneuve",
-    ),
+  Future<void> init() async {
+    if (_isInitialized && danhSachPhim.isNotEmpty) return;
 
-    Movie(
-      id: 872585,
-      tenPhim: "Oppenheimer",
-      hinhAnh: "assets/images/oppenheimer.jpg",
-      backdropPath: "/fm6KqXrmjM2pvrmNV3hDrm2O6Yy.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Lịch sử • Chính kịch",
-      thoiLuong: "3 giờ 0 phút",
-      moTa:
-          "Câu chuyện về nhà vật lý lý thuyết J. Robert Oppenheimer và quá trình chế tạo bom nguyên tử.",
-      namPhatHanh: 2023,
-      daoDien: "Christopher Nolan",
-    ),
+    try {
+      final moviesStr = await rootBundle.loadString('assets/json/movies.json');
+      final List<dynamic> moviesJson = json.decode(moviesStr);
+      danhSachPhim.clear();
+      for (final item in moviesJson) {
+        final movie = Movie.fromJson(item as Map<String, dynamic>);
+        if (favoriteMovieIds.contains(movie.id)) {
+          movie.yeuThich = true;
+        }
+        danhSachPhim.add(movie);
+      }
+    } catch (_) {
+      _loadFallbackMovies();
+    }
 
-    Movie(
-      id: 533535,
-      tenPhim: "Deadpool & Wolverine",
-      hinhAnh: "assets/images/deadpool.jpg",
-      backdropPath: "assets/images/deadpool.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Hành động • Marvel",
-      thoiLuong: "2 giờ 8 phút",
-      moTa:
-          "Wolverine đang hồi phục chấn thương thì gặp phải Deadpool lắm chiêu.",
-      namPhatHanh: 2024,
-      daoDien: "Shawn Levy",
-    ),
+    try {
+      final actorsStr = await rootBundle.loadString('assets/json/actors.json');
+      final List<dynamic> actorsJson = json.decode(actorsStr);
+      danhSachDienVien.clear();
+      for (final item in actorsJson) {
+        danhSachDienVien.add(Actor.fromJson(item as Map<String, dynamic>));
+      }
+    } catch (_) {
+      _loadFallbackActors();
+    }
 
-    Movie(
-      id: 299534,
-      tenPhim: "Avengers: Endgame",
-      hinhAnh: "assets/images/endgame.jpg",
-      diemDanhGia: 5.0,
-      theLoai: "Hành động • Marvel",
-      thoiLuong: "3 giờ 2 phút",
-      moTa:
-          "Cuộc chiến cuối cùng của các siêu anh hùng chống lại Thanos.",
-      namPhatHanh: 2019,
-      daoDien: "Anthony Russo",
-    ),
+    await _loadSavedFavorites();
 
-    Movie(
-      id: 634649,
-      tenPhim: "Spider-Man",
-      hinhAnh: "assets/images/spiderman.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Marvel",
-      thoiLuong: "2 giờ 20 phút",
-      moTa:
-          "Peter Parker đối đầu với những thử thách mới sau khi danh tính bị lộ.",
-      namPhatHanh: 2021,
-      daoDien: "Jon Watts",
-    ),
+    _isInitialized = true;
+  }
 
-    Movie(
-      id: 76600,
-      tenPhim: "Avatar 2",
-      hinhAnh: "assets/images/avatar_movie.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Khoa học viễn tưởng",
-      thoiLuong: "3 giờ 12 phút",
-      moTa:
-          "Hành trình tiếp theo của gia đình Jake Sully trên hành tinh Pandora.",
-      namPhatHanh: 2022,
-      daoDien: "James Cameron",
-    ),
+  Future<void> _loadSavedFavorites() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final List<String>? savedIds = prefs.getStringList(_favIdsKey);
+      if (savedIds != null && savedIds.isNotEmpty) {
+        favoriteMovieIds.clear();
+        favoriteMovieIds.addAll(
+          savedIds.map((e) => int.tryParse(e) ?? 0).where((id) => id != 0),
+        );
+      }
 
-    Movie(
-      id: 475557,
-      tenPhim: "Joker",
-      hinhAnh: "assets/images/joker.jpg",
-      diemDanhGia: 4.9,
-      theLoai: "Tâm lý",
-      thoiLuong: "2 giờ 2 phút",
-      moTa:
-          "Sự biến đổi của Arthur Fleck trở thành Joker khét tiếng.",
-      namPhatHanh: 2019,
-      daoDien: "Todd Phillips",
-    ),
+      final String? savedMoviesStr = prefs.getString(_favMoviesKey);
+      if (savedMoviesStr != null && savedMoviesStr.isNotEmpty) {
+        final List<dynamic> listJson = jsonDecode(savedMoviesStr);
+        for (final item in listJson) {
+          final favMovie = Movie.fromJson(item as Map<String, dynamic>);
+          favMovie.yeuThich = true;
+          favoriteMovieIds.add(favMovie.id);
 
-    Movie(
-      id: 1011985,
-      tenPhim: "Kung Fu Panda 4",
-      hinhAnh: "assets/images/panda4.jpg",
-      diemDanhGia: 4.6,
-      theLoai: "Hoạt hình",
-      thoiLuong: "1 giờ 35 phút",
-      moTa:
-          "Po tiếp tục hành trình bảo vệ Thung lũng Bình Yên.",
-      namPhatHanh: 2024,
-      daoDien: "Mike Mitchell",
-    ),
+          final idx = danhSachPhim.indexWhere((m) => m.id == favMovie.id);
+          if (idx != -1) {
+            danhSachPhim[idx].yeuThich = true;
+          } else {
+            danhSachPhim.add(favMovie);
+          }
+        }
+      }
 
-    Movie(
-      id: 1022789,
-      tenPhim: "Inside Out 2",
-      hinhAnh: "assets/images/insideout2.jpg",
-      backdropPath: "/stKGOm8UyhuLPR92pNJhYjWwRiy.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Hoạt hình • Gia đình",
-      thoiLuong: "1 giờ 36 phút",
-      moTa:
-          "Riley bước vào tuổi dậy thì với những cảm xúc hoàn toàn mới mẻ như Lo Âu, Ghen Tị và Xấu Hổ.",
-      namPhatHanh: 2024,
-      daoDien: "Kelsey Mann",
-    ),
+      for (final m in danhSachPhim) {
+        if (favoriteMovieIds.contains(m.id)) {
+          m.yeuThich = true;
+        }
+      }
+    } catch (_) {}
+  }
 
-    Movie(
-      id: 414906,
-      tenPhim: "The Batman",
-      hinhAnh: "assets/images/batman.jpg",
-      backdropPath: "/b0PlSFdUZSZrFj2v9ICelBuL31L.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Hành động • Tội phạm",
-      thoiLuong: "2 giờ 56 phút",
-      moTa:
-          "Bruce Wayne điều tra các vụ án bí ẩn tại thành phố Gotham và đối đầu với tên tội phạm Riddler.",
-      namPhatHanh: 2022,
-      daoDien: "Matt Reeves",
-    ),
+  Future<void> _saveFavorites() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(
+        _favIdsKey,
+        favoriteMovieIds.map((id) => id.toString()).toList(),
+      );
 
-    Movie(
-      id: 361743,
-      tenPhim: "Top Gun: Maverick",
-      hinhAnh: "assets/images/banner.jpg",
-      backdropPath: "/AaV1YIdWKnjAydBx85HCm25LBw2.jpg",
-      diemDanhGia: 4.9,
-      theLoai: "Hành động • Phiêu lưu",
-      thoiLuong: "2 giờ 11 phút",
-      moTa:
-          "Maverick trở lại trường huấn luyện phi công Top Gun để dẫn dắt đội ngũ phi công trẻ thực hiện nhiệm vụ nguy hiểm.",
-      namPhatHanh: 2022,
-      daoDien: "Joseph Kosinski",
-    ),
+      final favMovies = danhSachPhim
+          .where((m) => m.yeuThich || favoriteMovieIds.contains(m.id))
+          .toList();
+      final String jsonStr =
+          jsonEncode(favMovies.map((m) => m.toJson()).toList());
+      await prefs.setString(_favMoviesKey, jsonStr);
+    } catch (_) {}
+  }
 
-    Movie(
-      id: 157336,
-      tenPhim: "Interstellar",
-      hinhAnh: "assets/images/interstellar.jpg",
-      backdropPath: "/xJHokMbljvjADYdit5fKjVQsXvh.jpg",
-      diemDanhGia: 4.9,
-      theLoai: "Khoa học viễn tưởng • Phiêu lưu",
-      thoiLuong: "2 giờ 49 phút",
-      moTa:
-          "Một nhóm nhà nghiên cứu du hành qua hố đen vũ trụ để tìm kiếm hành tinh mới cho nhân loại.",
-      namPhatHanh: 2014,
-      daoDien: "Christopher Nolan",
-    ),
+  void _loadFallbackMovies() {
+    danhSachPhim.clear();
+    danhSachPhim.addAll([
+      Movie(
+        id: 1,
+        tenPhim: "Dune: Hành Tinh Cát - Phần Two",
+        originalTitle: "Dune: Part Two",
+        hinhAnh: "assets/images/dune2.jpg",
+        backdropPath: "assets/images/dune2.jpg",
+        diemDanhGia: 8.7,
+        theLoai: "Khoa học viễn tưởng",
+        moTa: "Paul Atreides hợp lực cùng Chani và người Fremen để trả thù những kẻ đã hủy hoại gia đình anh.",
+        isHot: true,
+        isNowPlaying: true,
+        isPopular: true,
+        isTopRated: true,
+        trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
+        yeuThich: true,
+      ),
+      Movie(
+        id: 2,
+        tenPhim: "Oppenheimer",
+        originalTitle: "Oppenheimer",
+        hinhAnh: "assets/images/oppenheimer.jpg",
+        backdropPath: "assets/images/oppenheimer.jpg",
+        diemDanhGia: 8.9,
+        theLoai: "Lịch sử • Chính kịch",
+        moTa: "Câu chuyện về nhà vật lý lý thuyết J. Robert Oppenheimer chế tạo bom nguyên tử.",
+        isHot: true,
+        isPopular: true,
+        isTopRated: true,
+        trailerUrl: "https://www.youtube.com/watch?v=uYPbbksJxIg",
+        yeuThich: true,
+      ),
+      Movie(
+        id: 3,
+        tenPhim: "Deadpool & Wolverine",
+        originalTitle: "Deadpool & Wolverine",
+        hinhAnh: "assets/images/deadpool.jpg",
+        backdropPath: "assets/images/deadpool.jpg",
+        diemDanhGia: 8.4,
+        theLoai: "Hành động • Hài hước",
+        moTa: "Wolverine hợp tác với Deadpool láu cá để giải cứu vũ trụ.",
+        isHot: true,
+        isNowPlaying: true,
+        isPopular: true,
+        trailerUrl: "https://www.youtube.com/watch?v=73_1biulkYk",
+      ),
+    ]);
+  }
 
-    Movie(
-      id: 558449,
-      tenPhim: "Gladiator II",
-      hinhAnh: "assets/images/gladiator2.jpg",
-      backdropPath: "/euYIwmwWdoBDVDoLEwuC9LwoMCB.jpg",
-      diemDanhGia: 4.7,
-      theLoai: "Hành động • Lịch sử",
-      thoiLuong: "2 giờ 28 phút",
-      moTa:
-          "Lucius bước vào Đấu trường La Mã để đấu tranh phục hồi vinh quang cho Rome.",
-      namPhatHanh: 2024,
-      daoDien: "Ridley Scott",
-    ),
-
-    Movie(
-      id: 786892,
-      tenPhim: "Furiosa: A Mad Max Saga",
-      hinhAnh: "assets/images/furiosa.jpg",
-      backdropPath: "/wNAhuOZfiQjB2atioiohA976OF2.jpg",
-      diemDanhGia: 4.7,
-      theLoai: "Hành động • Khoa học viễn tưởng",
-      thoiLuong: "2 giờ 28 phút",
-      moTa:
-          "Hành trình của Furiosa trẻ tuổi vượt qua sa mạc khắc nghiệt để bảo vệ quê hương.",
-      namPhatHanh: 2024,
-      daoDien: "George Miller",
-    ),
-
-    Movie(
-      id: 572802,
-      tenPhim: "Aquaman and the Lost Kingdom",
-      hinhAnh: "assets/images/aquaman2.jpg",
-      backdropPath: "/cn9d56xGlnC1d120W2p5bC6u8.jpg",
-      diemDanhGia: 4.6,
-      theLoai: "Hành động • Viễn tưởng",
-      thoiLuong: "2 giờ 4 phút",
-      moTa:
-          "Arthur Curry hợp tác với em trai Orm để bảo vệ vương quốc Atlantis khỏi mối đe dọa từ Black Manta.",
-      namPhatHanh: 2023,
-      daoDien: "James Wan",
-    ),
-
-
-    Movie(
-      id: 575264,
-      tenPhim: "Mission: Impossible - Dead Reckoning",
-      hinhAnh: "assets/images/mission_impossible.jpg",
-      backdropPath: "/628OS2ipeL2of6cW9v9LMBa32wb.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Hành động • Tình báo",
-      thoiLuong: "2 giờ 43 phút",
-      moTa:
-          "Ethan Hunt và đội IMF thực hiện nhiệm vụ nguy hiểm nhất để ngăn chặn một trí tuệ nhân tạo toàn năng.",
-      namPhatHanh: 2023,
-      daoDien: "Christopher McQuarrie",
-    ),
-
-    Movie(
-      id: 385687,
-      tenPhim: "Fast X",
-      hinhAnh: "assets/images/fastx.jpg",
-      backdropPath: "/4XM82xNS8KHkRxGFCfV2D2K42V.jpg",
-      diemDanhGia: 4.7,
-      theLoai: "Hành động • Tốc độ",
-      thoiLuong: "2 giờ 21 phút",
-      moTa:
-          "Dom Toretto đối đầu với kẻ thù nguy hiểm Dante Reyes muốn trả thù cho gia đình.",
-      namPhatHanh: 2023,
-      daoDien: "Louis Leterrier",
-    ),
-
-    Movie(
-      id: 698687,
-      tenPhim: "Transformers: One",
-      hinhAnh: "assets/images/transformers.jpg",
-      backdropPath: "/uKb22SF9uGlv4Z24x26eyRooYp.jpg",
-      diemDanhGia: 4.8,
-      theLoai: "Hoạt hình • Hành động",
-      thoiLuong: "1 giờ 44 phút",
-      moTa:
-          "Câu chuyện chưa từng kể về tình bạn và mối thù giữa Orion Pax (Optimus Prime) và D-16 (Megatron).",
-      namPhatHanh: 2024,
-      daoDien: "Josh Cooley",
-    ),
-  ];
+  void _loadFallbackActors() {
+    danhSachDienVien.clear();
+    danhSachDienVien.addAll([
+      const Actor(
+        id: 101,
+        name: "Timothée Chalamet",
+        profilePath: "assets/images/actor_1.jpg",
+        biography: "Timothée Chalamet là nam diễn viên xuất sắc từng nhận đề cử giải Oscar.",
+        birthday: "1995-12-27",
+        placeOfBirth: "New York, USA",
+        knownFor: [
+          KnownMovie(id: 1, title: "Dune: Part Two", posterPath: "assets/images/dune2.jpg"),
+        ],
+      ),
+      const Actor(
+        id: 102,
+        name: "Zendaya",
+        profilePath: "assets/images/actor_2.jpg",
+        biography: "Zendaya là nữ diễn viên, ca sĩ nổi tiếng đoạt nhiều giải Emmy.",
+        birthday: "1996-09-01",
+        placeOfBirth: "Oakland, California, USA",
+        knownFor: [
+          KnownMovie(id: 1, title: "Dune: Part Two", posterPath: "assets/images/dune2.jpg"),
+        ],
+      ),
+    ]);
+  }
 
   //==========================================================
-  // Phân loại danh sách phim cho từng mục
+  // Phân loại danh sách phim
   //==========================================================
+
+  List<Movie> get danhSachPhimHot {
+    return danhSachPhim.where((m) => m.isHot).toList();
+  }
 
   List<Movie> get danhSachPhimDangChieu {
-    const ids = [693134, 533535, 1022789, 1011985];
-    return danhSachPhim.where((m) => ids.contains(m.id)).toList();
+    final list = danhSachPhim.where((m) => m.isNowPlaying).toList();
+    return list.isNotEmpty ? list : danhSachPhim.take(4).toList();
   }
 
   List<Movie> get danhSachPhimPhoBien {
-    const ids = [872585, 634649, 414906, 361743, 299534];
-    return danhSachPhim.where((m) => ids.contains(m.id)).toList();
+    final list = danhSachPhim.where((m) => m.isPopular).toList();
+    return list.isNotEmpty ? list : danhSachPhim.take(5).toList();
   }
 
   List<Movie> get danhSachPhimDanhGiaCao {
-    const ids = [157336, 475557, 693134, 872585];
-    return danhSachPhim.where((m) => ids.contains(m.id)).toList();
+    final list = danhSachPhim.where((m) => m.isTopRated).toList();
+    return list.isNotEmpty ? list : danhSachPhim.take(4).toList();
   }
 
   List<Movie> get danhSachPhimSapChieu {
-    const ids = [558449, 786892, 572802, 76600, 698687];
-    return danhSachPhim.where((m) => ids.contains(m.id)).toList();
+    final list = danhSachPhim.where((m) => m.isUpcoming).toList();
+    return list.isNotEmpty ? list : danhSachPhim.skip(3).take(4).toList();
   }
 
   //==========================================================
-  // Lấy danh sách phim yêu thích
+  // Danh sách Yêu thích
   //==========================================================
 
   List<Movie> get danhSachYeuThich {
-    return danhSachPhim
-        .where((movie) => movie.yeuThich)
-        .toList();
+    return danhSachPhim.where((movie) => movie.yeuThich).toList();
   }
 
-  //==========================================================
-  // Đổi trạng thái yêu thích
-  //==========================================================
-
   void doiTrangThaiYeuThich(Movie movie) {
-    movie.yeuThich = !movie.yeuThich;
-    capNhatTrangThaiYeuThich(movie, movie.yeuThich);
+    capNhatTrangThaiYeuThich(movie, !movie.yeuThich);
   }
 
   void capNhatTrangThaiYeuThich(Movie movie, bool yeuThich) {
     movie.yeuThich = yeuThich;
-    final index = danhSachPhim.indexWhere((m) => m.id == movie.id);
-    if (index != -1) {
-      danhSachPhim[index].yeuThich = yeuThich;
-    } else if (yeuThich) {
+    if (yeuThich) {
+      favoriteMovieIds.add(movie.id);
+    } else {
+      favoriteMovieIds.remove(movie.id);
+    }
+    for (var m in danhSachPhim) {
+      if (m.id == movie.id) {
+        m.yeuThich = yeuThich;
+      }
+    }
+    if (yeuThich && !danhSachPhim.any((m) => m.id == movie.id)) {
       danhSachPhim.add(movie);
+    }
+    _saveFavorites();
+    notifyListeners();
+  }
+
+
+  //==========================================================
+  // Lấy chi tiết Diễn viên
+  //==========================================================
+
+  Actor? getActorById(int actorId) {
+    try {
+      return danhSachDienVien.firstWhere((a) => a.id == actorId);
+    } catch (_) {
+      if (danhSachDienVien.isNotEmpty) return danhSachDienVien.first;
+      return null;
     }
   }
 
   //==========================================================
-  // Tìm kiếm phim
+  // Tìm kiếm
   //==========================================================
 
   List<Movie> timKiemPhim(String keyword) {
-    if (keyword.isEmpty) {
-      return danhSachPhim;
-    }
-
+    if (keyword.trim().isEmpty) return danhSachPhim;
+    final query = keyword.toLowerCase();
     return danhSachPhim.where((movie) {
-      return movie.tenPhim
-          .toLowerCase()
-          .contains(keyword.toLowerCase());
+      return movie.tenPhim.toLowerCase().contains(query) ||
+          movie.originalTitle.toLowerCase().contains(query) ||
+          movie.theLoai.toLowerCase().contains(query);
     }).toList();
   }
 }
