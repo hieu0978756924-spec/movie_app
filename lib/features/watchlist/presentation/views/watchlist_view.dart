@@ -396,148 +396,151 @@ class _WatchlistContentState extends State<_WatchlistContent> {
           },
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // Poster
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: _buildPoster(item.hinhAnh, width: 90, height: 130),
-                ),
-                const SizedBox(width: 14),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Poster
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: _buildPoster(item.hinhAnh, width: 90, height: 130),
+                  ),
+                  const SizedBox(width: 14),
 
-                // Details
-                Expanded(
-                  child: SizedBox(
-                    height: 130,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.tenPhim,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  // Details
+                  Expanded(
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 130),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.tenPhim,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
+                              const SizedBox(height: 6),
 
-                            // Subtitle info row (Year • Duration • Rating)
-                            Row(
-                              children: [
-                                Text(
-                                  item.namPhatHanh.toString(),
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                                  width: 4,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                                  ),
-                                ),
-                                Text(
-                                  '169m',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                                  width: 4,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star_rounded,
-                                      color: AppColors.accentGold,
-                                      size: 15,
+                              // Subtitle info row (Year • Duration • Rating)
+                              Row(
+                                children: [
+                                  Text(
+                                    item.namPhatHanh.toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                                     ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      item.diemDanhGia.toStringAsFixed(1),
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                                    width: 4,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                    ),
+                                  ),
+                                  Text(
+                                    '169m',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                                    width: 4,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.star_rounded,
                                         color: AppColors.accentGold,
+                                        size: 15,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        '${item.diemDanhGia.toStringAsFixed(1)}/10',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.accentGold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              // Tags / Genre Chips
+                              if (genres.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: genres.take(2).map((g) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isDark ? Colors.white.withAlpha(12) : Colors.black.withAlpha(8),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: isDark ? Colors.white.withAlpha(20) : Colors.black.withAlpha(15),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        g,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
                               ],
-                            ),
+                            ],
+                          ),
 
-                            // Tags / Genre Chips
-                            if (genres.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 4,
-                                children: genres.take(2).map((g) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: isDark ? Colors.white.withAlpha(12) : Colors.black.withAlpha(8),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: isDark ? Colors.white.withAlpha(20) : Colors.black.withAlpha(15),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      g,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                          // Actions Row (Delete button)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                tooltip: 'Xóa khỏi Watchlist',
+                                icon: const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.white54,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  final bloc = context.read<WatchlistBloc>();
+                                  bloc.add(RemoveFromWatchlistEvent(item.id));
+                                },
                               ),
                             ],
-                          ],
-                        ),
-
-                        // Actions Row (Delete button)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              tooltip: 'Xóa khỏi Watchlist',
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                color: Colors.white54,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                final bloc = context.read<WatchlistBloc>();
-                                bloc.add(RemoveFromWatchlistEvent(item.id));
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -606,10 +609,10 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                           const Icon(Icons.star_rounded, color: AppColors.accentGold, size: 14),
                           const SizedBox(width: 2),
                           Text(
-                            item.diemDanhGia.toStringAsFixed(1),
+                            '${item.diemDanhGia.toStringAsFixed(1)}/10',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

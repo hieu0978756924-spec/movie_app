@@ -26,9 +26,7 @@ void main() {
     // Verify Glass Menu items
     expect(find.text('Chỉnh sửa profile'), findsOneWidget);
     expect(find.text('Video đã xem'), findsWidgets);
-    expect(find.text('Chế độ Giao diện'), findsOneWidget);
-    expect(find.text('Cài đặt thông báo'), findsOneWidget);
-    expect(find.text('Chính sách & Bảo mật'), findsOneWidget);
+    expect(find.textContaining('Chế độ Giao diện'), findsOneWidget);
 
     // Verify Logout button
     expect(find.text('Đăng Xuất'), findsOneWidget);

@@ -103,20 +103,26 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                     Positioned(
                       top: 6,
                       left: 6,
-                      child: GestureDetector(
-                        onTap: _toggleFavorite,
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            widget.movie.yeuThich ? Icons.favorite : Icons.favorite_border,
-                            color: widget.movie.yeuThich ? AppColors.primaryRed : Colors.white,
-                            size: 16,
-                          ),
-                        ),
+                      child: ListenableBuilder(
+                        listenable: HomeController.instance,
+                        builder: (context, _) {
+                          final isFav = HomeController.instance.favoriteMovieIds.contains(widget.movie.id) || widget.movie.yeuThich;
+                          return GestureDetector(
+                            onTap: _toggleFavorite,
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFav ? Icons.favorite : Icons.favorite_border,
+                                color: isFav ? AppColors.primaryRed : Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
 
@@ -141,10 +147,10 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              widget.movie.diemDanhGia.toStringAsFixed(1),
+                              '${widget.movie.diemDanhGia.toStringAsFixed(1)}/10',
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/utils/youtube_utils.dart';
 import '../../controllers/home_controller.dart';
 import '../../domain/entities/cast.dart';
 import '../../domain/entities/genre.dart';
@@ -9,6 +10,7 @@ import '../../domain/entities/video.dart';
 import '../../domain/repositories/movie_repository.dart';
 import '../../models/movie.dart';
 import '../datasources/movie_remote_datasource.dart';
+import '../models/movie_response_model.dart';
 
 @LazySingleton(as: MovieRepository)
 class MovieRepositoryImpl implements MovieRepository {
@@ -16,159 +18,213 @@ class MovieRepositoryImpl implements MovieRepository {
 
   MovieRepositoryImpl(this.remoteDataSource);
 
+  Future<void> _ensureInitialized() async {
+    await HomeController.instance.init();
+  }
+
+  Future<Either<Failure, List<Movie>>> _fetchFromRemoteOrLocal({
+    required Future<MovieResponseModel> Function() remoteCall,
+    required List<Movie> fallbackList,
+    int page = 1,
+  }) async {
+    await _ensureInitialized();
+    try {
+      final response = await remoteCall();
+      final remoteMovies = response.results.map((m) => m.toEntity()).toList();
+      if (remoteMovies.isNotEmpty) {
+        return Right(remoteMovies);
+      }
+    } catch (_) {}
+
+    // Local JSON Fallback pagination logic (no duplicate looping)
+    if (page == 1) {
+      return Right(fallbackList);
+    }
+
+    final allLocal = HomeController.instance.danhSachPhim;
+    final shownIds = fallbackList.map((m) => m.id).toSet();
+    final remaining = allLocal.where((m) => !shownIds.contains(m.id)).toList();
+
+    if (page == 2 && remaining.isNotEmpty) {
+      return Right(remaining);
+    }
+
+    return const Right([]);
+  }
+
   @override
   Future<Either<Failure, List<Movie>>> getTrendingMovies(
       {int page = 1}) async {
-    final list = List<Movie>.from(HomeController.instance.danhSachPhim);
-    list.sort((a, b) {
-      if (a.id == 533535) return -1;
-      if (b.id == 533535) return 1;
-      return 0;
-    });
-
-    try {
-      final response = await remoteDataSource.getTrendingMovies(page: page);
-      final movies = response.results.map((model) => model.toEntity()).toList();
-      if (movies.isNotEmpty) {
-        movies.sort((a, b) {
-          if (a.id == 533535) return -1;
-          if (b.id == 533535) return 1;
-          return 0;
-        });
-        return Right(movies);
-      }
-      return Right(page == 1 ? list : []);
-    } catch (_) {
-      return Right(page == 1 ? list : []);
-    }
+    return _fetchFromRemoteOrLocal(
+      remoteCall: () => remoteDataSource.getTrendingMovies(page: page),
+      fallbackList: HomeController.instance.danhSachPhimHot,
+      page: page,
+    );
   }
 
   @override
   Future<Either<Failure, List<Movie>>> getNowPlayingMovies(
       {int page = 1}) async {
-    try {
-      final response = await remoteDataSource.getNowPlayingMovies(page: page);
-      final movies = response.results.map((model) => model.toEntity()).toList();
-      if (movies.isNotEmpty) return Right(movies);
-      return Right(page == 1 ? HomeController.instance.danhSachPhimDangChieu : []);
-    } catch (_) {
-      return Right(page == 1 ? HomeController.instance.danhSachPhimDangChieu : []);
-    }
+    return _fetchFromRemoteOrLocal(
+      remoteCall: () => remoteDataSource.getNowPlayingMovies(page: page),
+      fallbackList: HomeController.instance.danhSachPhimDangChieu,
+      page: page,
+    );
   }
 
   @override
   Future<Either<Failure, List<Movie>>> getPopularMovies(
       {int page = 1}) async {
-    try {
-      final response = await remoteDataSource.getPopularMovies(page: page);
-      final movies = response.results.map((model) => model.toEntity()).toList();
-      if (movies.isNotEmpty) return Right(movies);
-      return Right(page == 1 ? HomeController.instance.danhSachPhimPhoBien : []);
-    } catch (_) {
-      return Right(page == 1 ? HomeController.instance.danhSachPhimPhoBien : []);
-    }
+    return _fetchFromRemoteOrLocal(
+      remoteCall: () => remoteDataSource.getPopularMovies(page: page),
+      fallbackList: HomeController.instance.danhSachPhimPhoBien,
+      page: page,
+    );
   }
 
   @override
   Future<Either<Failure, List<Movie>>> getTopRatedMovies(
       {int page = 1}) async {
-    try {
-      final response = await remoteDataSource.getTopRatedMovies(page: page);
-      final movies = response.results.map((model) => model.toEntity()).toList();
-      if (movies.isNotEmpty) return Right(movies);
-      return Right(page == 1 ? HomeController.instance.danhSachPhimDanhGiaCao : []);
-    } catch (_) {
-      return Right(page == 1 ? HomeController.instance.danhSachPhimDanhGiaCao : []);
-    }
+    return _fetchFromRemoteOrLocal(
+      remoteCall: () => remoteDataSource.getTopRatedMovies(page: page),
+      fallbackList: HomeController.instance.danhSachPhimDanhGiaCao,
+      page: page,
+    );
   }
 
   @override
   Future<Either<Failure, List<Movie>>> getUpcomingMovies(
       {int page = 1}) async {
-    try {
-      final response = await remoteDataSource.getUpcomingMovies(page: page);
-      final movies = response.results.map((model) => model.toEntity()).toList();
-      if (movies.isNotEmpty) return Right(movies);
-      return Right(page == 1 ? HomeController.instance.danhSachPhimSapChieu : []);
-    } catch (_) {
-      return Right(page == 1 ? HomeController.instance.danhSachPhimSapChieu : []);
-    }
+    return _fetchFromRemoteOrLocal(
+      remoteCall: () => remoteDataSource.getUpcomingMovies(page: page),
+      fallbackList: HomeController.instance.danhSachPhimSapChieu,
+      page: page,
+    );
   }
 
   @override
   Future<Either<Failure, Movie>> getMovieDetail(int movieId) async {
+    await _ensureInitialized();
+    final realTmdbId = YoutubeUtils.getRealTmdbId(movieId);
     try {
-      final detailModel = await remoteDataSource.getMovieDetail(movieId);
-      return Right(detailModel.toEntity());
-    } catch (_) {
-      final fallback = HomeController.instance.danhSachPhim.firstWhere(
-        (m) => m.id == movieId,
-        orElse: () => HomeController.instance.danhSachPhim.first,
+      final detailModel = await remoteDataSource.getMovieDetail(realTmdbId);
+      final entity = detailModel.toEntity();
+      return Right(movieId != realTmdbId ? entity.copyWith(id: movieId) : entity);
+    } catch (_) {}
+
+    try {
+      final movie = HomeController.instance.danhSachPhim.firstWhere(
+        (m) => m.id == movieId || m.id == realTmdbId,
       );
-      return Right(fallback);
+      return Right(movie);
+    } catch (_) {
+      if (HomeController.instance.danhSachPhim.isNotEmpty) {
+        return Right(HomeController.instance.danhSachPhim.first);
+      }
+      return const Left(ServerFailure('Không tìm thấy phim'));
     }
   }
 
   @override
   Future<Either<Failure, List<Cast>>> getMovieCredits(int movieId) async {
+    await _ensureInitialized();
+    final realTmdbId = YoutubeUtils.getRealTmdbId(movieId);
     try {
-      final response = await remoteDataSource.getMovieCredits(movieId);
+      final response = await remoteDataSource.getMovieCredits(realTmdbId);
       final castList = response.cast.map((model) => model.toEntity()).toList();
       if (castList.isNotEmpty) return Right(castList);
     } catch (_) {}
 
-    return Right(_getFallbackCastList(movieId));
+    final movieResult = await getMovieDetail(movieId);
+    return movieResult.fold(
+      (failure) => Right(_getFallbackCastList(movieId)),
+      (movie) {
+        if (movie.cast.isNotEmpty) {
+          final castList = movie.cast.map((c) {
+            final actor = HomeController.instance.getActorById(c.actorId);
+            return Cast(
+              id: c.actorId,
+              name: actor?.name ?? 'Diễn viên',
+              character: c.characterName,
+              profilePath: actor?.profilePath ?? 'assets/images/actor_1.jpg',
+            );
+          }).toList();
+          return Right(castList);
+        }
+        return Right(_getFallbackCastList(movieId));
+      },
+    );
   }
 
   List<Cast> _getFallbackCastList(int movieId) {
     return const [
       Cast(
         id: 101,
-        name: 'Alexander Vance',
-        character: 'Diễn viên chính',
+        name: 'Timothée Chalamet',
+        character: 'Paul Atreides',
         profilePath: 'assets/images/actor_1.jpg',
       ),
       Cast(
         id: 102,
-        name: 'Sophia Laurent',
-        character: 'Nữ chính',
-        profilePath: 'assets/images/actor_2.jpg',
-      ),
-      Cast(
-        id: 103,
-        name: 'Timothée Chalamet',
-        character: 'Paul Atreides',
-        profilePath: 'https://image.tmdb.org/t/p/w185/BE2sdDh82i1VnGvKHZFiBDLwo.jpg',
-      ),
-      Cast(
-        id: 104,
         name: 'Zendaya',
         character: 'Chani',
-        profilePath: 'https://image.tmdb.org/t/p/w185/tyW6QpW7T7o6yE0r02q3j70V1u9.jpg',
-      ),
-      Cast(
-        id: 105,
-        name: 'Robert Downey Jr.',
-        character: 'Iron Man / Tony Stark',
-        profilePath: 'https://image.tmdb.org/t/p/w185/5q8j8i1X.jpg',
+        profilePath: 'assets/images/actor_2.jpg',
       ),
     ];
   }
 
   @override
   Future<Either<Failure, List<Video>>> getMovieTrailers(int movieId) async {
+    await _ensureInitialized();
+    final realTmdbId = YoutubeUtils.getRealTmdbId(movieId);
     try {
-      final response = await remoteDataSource.getMovieTrailers(movieId);
+      final response = await remoteDataSource.getMovieTrailers(realTmdbId);
       final trailers = response.results.map((model) => model.toEntity()).toList();
-      if (trailers.isNotEmpty) return Right(trailers);
+      final validTrailers = trailers
+          .where((v) => v.site.toLowerCase() == 'youtube' && v.key.trim().isNotEmpty)
+          .toList();
+      if (validTrailers.isNotEmpty) return Right(validTrailers);
     } catch (_) {}
 
-    final fallbackKey = _getFallbackTrailerKey(movieId);
+    final movieResult = await getMovieDetail(movieId);
+    Movie? movie;
+    movieResult.fold((_) {}, (m) => movie = m);
+
+    if (movie == null) {
+      return Right([_buildDefaultVideo(movieId)]);
+    }
+
+    final titleToSearch = movie!.originalTitle.isNotEmpty
+        ? movie!.originalTitle
+        : movie!.tenPhim;
+
+    if (titleToSearch.isNotEmpty) {
+      try {
+        final searchModel = await remoteDataSource.searchMovies(query: titleToSearch);
+        if (searchModel.results.isNotEmpty) {
+          final tmdbId = searchModel.results.first.id;
+          final tmdbTrailersResp = await remoteDataSource.getMovieTrailers(tmdbId);
+          final tmdbTrailers = tmdbTrailersResp.results
+              .map((m) => m.toEntity())
+              .where((v) => v.site.toLowerCase() == 'youtube' && v.key.trim().isNotEmpty)
+              .toList();
+          if (tmdbTrailers.isNotEmpty) {
+            return Right(tmdbTrailers);
+          }
+        }
+      } catch (_) {}
+    }
+
+    final keyFromMovieUrl = YoutubeUtils.extractYoutubeKey(movie!.trailerUrl);
+    final key = keyFromMovieUrl.isNotEmpty
+        ? keyFromMovieUrl
+        : YoutubeUtils.getFallbackTrailerKeyForMovieId(movieId);
+
     return Right([
       Video(
-        id: 'fallback_$movieId',
-        name: 'Official Trailer',
-        key: fallbackKey,
+        id: 'vid_$movieId',
+        name: '${movie!.tenPhim} Official Trailer',
+        key: key,
         site: 'YouTube',
         type: 'Trailer',
         official: true,
@@ -176,78 +232,44 @@ class MovieRepositoryImpl implements MovieRepository {
     ]);
   }
 
-  String _getFallbackTrailerKey(int movieId) {
-    switch (movieId) {
-      case 693134:
-        return 'Way9Dexny3w'; // Dune: Part Two
-      case 872585:
-        return 'uYPbbksJxIg'; // Oppenheimer
-      case 533535:
-        return '73_1biulkYk'; // Deadpool & Wolverine
-      case 299534:
-        return 'TcMBFSGVi1c'; // Avengers: Endgame
-      case 634649:
-        return 'JfVOs4VSpmA'; // Spider-Man: No Way Home
-      case 76600:
-        return 'd9MyW72ELq0'; // Avatar: The Way of Water
-      case 475557:
-        return 'zAGVQLHvwOY'; // Joker
-      case 1011985:
-        return '_inKs4eeHiI'; // Kung Fu Panda 4
-      case 1022789:
-        return 'LEjhY15eCx0'; // Inside Out 2
-      case 414906:
-        return 'mqqft2x_Aa4'; // The Batman
-      case 361743:
-        return 'qSqVVswa420'; // Top Gun Maverick
-      case 157336:
-        return 'zSWdZVtXT7E'; // Interstellar
-      case 558449:
-        return '4mgUU-f4n_w'; // Gladiator II
-      case 786892:
-        return 'XJMuhwVwcaU'; // Furiosa
-      case 572802:
-        return 'UGc5Tzaiac0'; // Aquaman 2
-      case 575264:
-        return '2m1drlOZSDw'; // Mission Impossible 7
-      case 385687:
-        return 'eoOaKN4qCKw'; // Fast X
-      case 698687:
-        return 'u2NuUW3W1e0'; // Transformers One
-      case 823464:
-        return 'lV1OOlGwExM'; // Godzilla x Kong
-      case 569094:
-        return 'cqGjhVJWtEg'; // Spider-Man Spider-Verse
-      case 27205:
-        return 'YoHD9XEInc0'; // Inception
-      default:
-        return 'Way9Dexny3w';
-    }
+  Video _buildDefaultVideo(int movieId) {
+    final key = YoutubeUtils.getFallbackTrailerKeyForMovieId(movieId);
+    return Video(
+      id: 'fallback_$movieId',
+      name: 'Trailer Phim',
+      key: key,
+      site: 'YouTube',
+      type: 'Trailer',
+      official: true,
+    );
   }
 
   @override
   Future<Either<Failure, List<Movie>>> getSimilarMovies(int movieId) async {
+    await _ensureInitialized();
     try {
       final response = await remoteDataSource.getSimilarMovies(movieId);
       final movies = response.results.map((model) => model.toEntity()).toList();
       if (movies.isNotEmpty) return Right(movies);
-      return Right(HomeController.instance.danhSachPhim);
-    } catch (_) {
-      return Right(HomeController.instance.danhSachPhim);
-    }
+    } catch (_) {}
+
+    return Right(HomeController.instance.danhSachPhim
+        .where((m) => m.id != movieId)
+        .take(5)
+        .toList());
   }
 
   @override
   Future<Either<Failure, List<Movie>>> searchMovies(
       {required String query, int page = 1}) async {
+    await _ensureInitialized();
     try {
       final response = await remoteDataSource.searchMovies(query: query, page: page);
       final movies = response.results.map((model) => model.toEntity()).toList();
       if (movies.isNotEmpty) return Right(movies);
-      return Right(HomeController.instance.timKiemPhim(query));
-    } catch (_) {
-      return Right(HomeController.instance.timKiemPhim(query));
-    }
+    } catch (_) {}
+
+    return Right(HomeController.instance.timKiemPhim(query));
   }
 
   @override
@@ -256,28 +278,18 @@ class MovieRepositoryImpl implements MovieRepository {
       final response = await remoteDataSource.getGenres();
       final genres = response.genres.map((model) => model.toEntity()).toList();
       if (genres.isNotEmpty) return Right(genres);
-      return const Right([
-        Genre(id: 28, name: 'Hành động'),
-        Genre(id: 12, name: 'Phiêu lưu'),
-        Genre(id: 16, name: 'Hoạt hình'),
-        Genre(id: 35, name: 'Hài hước'),
-        Genre(id: 18, name: 'Tâm lý'),
-        Genre(id: 10751, name: 'Gia đình'),
-        Genre(id: 14, name: 'Kỳ ảo'),
-        Genre(id: 878, name: 'Khoa học viễn tưởng'),
-      ]);
-    } catch (_) {
-      return const Right([
-        Genre(id: 28, name: 'Hành động'),
-        Genre(id: 12, name: 'Phiêu lưu'),
-        Genre(id: 16, name: 'Hoạt hình'),
-        Genre(id: 35, name: 'Hài hước'),
-        Genre(id: 18, name: 'Tâm lý'),
-        Genre(id: 10751, name: 'Gia đình'),
-        Genre(id: 14, name: 'Kỳ ảo'),
-        Genre(id: 878, name: 'Khoa học viễn tưởng'),
-      ]);
-    }
+    } catch (_) {}
+
+    return const Right([
+      Genre(id: 1, name: 'Tất cả'),
+      Genre(id: 2, name: 'Hành động'),
+      Genre(id: 3, name: 'Phiêu lưu'),
+      Genre(id: 4, name: 'Khoa học viễn tưởng'),
+      Genre(id: 5, name: 'Hoạt hình'),
+      Genre(id: 6, name: 'Hài hước'),
+      Genre(id: 7, name: 'Tiểu sử'),
+      Genre(id: 8, name: 'Chính kịch'),
+    ]);
   }
 
   @override
@@ -289,6 +301,7 @@ class MovieRepositoryImpl implements MovieRepository {
     String? sortBy,
     int page = 1,
   }) async {
+    await _ensureInitialized();
     try {
       final response = await remoteDataSource.discoverMovies(
         withGenres: withGenres,
@@ -300,9 +313,8 @@ class MovieRepositoryImpl implements MovieRepository {
       );
       final movies = response.results.map((model) => model.toEntity()).toList();
       if (movies.isNotEmpty) return Right(movies);
-      return Right(HomeController.instance.danhSachPhim);
-    } catch (_) {
-      return Right(HomeController.instance.danhSachPhim);
-    }
+    } catch (_) {}
+
+    return Right(HomeController.instance.danhSachPhim);
   }
 }

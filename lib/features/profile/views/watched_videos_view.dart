@@ -309,7 +309,7 @@ class WatchedVideosView extends StatelessWidget {
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                movie.diemDanhGia.toString(),
+                                                '${movie.diemDanhGia.toStringAsFixed(1)}/10',
                                                 style: TextStyle(
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.bold,

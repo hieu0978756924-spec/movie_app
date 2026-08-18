@@ -10,9 +10,8 @@ class AuthInterceptor extends Interceptor {
     if (!queryParams.containsKey('api_key')) {
       queryParams['api_key'] = ApiConstants.tmdbApiKey;
     }
-
     if (!queryParams.containsKey('language')) {
-      queryParams['language'] = ApiConstants.defaultLanguage;
+      queryParams['language'] = 'vi-VN';
     }
 
     options.queryParameters = queryParams;

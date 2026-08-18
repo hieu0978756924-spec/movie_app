@@ -51,6 +51,7 @@ class UserProfileManager {
   static final UserProfileManager instance = UserProfileManager._internal();
 
   late final ValueNotifier<UserProfile> profile;
+  final ValueNotifier<int> reviewCountNotifier = ValueNotifier<int>(0);
 
   Future<void> loadProfile() async {
     try {
@@ -80,6 +81,23 @@ class UserProfileManager {
         email: currentEmail,
         avatarPath: (savedAvatar != null && savedAvatar.isNotEmpty) ? savedAvatar : profile.value.avatarPath,
       );
+
+      fetchReviewCount();
+    } catch (_) {}
+  }
+
+  Future<void> fetchReviewCount() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        final response = await Supabase.instance.client
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id);
+        reviewCountNotifier.value = response.length;
+      } else {
+        reviewCountNotifier.value = 0;
+      }
     } catch (_) {}
   }
 
@@ -112,6 +130,20 @@ class UserProfileManager {
       await prefs.setString('profile_gender', userProfile.gender);
       await prefs.setString('profile_email', userProfile.email);
       await prefs.setString('profile_avatar', userProfile.avatarPath);
+
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        await Supabase.instance.client.auth.updateUser(
+          UserAttributes(data: {'full_name': userProfile.name, 'name': userProfile.name}),
+        );
+        await Supabase.instance.client.from('profiles').upsert({
+          'id': user.id,
+          'full_name': userProfile.name,
+          'avatar_url': userProfile.avatarPath,
+          'updated_at': DateTime.now().toIso8601String(),
+        });
+      }
     } catch (_) {}
   }
 }
+

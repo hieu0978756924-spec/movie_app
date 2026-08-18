@@ -279,14 +279,14 @@ class _FilterBottomSheetWidgetState extends State<FilterBottomSheetWidget> {
                     ],
                   ),
                   Slider(
-                    value: _tempFilter.minRating.clamp(0.0, 5.0),
+                    value: _tempFilter.minRating.clamp(0.0, 10.0),
                     min: 0.0,
-                    max: 5.0,
+                    max: 10.0,
                     divisions: 10,
                     activeColor: AppColors.accentGold,
-                    inactiveColor: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
-                    label: '${_tempFilter.minRating.clamp(0.0, 5.0).toStringAsFixed(1)} ★',
-                    onChanged: (double val) {
+                    inactiveColor: isDark ? Colors.white24 : Colors.black12,
+                    label: '${_tempFilter.minRating.round()} sao',
+                    onChanged: (val) {
                       setState(() {
                         _tempFilter = _tempFilter.copyWith(minRating: val);
                       });

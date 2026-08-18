@@ -27,7 +27,7 @@ class WriteReviewBottomSheet extends StatefulWidget {
 }
 
 class _WriteReviewBottomSheetState extends State<WriteReviewBottomSheet> {
-  double _selectedRating = 5.0;
+  double _selectedRating = 10.0;
   final TextEditingController _contentController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -80,9 +80,9 @@ class _WriteReviewBottomSheetState extends State<WriteReviewBottomSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Star Rating Selector (1-5 stars)
+              // Star Rating Selector (1-10 stars)
               Text(
-                'Điểm đánh giá: ${_selectedRating.toStringAsFixed(1)} / 5',
+                'Điểm đánh giá: ${_selectedRating.toStringAsFixed(1)} / 10',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -92,7 +92,7 @@ class _WriteReviewBottomSheetState extends State<WriteReviewBottomSheet> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(5, (index) {
+                children: List.generate(10, (index) {
                   final starValue = index + 1.0;
                   final isSelected = starValue <= _selectedRating;
 
@@ -111,7 +111,7 @@ class _WriteReviewBottomSheetState extends State<WriteReviewBottomSheet> {
                           : (isDark
                               ? AppColors.darkTextMuted
                               : AppColors.lightTextMuted),
-                      size: 36,
+                      size: 22,
                     ),
                   );
                 }),

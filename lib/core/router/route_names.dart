@@ -5,6 +5,8 @@ abstract class RouteName {
   static const forgotPassword = 'forgotPassword';
   static const home = 'home';
   static const movieDetail = 'movieDetail';
+  static const moviePlayer = 'moviePlayer';
+  static const actorDetail = 'actorDetail';
   static const category = 'category';
   static const search = 'search';
   static const watchlist = 'watchlist';
@@ -21,6 +23,8 @@ abstract class RoutePath {
   static const forgotPassword = '/forgot-password';
   static const home = '/';
   static const movieDetail = '/movie/:id';
+  static const moviePlayer = '/player/:id';
+  static const actorDetail = '/actor/:id';
   static const category = '/category/:type';
   static const search = '/search';
   static const watchlist = '/watchlist';
@@ -29,9 +33,8 @@ abstract class RoutePath {
   static const personalInfo = '/personal-info';
   static const watchedVideos = '/watched-videos';
 
-  static String movieDetailPath(String id) => '/movie/$id';
+  static String movieDetailPath(dynamic id) => '/movie/$id';
+  static String playerPath(dynamic id) => '/player/$id';
+  static String actorPath(dynamic id) => '/actor/$id';
   static String categoryPath(String type) => '/category/$type';
 }
-
-
-

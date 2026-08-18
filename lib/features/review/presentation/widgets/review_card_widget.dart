@@ -84,7 +84,7 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        review.rating.toStringAsFixed(1),
+                        '${review.rating.toStringAsFixed(1)}/10',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

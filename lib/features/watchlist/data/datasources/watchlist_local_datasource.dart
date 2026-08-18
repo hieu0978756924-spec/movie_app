@@ -47,6 +47,7 @@ class WatchlistLocalDataSourceImpl implements WatchlistLocalDataSource {
       final box = await _getBox();
       if (box == null) return;
       await box.put(item.id, item.toMap());
+      await box.flush();
     } catch (_) {}
   }
 
@@ -56,6 +57,7 @@ class WatchlistLocalDataSourceImpl implements WatchlistLocalDataSource {
       final box = await _getBox();
       if (box == null) return;
       await box.delete(id);
+      await box.flush();
     } catch (_) {}
   }
 
@@ -69,6 +71,7 @@ class WatchlistLocalDataSourceImpl implements WatchlistLocalDataSource {
         final updatedMap = Map<String, dynamic>.from(data);
         updatedMap['daXem'] = daXem;
         await box.put(id, updatedMap);
+        await box.flush();
       }
     } catch (_) {}
   }

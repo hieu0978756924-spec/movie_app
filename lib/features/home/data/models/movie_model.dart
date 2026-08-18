@@ -65,7 +65,8 @@ class MovieModel {
       tenPhim: title,
       hinhAnh: posterPath ?? '',
       backdropPath: backdropPath,
-      diemDanhGia: voteAverage > 5.0 ? voteAverage / 2.0 : voteAverage,
+      diemDanhGia: voteAverage,
+
       moTa: overview,
       namPhatHanh: year,
       genreIds: genreIds,

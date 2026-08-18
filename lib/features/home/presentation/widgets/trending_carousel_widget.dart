@@ -158,7 +158,7 @@ class _TrendingCarouselWidgetState extends State<TrendingCarouselWidget> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${movie.diemDanhGia.toStringAsFixed(1)} / 5',
+                                    '${movie.diemDanhGia.toStringAsFixed(1)} / 10',
                                     style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 12,

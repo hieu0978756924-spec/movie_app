@@ -7,6 +7,10 @@ class MovieSkeletonLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final skeletonColor =
+        isDark ? AppColors.darkSurfaceVariant : Colors.grey.shade300;
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Column(
@@ -17,19 +21,19 @@ class MovieSkeletonLoader extends StatelessWidget {
             height: 220,
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: AppColors.darkSurfaceVariant,
+              color: skeletonColor,
               borderRadius: BorderRadius.circular(16),
             ),
           ),
           const SizedBox(height: 24),
-          _buildSectionSkeleton(),
-          _buildSectionSkeleton(),
+          _buildSectionSkeleton(skeletonColor),
+          _buildSectionSkeleton(skeletonColor),
         ],
       ),
     );
   }
 
-  Widget _buildSectionSkeleton() {
+  Widget _buildSectionSkeleton(Color skeletonColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,7 +42,7 @@ class MovieSkeletonLoader extends StatelessWidget {
           height: 20,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: AppColors.darkSurfaceVariant,
+            color: skeletonColor,
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -54,7 +58,7 @@ class MovieSkeletonLoader extends StatelessWidget {
                 width: 130,
                 margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.darkSurfaceVariant,
+                  color: skeletonColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
               );

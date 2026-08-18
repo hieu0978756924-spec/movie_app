@@ -1,0 +1,10 @@
+{
+  "id": "usr_998877",
+  "displayName": "Góc Phim Member",
+  "email": "user@gocphim.com",
+  "avatarUrl": "assets/images/avatar.jpg",
+  "loginProvider": "google",
+  "favoriteMovieIds": [1, 2, 5, 8],
+  "watchlistIds": [3, 6, 9],
+  "isCloudSynced": true
+}
