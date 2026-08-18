@@ -77,13 +77,12 @@ import '../../features/watchlist/domain/repositories/watchlist_repository.dart'
     as _i974;
 import '../../features/watchlist/presentation/bloc/watchlist_bloc.dart'
     as _i767;
+import '../localization/language_cubit.dart' as _i170;
 import '../network/dio_client.dart' as _i667;
 import '../network/supabase_client.dart' as _i650;
 import '../router/router_module.dart' as _i948;
+import '../services/local_json_service.dart' as _i259;
 import '../theme/theme_cubit.dart' as _i611;
-import '../localization/language_cubit.dart';
-import '../services/local_json_service.dart';
-
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -99,13 +98,12 @@ extension GetItInjectableX on _i174.GetIt {
     final networkModule = _$NetworkModule();
     final supabaseModule = _$SupabaseModule();
     final routerModule = _$RouterModule();
+    gh.singleton<_i170.LanguageCubit>(() => _i170.LanguageCubit());
     gh.singleton<_i361.Dio>(() => networkModule.dio);
     gh.singleton<_i454.SupabaseClient>(() => supabaseModule.supabase);
     gh.singleton<_i583.GoRouter>(() => routerModule.router);
+    gh.lazySingleton<_i259.LocalJsonService>(() => _i259.LocalJsonService());
     gh.lazySingleton<_i611.ThemeCubit>(() => _i611.ThemeCubit());
-    gh.lazySingleton<LanguageCubit>(() => LanguageCubit());
-    gh.lazySingleton<LocalJsonService>(() => LocalJsonService());
-
     gh.lazySingleton<_i205.WatchlistRemoteDataSource>(
         () => _i205.WatchlistRemoteDataSourceImpl(gh<_i454.SupabaseClient>()));
     gh.lazySingleton<_i161.AuthRemoteDataSource>(
@@ -173,19 +171,21 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
         ));
+    gh.factory<_i202.HomeBloc>(() => _i202.HomeBloc(
+          gh<_i858.GetTrendingMoviesUseCase>(),
+          gh<_i233.GetNowPlayingMoviesUseCase>(),
+          gh<_i560.GetPopularMoviesUseCase>(),
+          gh<_i639.GetTopRatedMoviesUseCase>(),
+          gh<_i749.GetUpcomingMoviesUseCase>(),
+          gh<_i639.GetSimilarMoviesUseCase>(),
+          gh<_i105.WatchlistLocalDataSource>(),
+        ));
     gh.factory<_i552.SearchBloc>(() => _i552.SearchBloc(
           gh<_i451.SearchMoviesUseCase>(),
           gh<_i226.GetGenresUseCase>(),
           gh<_i992.DiscoverMoviesUseCase>(),
         ));
     gh.factory<_i311.CategoryBloc>(() => _i311.CategoryBloc(
-          gh<_i858.GetTrendingMoviesUseCase>(),
-          gh<_i233.GetNowPlayingMoviesUseCase>(),
-          gh<_i560.GetPopularMoviesUseCase>(),
-          gh<_i639.GetTopRatedMoviesUseCase>(),
-          gh<_i749.GetUpcomingMoviesUseCase>(),
-        ));
-    gh.factory<_i202.HomeBloc>(() => _i202.HomeBloc(
           gh<_i858.GetTrendingMoviesUseCase>(),
           gh<_i233.GetNowPlayingMoviesUseCase>(),
           gh<_i560.GetPopularMoviesUseCase>(),
