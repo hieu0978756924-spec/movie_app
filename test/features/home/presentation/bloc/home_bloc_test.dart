@@ -3,11 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:movie_app/features/home/domain/usecases/get_now_playing_movies_usecase.dart';
 import 'package:movie_app/features/home/domain/usecases/get_popular_movies_usecase.dart';
+import 'package:movie_app/features/home/domain/usecases/get_similar_movies_usecase.dart';
 import 'package:movie_app/features/home/domain/usecases/get_top_rated_movies_usecase.dart';
 import 'package:movie_app/features/home/domain/usecases/get_trending_movies_usecase.dart';
 import 'package:movie_app/features/home/domain/usecases/get_upcoming_movies_usecase.dart';
 import 'package:movie_app/features/home/models/movie.dart';
 import 'package:movie_app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:movie_app/features/watchlist/data/datasources/watchlist_local_datasource.dart';
+import 'package:movie_app/features/watchlist/data/models/watchlist_item_model.dart';
 
 class MockGetTrendingMoviesUseCase extends Mock
     implements GetTrendingMoviesUseCase {}
@@ -24,12 +27,20 @@ class MockGetTopRatedMoviesUseCase extends Mock
 class MockGetUpcomingMoviesUseCase extends Mock
     implements GetUpcomingMoviesUseCase {}
 
+class MockGetSimilarMoviesUseCase extends Mock
+    implements GetSimilarMoviesUseCase {}
+
+class MockWatchlistLocalDataSource extends Mock
+    implements WatchlistLocalDataSource {}
+
 void main() {
   late MockGetTrendingMoviesUseCase mockGetTrending;
   late MockGetNowPlayingMoviesUseCase mockGetNowPlaying;
   late MockGetPopularMoviesUseCase mockGetPopular;
   late MockGetTopRatedMoviesUseCase mockGetTopRated;
   late MockGetUpcomingMoviesUseCase mockGetUpcoming;
+  late MockGetSimilarMoviesUseCase mockGetSimilar;
+  late MockWatchlistLocalDataSource mockWatchlistLocal;
   late HomeBloc homeBloc;
 
   setUp(() {
@@ -38,6 +49,8 @@ void main() {
     mockGetPopular = MockGetPopularMoviesUseCase();
     mockGetTopRated = MockGetTopRatedMoviesUseCase();
     mockGetUpcoming = MockGetUpcomingMoviesUseCase();
+    mockGetSimilar = MockGetSimilarMoviesUseCase();
+    mockWatchlistLocal = MockWatchlistLocalDataSource();
 
     homeBloc = HomeBloc(
       mockGetTrending,
@@ -45,6 +58,8 @@ void main() {
       mockGetPopular,
       mockGetTopRated,
       mockGetUpcoming,
+      mockGetSimilar,
+      mockWatchlistLocal,
     );
   });
 
@@ -54,6 +69,14 @@ void main() {
     hinhAnh: '/test.jpg',
     diemDanhGia: 8.5,
     moTa: 'Test Overview',
+  );
+
+  final tWatchlistItem = WatchlistItemModel(
+    id: 1,
+    tenPhim: 'Test Movie',
+    hinhAnh: '/test.jpg',
+    diemDanhGia: 8.5,
+    addedAt: DateTime.now().toIso8601String(),
   );
 
   group('HomeBloc Tests', () {
@@ -73,6 +96,10 @@ void main() {
           .thenAnswer((_) async => Right([tMovie]));
       when(() => mockGetUpcoming())
           .thenAnswer((_) async => Right([tMovie]));
+      when(() => mockWatchlistLocal.getWatchlist())
+          .thenAnswer((_) async => [tWatchlistItem]);
+      when(() => mockGetSimilar(any()))
+          .thenAnswer((_) async => Right([tMovie]));
 
       final expectedStates = [
         HomeLoadingState(),
@@ -82,6 +109,8 @@ void main() {
           popularMovies: [tMovie],
           topRatedMovies: [tMovie],
           upcomingMovies: [tMovie],
+          recommendedMovies: [tMovie],
+          recommendedSourceTitle: 'Test Movie',
         ),
       ];
 
@@ -91,3 +120,4 @@ void main() {
     });
   });
 }
+

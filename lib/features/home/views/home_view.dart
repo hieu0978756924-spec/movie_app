@@ -150,6 +150,12 @@ class HomeView extends StatelessWidget {
                             TrendingCarouselWidget(
                               movies: state.trendingMovies,
                             ),
+                            if (state.recommendedMovies.isNotEmpty)
+                              MovieSectionWidget(
+                                title:
+                                    '${locale.translate('because_you_added')} "${state.recommendedSourceTitle ?? ''}"',
+                                movies: state.recommendedMovies,
+                              ),
                             MovieSectionWidget(
                               title: locale.translate('now_playing'),
                               movies: state.nowPlayingMovies,

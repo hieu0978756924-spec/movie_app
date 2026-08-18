@@ -4,9 +4,11 @@ import 'package:injectable/injectable.dart';
 
 import '../../domain/usecases/get_now_playing_movies_usecase.dart';
 import '../../domain/usecases/get_popular_movies_usecase.dart';
+import '../../domain/usecases/get_similar_movies_usecase.dart';
 import '../../domain/usecases/get_top_rated_movies_usecase.dart';
 import '../../domain/usecases/get_trending_movies_usecase.dart';
 import '../../domain/usecases/get_upcoming_movies_usecase.dart';
+import '../../../watchlist/data/datasources/watchlist_local_datasource.dart';
 import '../../controllers/home_controller.dart';
 import '../../models/movie.dart';
 
@@ -38,6 +40,8 @@ class HomeLoadedState extends HomeState {
   final List<Movie> popularMovies;
   final List<Movie> topRatedMovies;
   final List<Movie> upcomingMovies;
+  final List<Movie> recommendedMovies;
+  final String? recommendedSourceTitle;
 
   const HomeLoadedState({
     required this.trendingMovies,
@@ -45,6 +49,8 @@ class HomeLoadedState extends HomeState {
     required this.popularMovies,
     required this.topRatedMovies,
     required this.upcomingMovies,
+    this.recommendedMovies = const [],
+    this.recommendedSourceTitle,
   });
 
   @override
@@ -54,6 +60,8 @@ class HomeLoadedState extends HomeState {
         popularMovies,
         topRatedMovies,
         upcomingMovies,
+        recommendedMovies,
+        recommendedSourceTitle,
       ];
 }
 
@@ -72,6 +80,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetPopularMoviesUseCase getPopularMoviesUseCase;
   final GetTopRatedMoviesUseCase getTopRatedMoviesUseCase;
   final GetUpcomingMoviesUseCase getUpcomingMoviesUseCase;
+  final GetSimilarMoviesUseCase getSimilarMoviesUseCase;
+  final WatchlistLocalDataSource watchlistLocalDataSource;
 
   HomeBloc(
     this.getTrendingMoviesUseCase,
@@ -79,6 +89,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     this.getPopularMoviesUseCase,
     this.getTopRatedMoviesUseCase,
     this.getUpcomingMoviesUseCase,
+    this.getSimilarMoviesUseCase,
+    this.watchlistLocalDataSource,
   ) : super(HomeInitialState()) {
     on<FetchHomeMoviesEvent>(_onFetchHomeMovies);
     on<RefreshHomeMoviesEvent>(_onRefreshHomeMovies);
@@ -124,6 +136,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (topRated.isEmpty) topRated = HomeController.instance.danhSachPhimDanhGiaCao;
     if (upcoming.isEmpty) upcoming = HomeController.instance.danhSachPhimSapChieu;
 
+    List<Movie> recommendedMovies = [];
+    String? recommendedSourceTitle;
+
+    try {
+      final watchlist = await watchlistLocalDataSource.getWatchlist();
+      if (watchlist.isNotEmpty) {
+        final latestItem = watchlist.first;
+        recommendedSourceTitle = latestItem.tenPhim;
+        final recResult = await getSimilarMoviesUseCase(latestItem.id);
+        recommendedMovies =
+            recResult.fold((_) => <Movie>[], (movies) => movies);
+      }
+    } catch (_) {
+      // Fallback gracefully if recommendations fail
+    }
+
     emit(
       HomeLoadedState(
         trendingMovies: trending,
@@ -131,7 +159,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         popularMovies: popular,
         topRatedMovies: topRated,
         upcomingMovies: upcoming,
+        recommendedMovies: recommendedMovies,
+        recommendedSourceTitle: recommendedSourceTitle,
       ),
     );
   }
 }
+
