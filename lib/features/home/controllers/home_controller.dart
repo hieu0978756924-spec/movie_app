@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/movie.dart';
 import '../../actor/models/actor.dart';
+import '../../profile/data/user_profile_manager.dart';
 
 class HomeController extends ChangeNotifier {
-  static const String _favIdsKey = 'favorite_movie_ids';
-  static const String _favMoviesKey = 'favorite_movies_json';
+  static const String _legacyFavIdsKey = 'favorite_movie_ids';
+  static const String _legacyFavMoviesKey = 'favorite_movies_json';
+  String _currentUserKey = 'favorites_guest';
 
   //==========================================================
   // Singleton
@@ -19,11 +22,48 @@ class HomeController extends ChangeNotifier {
 
   final List<Movie> danhSachPhim = [];
   final List<Actor> danhSachDienVien = [];
-  final Set<int> favoriteMovieIds = {1, 2, 5, 8};
+  final Set<int> favoriteMovieIds = {};
   bool _isInitialized = false;
+
+  void clearFavorites() {
+    favoriteMovieIds.clear();
+    for (var m in danhSachPhim) {
+      m.yeuThich = false;
+    }
+    _saveFavorites();
+    notifyListeners();
+  }
+
+  String _getKeyForUser([String? emailOrId]) {
+    if (emailOrId != null && emailOrId.isNotEmpty) {
+      return 'favorites_${emailOrId.toLowerCase()}';
+    }
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null && user.id.isNotEmpty) {
+        return 'favorites_${user.id}';
+      }
+    } catch (_) {}
+    final email = UserProfileManager.instance.profile.value.email;
+    if (email.isNotEmpty) {
+      return 'favorites_${email.toLowerCase()}';
+    }
+    return 'favorites_guest';
+  }
+
+  Future<void> loadForUser([String? emailOrId]) async {
+    _currentUserKey = _getKeyForUser(emailOrId);
+    await _loadSavedFavorites();
+  }
 
   Future<void> init() async {
     if (_isInitialized && danhSachPhim.isNotEmpty) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_legacyFavIdsKey);
+      await prefs.remove(_legacyFavMoviesKey);
+    } catch (_) {}
 
     try {
       final moviesStr = await rootBundle.loadString('assets/json/movies.json');
@@ -31,9 +71,7 @@ class HomeController extends ChangeNotifier {
       danhSachPhim.clear();
       for (final item in moviesJson) {
         final movie = Movie.fromJson(item as Map<String, dynamic>);
-        if (favoriteMovieIds.contains(movie.id)) {
-          movie.yeuThich = true;
-        }
+        movie.yeuThich = false;
         danhSachPhim.add(movie);
       }
     } catch (_) {
@@ -57,17 +95,21 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> _loadSavedFavorites() async {
+    favoriteMovieIds.clear();
+    for (var m in danhSachPhim) {
+      m.yeuThich = false;
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String>? savedIds = prefs.getStringList(_favIdsKey);
+      final List<String>? savedIds = prefs.getStringList('${_currentUserKey}_ids');
       if (savedIds != null && savedIds.isNotEmpty) {
-        favoriteMovieIds.clear();
         favoriteMovieIds.addAll(
           savedIds.map((e) => int.tryParse(e) ?? 0).where((id) => id != 0),
         );
       }
 
-      final String? savedMoviesStr = prefs.getString(_favMoviesKey);
+      final String? savedMoviesStr = prefs.getString('${_currentUserKey}_movies');
       if (savedMoviesStr != null && savedMoviesStr.isNotEmpty) {
         final List<dynamic> listJson = jsonDecode(savedMoviesStr);
         for (final item in listJson) {
@@ -90,13 +132,14 @@ class HomeController extends ChangeNotifier {
         }
       }
     } catch (_) {}
+    notifyListeners();
   }
 
   Future<void> _saveFavorites() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(
-        _favIdsKey,
+        '${_currentUserKey}_ids',
         favoriteMovieIds.map((id) => id.toString()).toList(),
       );
 
@@ -105,7 +148,7 @@ class HomeController extends ChangeNotifier {
           .toList();
       final String jsonStr =
           jsonEncode(favMovies.map((m) => m.toJson()).toList());
-      await prefs.setString(_favMoviesKey, jsonStr);
+      await prefs.setString('${_currentUserKey}_movies', jsonStr);
     } catch (_) {}
   }
 
@@ -126,7 +169,7 @@ class HomeController extends ChangeNotifier {
         isPopular: true,
         isTopRated: true,
         trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
-        yeuThich: true,
+        yeuThich: false,
       ),
       Movie(
         id: 2,
@@ -141,7 +184,7 @@ class HomeController extends ChangeNotifier {
         isPopular: true,
         isTopRated: true,
         trailerUrl: "https://www.youtube.com/watch?v=uYPbbksJxIg",
-        yeuThich: true,
+        yeuThich: false,
       ),
       Movie(
         id: 3,
@@ -156,6 +199,7 @@ class HomeController extends ChangeNotifier {
         isNowPlaying: true,
         isPopular: true,
         trailerUrl: "https://www.youtube.com/watch?v=73_1biulkYk",
+        yeuThich: false,
       ),
     ]);
   }
@@ -213,7 +257,9 @@ class HomeController extends ChangeNotifier {
 
   List<Movie> get danhSachPhimSapChieu {
     final list = danhSachPhim.where((m) => m.isUpcoming).toList();
-    return list.isNotEmpty ? list : danhSachPhim.skip(3).take(4).toList();
+    if (list.isNotEmpty) return list;
+    final nowPlayingIds = danhSachPhimDangChieu.map((m) => m.id).toSet();
+    return danhSachPhim.where((m) => !nowPlayingIds.contains(m.id)).take(4).toList();
   }
 
   //==========================================================
@@ -247,6 +293,17 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
+  //==========================================================
+  // Lấy chi tiết Phim
+  //==========================================================
+
+  Movie? getMovieById(int movieId) {
+    try {
+      return danhSachPhim.firstWhere((m) => m.id == movieId);
+    } catch (_) {
+      return null;
+    }
+  }
 
   //==========================================================
   // Lấy chi tiết Diễn viên

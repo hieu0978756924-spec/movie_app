@@ -14,6 +14,7 @@ abstract class RouteName {
   static const profile = 'profile';
   static const personalInfo = 'personalInfo';
   static const watchedVideos = 'watchedVideos';
+  static const userReviews = 'userReviews';
 }
 
 abstract class RoutePath {
@@ -32,6 +33,7 @@ abstract class RoutePath {
   static const profile = '/profile';
   static const personalInfo = '/personal-info';
   static const watchedVideos = '/watched-videos';
+  static const userReviews = '/user-reviews';
 
   static String movieDetailPath(dynamic id) => '/movie/$id';
   static String playerPath(dynamic id) => '/player/$id';

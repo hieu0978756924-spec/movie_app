@@ -9,6 +9,8 @@ abstract class AuthRemoteDataSource {
   Future<void> logout();
 }
 
+
+
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final SupabaseClient supabaseClient;
@@ -23,23 +25,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthResponse> login(String email, String password) async {
     try {
-      return await supabaseClient.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      return await supabaseClient.auth
+          .signInWithPassword(
+            email: email,
+            password: password,
+          )
+          .timeout(const Duration(seconds: 6));
     } catch (e) {
+      if (e is AuthException) {
+        rethrow;
+      }
       final str = e.toString().toLowerCase();
       if (str.contains('socketexception') ||
           str.contains('failed host lookup') ||
           str.contains('clientexception') ||
-          str.contains('connection refused')) {
-        // Fallback local auth for offline / unreachable Supabase host
+          str.contains('connection refused') ||
+          str.contains('timeout')) {
+        // Fallback local auth for offline / unreachable / slow Supabase host
+        final userId = 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
         return AuthResponse(
           session: Session(
             accessToken: 'local_demo_token',
             tokenType: 'bearer',
             user: User(
-              id: 'demo_user_id',
+              id: userId,
               appMetadata: {},
               userMetadata: {},
               aud: 'authenticated',
@@ -48,7 +57,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             ),
           ),
           user: User(
-            id: 'demo_user_id',
+            id: userId,
             appMetadata: {},
             userMetadata: {},
             aud: 'authenticated',
@@ -71,60 +80,45 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           )
           .timeout(const Duration(seconds: 8));
 
+      // In Supabase GoTrue, when email is already registered, response.user.identities is empty
+      if (response.user != null &&
+          response.user!.identities != null &&
+          response.user!.identities!.isEmpty) {
+        throw const AuthException(
+            'Email này đã được đăng ký tài khoản. Vui lòng chọn Đăng nhập.');
+      }
+
       if (response.user != null || response.session != null) {
         return response;
       }
 
-      final loginResponse = await supabaseClient.auth
-          .signInWithPassword(
-            email: email,
-            password: password,
-          )
-          .timeout(const Duration(seconds: 5));
-      return loginResponse;
+      throw const AuthException('Không thể tạo tài khoản. Vui lòng thử lại!');
     } on AuthException catch (e) {
-      if (e.message.contains('already registered') ||
-          e.message.contains('already exists') ||
+      final msg = e.message.toLowerCase();
+      if (msg.contains('already registered') ||
+          msg.contains('already exists') ||
+          msg.contains('đã được đăng ký') ||
           e.code == 'user_already_exists') {
         throw const AuthException(
             'Email này đã được đăng ký tài khoản. Vui lòng chọn Đăng nhập.');
       }
 
       if (e.code == 'over_email_send_rate_limit' ||
-          e.message.toLowerCase().contains('rate limit exceeded')) {
+          msg.contains('rate limit exceeded')) {
         throw const AuthException(
             'Đã vượt quá giới hạn gửi email của Supabase. Vui lòng chờ 1-2 phút hoặc bấm "Đăng nhập ngay".');
       }
 
-      // Fallback to RPC if signUp encounters issue
-      try {
-        final rpcResult = await supabaseClient.rpc(
-          'register_user_direct',
-          params: {
-            'email_input': email,
-            'password_input': password,
-          },
-        ).timeout(const Duration(seconds: 5));
-
-        if (rpcResult is Map && rpcResult['success'] == true) {
-          final loginResponse = await supabaseClient.auth
-              .signInWithPassword(
-                email: email,
-                password: password,
-              )
-              .timeout(const Duration(seconds: 5));
-          if (loginResponse.user != null) {
-            return loginResponse;
-          }
-        } else if (rpcResult is Map && rpcResult['message'] != null) {
-          throw AuthException(rpcResult['message'].toString());
-        }
-      } catch (rpcErr) {
-        if (rpcErr is AuthException) rethrow;
-      }
       rethrow;
     } catch (e) {
+      if (e is AuthException) rethrow;
       final str = e.toString().toLowerCase();
+      if (str.contains('already registered') ||
+          str.contains('already exists') ||
+          str.contains('user_already_exists')) {
+        throw const AuthException(
+            'Email này đã được đăng ký tài khoản. Vui lòng chọn Đăng nhập.');
+      }
       if (str.contains('socketexception') ||
           str.contains('failed host lookup') ||
           str.contains('clientexception') ||
@@ -157,4 +151,5 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await supabaseClient.auth.signOut();
   }
 }
+
 

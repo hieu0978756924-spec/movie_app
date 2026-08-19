@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../home/models/movie.dart';
+import 'user_profile_manager.dart';
 
 class WatchedVideoItem {
   final Movie movie;
@@ -29,10 +31,13 @@ class WatchedVideoItem {
 }
 
 class WatchHistoryManager {
-  static const String _key = 'watched_video_history_json';
+  static const String _legacyKey1 = 'watched_video_history_json';
+  static const String _legacyKey2 = 'watched_video_history_guest';
+  String _currentUserKey = 'watched_video_history_v3_guest';
 
   WatchHistoryManager._internal() {
     history = ValueNotifier<List<WatchedVideoItem>>([]);
+    _cleanupLegacy();
     _loadHistory();
   }
 
@@ -40,10 +45,40 @@ class WatchHistoryManager {
 
   late final ValueNotifier<List<WatchedVideoItem>> history;
 
+  Future<void> _cleanupLegacy() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_legacyKey1);
+      await prefs.remove(_legacyKey2);
+    } catch (_) {}
+  }
+
+  String _getKeyForUser([String? emailOrId]) {
+    if (emailOrId != null && emailOrId.isNotEmpty && emailOrId != 'guest') {
+      return 'watched_video_history_v3_${emailOrId.toLowerCase()}';
+    }
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null && user.id.isNotEmpty) {
+        return 'watched_video_history_v3_${user.id}';
+      }
+    } catch (_) {}
+    final email = UserProfileManager.instance.profile.value.email;
+    if (email.isNotEmpty) {
+      return 'watched_video_history_v3_${email.toLowerCase()}';
+    }
+    return 'watched_video_history_v3_guest';
+  }
+
+  Future<void> loadForUser([String? emailOrId]) async {
+    _currentUserKey = _getKeyForUser(emailOrId);
+    await _loadHistory();
+  }
+
   Future<void> _loadHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? jsonStr = prefs.getString(_key);
+      final String? jsonStr = prefs.getString(_currentUserKey);
       if (jsonStr != null && jsonStr.isNotEmpty) {
         final List<dynamic> list = jsonDecode(jsonStr);
         history.value = list
@@ -53,57 +88,7 @@ class WatchHistoryManager {
       }
     } catch (_) {}
 
-    // Fallback initial sample data if no saved history exists yet
-    history.value = [
-      WatchedVideoItem(
-        movie: Movie(
-          id: 693134,
-          tenPhim: 'Dune: Hành Tinh Cát - Phần Hai',
-          hinhAnh: 'assets/images/dune2.jpg',
-          backdropPath: 'assets/images/dune2.jpg',
-          diemDanhGia: 4.3,
-          theLoai: 'Khoa học viễn tưởng',
-          thoiLuong: '166 min',
-          moTa: 'Hành trình trả thù và bảo vệ vũ trụ của Paul Atreides.',
-          namPhatHanh: 2024,
-          daoDien: 'Denis Villeneuve',
-        ),
-        watchedAt: 'Hôm nay, 14:30',
-        progress: 0.85,
-      ),
-      WatchedVideoItem(
-        movie: Movie(
-          id: 872585,
-          tenPhim: 'Oppenheimer',
-          hinhAnh: 'assets/images/oppenheimer.jpg',
-          backdropPath: 'assets/images/oppenheimer.jpg',
-          diemDanhGia: 4.5,
-          theLoai: 'Tâm lý, Lịch sử',
-          thoiLuong: '180 min',
-          moTa: 'Câu chuyện về cuộc đời của nhà vật lý J. Robert Oppenheimer.',
-          namPhatHanh: 2023,
-          daoDien: 'Christopher Nolan',
-        ),
-        watchedAt: 'Hôm qua, 20:15',
-        progress: 1.0,
-      ),
-      WatchedVideoItem(
-        movie: Movie(
-          id: 533535,
-          tenPhim: 'Deadpool & Wolverine',
-          hinhAnh: 'assets/images/deadpool.jpg',
-          backdropPath: 'assets/images/deadpool.jpg',
-          diemDanhGia: 4.1,
-          theLoai: 'Hành động, Hài hước',
-          thoiLuong: '127 min',
-          moTa: 'Cuộc hội ngộ hài hước và nghẹt thở giữa Deadpool và Wolverine.',
-          namPhatHanh: 2024,
-          daoDien: 'Shawn Levy',
-        ),
-        watchedAt: '3 ngày trước',
-        progress: 0.45,
-      ),
-    ];
+    history.value = [];
   }
 
   Future<void> _saveHistory() async {
@@ -111,7 +96,7 @@ class WatchHistoryManager {
       final prefs = await SharedPreferences.getInstance();
       final jsonStr =
           jsonEncode(history.value.map((e) => e.toJson()).toList());
-      await prefs.setString(_key, jsonStr);
+      await prefs.setString(_currentUserKey, jsonStr);
     } catch (_) {}
   }
 

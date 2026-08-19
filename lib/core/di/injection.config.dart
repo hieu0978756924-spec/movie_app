@@ -171,6 +171,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i474.ResetPasswordUseCase>(),
           gh<_i17.GetCurrentUserUseCase>(),
         ));
+
+
     gh.factory<_i202.HomeBloc>(() => _i202.HomeBloc(
           gh<_i858.GetTrendingMoviesUseCase>(),
           gh<_i233.GetNowPlayingMoviesUseCase>(),

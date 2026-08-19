@@ -18,7 +18,9 @@ import '../models/movie.dart';
 
 import '../presentation/bloc/movie_detail_bloc.dart';
 import '../presentation/widgets/movie_section_widget.dart';
+import '../presentation/widgets/pip_trailer_manager.dart';
 import '../../review/presentation/widgets/review_list_widget.dart';
+import '../../review/data/datasources/user_review_manager.dart';
 import '../../profile/data/watch_history_manager.dart';
 
 class MovieDetailView extends StatefulWidget {
@@ -34,16 +36,34 @@ class MovieDetailView extends StatefulWidget {
 }
 
 class _MovieDetailViewState extends State<MovieDetailView> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _reviewSectionKey = GlobalKey();
   bool _isOverviewExpanded = false;
   bool _isPlayingTrailer = false;
   YoutubePlayerController? _youtubeController;
   String? _currentTrailerKey;
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _youtubeController?.dispose();
+    super.dispose();
+  }
+
+  void _scrollToReviews() {
+    final currentContext = _reviewSectionKey.currentContext;
+    if (currentContext != null) {
+      Scrollable.ensureVisible(
+        currentContext,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
   void _playTrailerInline(String youtubeKey, [Movie? movie]) {
     final targetMovie = movie ?? widget.movie;
     final keyToPlay = youtubeKey.trim();
-
-    WatchHistoryManager.instance.addWatchedVideo(targetMovie);
 
     if (keyToPlay.isEmpty) {
       if (mounted) {
@@ -117,11 +137,7 @@ class _MovieDetailViewState extends State<MovieDetailView> {
       }
     }
 
-    return YoutubeUtils.getFallbackTrailerKeyForMovieId(widget.movie.id);
-  }  @override
-  void dispose() {
-    _youtubeController?.dispose();
-    super.dispose();
+    return '';
   }
 
   @override
@@ -284,6 +300,23 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                   currentMovie = state.initialMovie!;
                 }
 
+                if (currentMovie.tenPhim.isNotEmpty) {
+                  final existingReview = UserReviewManager.instance.getUserReview(currentMovie.id);
+                  if (existingReview != null && (existingReview.movieTitle == null || existingReview.movieTitle!.isEmpty || existingReview.moviePoster == null)) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      UserReviewManager.instance.saveUserReview(
+                        movieId: currentMovie.id,
+                        movieTitle: currentMovie.tenPhim,
+                        moviePoster: currentMovie.hinhAnh,
+                        rating: existingReview.rating,
+                        content: existingReview.content,
+                        authorName: existingReview.authorName,
+                        userId: existingReview.userId,
+                      );
+                    });
+                  }
+                }
+
                 final backdropUrl = ImageUrlHelper.getBackdropUrl(
                         currentMovie.backdropPath) ??
                     ImageUrlHelper.getPosterUrl(currentMovie.hinhAnh);
@@ -291,6 +324,7 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                     ImageUrlHelper.getPosterUrl(currentMovie.hinhAnh);
 
                 return CustomScrollView(
+                  controller: _scrollController,
                   slivers: [
                     // Sliver App Bar with Backdrop Image
                     SliverAppBar(
@@ -470,28 +504,31 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Poster Thumbnail Card
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: SizedBox(
-                                    width: 110,
-                                    height: 160,
-                                    child: posterUrl != null &&
-                                            posterUrl.startsWith('http')
-                                        ? Image.network(
-                                            posterUrl,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                _buildFallbackPoster(currentMovie),
-                                          )
-                                        : Image.asset(
-                                            currentMovie.hinhAnh.startsWith('assets/')
-                                                ? currentMovie.hinhAnh
-                                                : ImageUrlHelper.getLocalFallbackImage(currentMovie.id),
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                _buildFallbackPoster(currentMovie),
-                                          ),
+                                // Poster with Shadow and Rounded Corners
+                                Hero(
+                                  tag: 'movie_poster_${currentMovie.id}',
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: SizedBox(
+                                      width: 130,
+                                      height: 190,
+                                      child: posterUrl != null &&
+                                              posterUrl.startsWith('http')
+                                          ? Image.network(
+                                              posterUrl,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  _buildFallbackPoster(currentMovie),
+                                            )
+                                          : Image.asset(
+                                              currentMovie.hinhAnh.startsWith('assets/')
+                                                  ? currentMovie.hinhAnh
+                                                  : ImageUrlHelper.getLocalFallbackImage(currentMovie.id),
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  _buildFallbackPoster(currentMovie),
+                                            ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -509,36 +546,99 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
-                                      Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.star,
-                                            color: AppColors.accentGold,
-                                            size: 18,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            '${currentMovie.diemDanhGia.toStringAsFixed(1)} / 10',
+                                       const SizedBox(height: 10),
+                                       ValueListenableBuilder<Map<int, UserReviewItem>>(
+                                         valueListenable: UserReviewManager.instance.userReviewsNotifier,
+                                         builder: (context, userReviews, _) {
+                                           final userReview = userReviews[currentMovie.id];
+                                           final adjusted = UserReviewManager.instance.getAdjustedRating(
+                                             movieId: currentMovie.id,
+                                             originalRating: currentMovie.diemDanhGia,
+                                             originalVoteCount: currentMovie.voteCount,
+                                           );
+                                           final displayRating = adjusted.rating;
+                                           final displayVoteCount = adjusted.voteCount;
 
-                                            style: TextStyle(
-                                              color: isDark ? Colors.white : AppColors.lightTextPrimary,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          if (currentMovie.voteCount > 0) ...[
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '(${currentMovie.voteCount} votes)',
-                                              style: TextStyle(
-                                                color: isDark ? Colors.white54 : AppColors.lightTextMuted,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
+                                           return Column(
+                                             crossAxisAlignment: CrossAxisAlignment.start,
+                                             mainAxisSize: MainAxisSize.min,
+                                             children: [
+                                               InkWell(
+                                                 onTap: _scrollToReviews,
+                                                 borderRadius: BorderRadius.circular(8),
+                                                 child: Padding(
+                                                   padding: const EdgeInsets.symmetric(vertical: 2),
+                                                   child: Row(
+                                                     mainAxisSize: MainAxisSize.min,
+                                                     children: [
+                                                       const Icon(
+                                                         Icons.star_rounded,
+                                                         color: AppColors.accentGold,
+                                                         size: 20,
+                                                       ),
+                                                       const SizedBox(width: 4),
+                                                       Text(
+                                                         '${displayRating.toStringAsFixed(1)} / 10',
+                                                         style: TextStyle(
+                                                           color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                                                           fontSize: 15,
+                                                           fontWeight: FontWeight.bold,
+                                                         ),
+                                                       ),
+                                                       if (displayVoteCount > 0) ...[
+                                                         const SizedBox(width: 6),
+                                                         Text(
+                                                           '($displayVoteCount đánh giá)',
+                                                           style: TextStyle(
+                                                             color: isDark ? Colors.white54 : AppColors.lightTextMuted,
+                                                             fontSize: 12,
+                                                           ),
+                                                         ),
+                                                       ],
+                                                       const SizedBox(width: 4),
+                                                       const Icon(
+                                                         Icons.chevron_right_rounded,
+                                                         color: AppColors.accentGold,
+                                                         size: 16,
+                                                       ),
+                                                     ],
+                                                   ),
+                                                 ),
+                                               ),
+                                               if (userReview != null) ...[
+                                                 InkWell(
+                                                   onTap: _scrollToReviews,
+                                                   borderRadius: BorderRadius.circular(8),
+                                                   child: Container(
+                                                     margin: const EdgeInsets.only(top: 6),
+                                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                     decoration: BoxDecoration(
+                                                       color: AppColors.accentGold.withAlpha(30),
+                                                       borderRadius: BorderRadius.circular(8),
+                                                       border: Border.all(color: AppColors.accentGold.withAlpha(120)),
+                                                     ),
+                                                     child: Row(
+                                                       mainAxisSize: MainAxisSize.min,
+                                                       children: [
+                                                         const Icon(Icons.rate_review, color: AppColors.accentGold, size: 14),
+                                                         const SizedBox(width: 4),
+                                                         Text(
+                                                           'Bạn đánh giá: ${userReview.rating.toStringAsFixed(1)}⭐ (Xem lại)',
+                                                           style: const TextStyle(
+                                                             fontSize: 11,
+                                                             fontWeight: FontWeight.bold,
+                                                             color: AppColors.accentGold,
+                                                           ),
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ),
+                                               ],
+                                             ],
+                                           );
+                                         },
+                                       ),
                                       const SizedBox(height: 8),
                                       Row(
                                         children: [
@@ -673,6 +773,7 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
+
                                   // Nút Xem Ngay
                                   Expanded(
                                     child: ElevatedButton.icon(
@@ -691,17 +792,25 @@ class _MovieDetailViewState extends State<MovieDetailView> {
                                           context,
                                           actionName: 'xem phim',
                                           onAuthenticated: () {
-                                            String dedicatedMovieKey = _getTmdbTrailerKey(state);
-                                            if (dedicatedMovieKey.isEmpty) {
-                                              dedicatedMovieKey = 'ARA6Bfqfo8c'; // Doraemon trailer fallback key
+                                            if (_isPlayingTrailer) {
+                                              _youtubeController?.pause();
+                                              setState(() {
+                                                _isPlayingTrailer = false;
+                                              });
                                             }
-                                            _playTrailerInline(dedicatedMovieKey, currentMovie);
+                                            PipTrailerManager.instance.closePip();
+
+                                            String mainMovieKey = YoutubeUtils.extractYoutubeKey(currentMovie.videoUrl);
+                                            if (mainMovieKey.isEmpty) {
+                                              mainMovieKey = 'oA-BhGNK7qw';
+                                            }
+
                                             context.pushNamed(
                                               RouteName.moviePlayer,
                                               pathParameters: {'id': currentMovie.id.toString()},
                                               extra: {
                                                 'movie': currentMovie,
-                                                'key': dedicatedMovieKey,
+                                                'key': mainMovieKey,
                                               },
                                             );
                                           },
@@ -942,7 +1051,14 @@ class _MovieDetailViewState extends State<MovieDetailView> {
 
 
                             const SizedBox(height: 24),
-                            ReviewListWidget(movieId: currentMovie.id),
+                            KeyedSubtree(
+                              key: _reviewSectionKey,
+                              child: ReviewListWidget(
+                                movieId: currentMovie.id,
+                                movieTitle: currentMovie.tenPhim,
+                                moviePoster: currentMovie.hinhAnh,
+                              ),
+                            ),
                             const SizedBox(height: 10),
                           ],
                         ),

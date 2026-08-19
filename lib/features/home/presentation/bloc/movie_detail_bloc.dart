@@ -181,7 +181,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
         }
       },
       (fetchedMovie) {
-        movie = fetchedMovie.copyWith(yeuThich: initialFav);
+        if (event.initialMovie != null &&
+            event.initialMovie!.tenPhim.isNotEmpty &&
+            fetchedMovie.tenPhim.isEmpty) {
+          movie = event.initialMovie!.copyWith(yeuThich: initialFav);
+        } else {
+          movie = fetchedMovie.copyWith(yeuThich: initialFav);
+        }
       },
     );
 

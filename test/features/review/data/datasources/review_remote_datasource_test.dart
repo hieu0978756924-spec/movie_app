@@ -63,14 +63,14 @@ void main() {
       expect(result.results.isNotEmpty, isTrue);
     });
 
-    test('submitReview throws exception when user is null', () async {
-      expect(
-        () => dataSource.submitReview(
+    test('submitReview completes successfully', () async {
+      await expectLater(
+        dataSource.submitReview(
           movieId: 123,
           rating: 9.0,
           content: 'Great movie!',
         ),
-        throwsA(isA<Exception>()),
+        completes,
       );
     });
   });

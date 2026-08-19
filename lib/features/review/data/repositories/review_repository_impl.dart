@@ -34,14 +34,34 @@ class ReviewRepositoryImpl implements ReviewRepository {
   @override
   Future<Either<Failure, void>> submitReview({
     required int movieId,
+    String? movieTitle,
+    String? moviePoster,
     required double rating,
     required String content,
   }) async {
     try {
       await remoteDataSource.submitReview(
         movieId: movieId,
+        movieTitle: movieTitle,
+        moviePoster: moviePoster,
         rating: rating,
         content: content,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(parseFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteReview({
+    required int movieId,
+    String? reviewId,
+  }) async {
+    try {
+      await remoteDataSource.deleteReview(
+        movieId: movieId,
+        reviewId: reviewId,
       );
       return const Right(null);
     } catch (e) {

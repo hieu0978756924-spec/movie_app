@@ -13,6 +13,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     on<FetchMovieReviewsEvent>(_onFetchMovieReviews);
     on<LoadMoreMovieReviewsEvent>(_onLoadMoreMovieReviews);
     on<SubmitReviewEvent>(_onSubmitReview);
+    on<DeleteReviewEvent>(_onDeleteReview);
   }
 
   Future<void> _onFetchMovieReviews(
@@ -67,8 +68,27 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   ) async {
     final result = await reviewRepository.submitReview(
       movieId: event.movieId,
+      movieTitle: event.movieTitle,
+      moviePoster: event.moviePoster,
       rating: event.rating,
       content: event.content,
+    );
+
+    result.fold(
+      (failure) => emit(ReviewErrorState(failure.message)),
+      (_) {
+        add(FetchMovieReviewsEvent(event.movieId));
+      },
+    );
+  }
+
+  Future<void> _onDeleteReview(
+    DeleteReviewEvent event,
+    Emitter<ReviewState> emit,
+  ) async {
+    final result = await reviewRepository.deleteReview(
+      movieId: event.movieId,
+      reviewId: event.reviewId,
     );
 
     result.fold(

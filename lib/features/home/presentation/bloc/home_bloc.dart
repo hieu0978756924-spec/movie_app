@@ -136,6 +136,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (topRated.isEmpty) topRated = HomeController.instance.danhSachPhimDanhGiaCao;
     if (upcoming.isEmpty) upcoming = HomeController.instance.danhSachPhimSapChieu;
 
+    final nowPlayingIds = nowPlaying.map((m) => m.id).toSet();
+    upcoming = upcoming.where((m) => !nowPlayingIds.contains(m.id)).toList();
+
     List<Movie> recommendedMovies = [];
     String? recommendedSourceTitle;
 

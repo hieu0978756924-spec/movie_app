@@ -1,23 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../bloc/review_bloc.dart';
 import '../bloc/review_event.dart';
+import '../../data/datasources/user_review_manager.dart';
 
 class WriteReviewBottomSheet extends StatefulWidget {
   final int movieId;
+  final String? movieTitle;
+  final String? moviePoster;
 
-  const WriteReviewBottomSheet({super.key, required this.movieId});
+  const WriteReviewBottomSheet({
+    super.key,
+    required this.movieId,
+    this.movieTitle,
+    this.moviePoster,
+  });
 
-  static Future<void> show(BuildContext context, {required int movieId}) {
-    final bloc = context.read<ReviewBloc>();
+  static Future<void> show(
+    BuildContext context, {
+    required int movieId,
+    String? movieTitle,
+    String? moviePoster,
+  }) {
+    ReviewBloc bloc;
+    try {
+      bloc = context.read<ReviewBloc>();
+    } catch (_) {
+      bloc = getIt<ReviewBloc>();
+    }
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => BlocProvider.value(
         value: bloc,
-        child: WriteReviewBottomSheet(movieId: movieId),
+        child: WriteReviewBottomSheet(
+          movieId: movieId,
+          movieTitle: movieTitle,
+          moviePoster: moviePoster,
+        ),
       ),
     );
   }
@@ -30,6 +53,16 @@ class _WriteReviewBottomSheetState extends State<WriteReviewBottomSheet> {
   double _selectedRating = 10.0;
   final TextEditingController _contentController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = UserReviewManager.instance.getUserReview(widget.movieId);
+    if (existing != null) {
+      _selectedRating = existing.rating;
+      _contentController.text = existing.content;
+    }
+  }
 
   @override
   void dispose() {
@@ -169,6 +202,8 @@ class _WriteReviewBottomSheetState extends State<WriteReviewBottomSheet> {
                       context.read<ReviewBloc>().add(
                             SubmitReviewEvent(
                               movieId: widget.movieId,
+                              movieTitle: widget.movieTitle,
+                              moviePoster: widget.moviePoster,
                               rating: _selectedRating,
                               content: _contentController.text.trim(),
                             ),

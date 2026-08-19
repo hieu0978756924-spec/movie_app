@@ -15,11 +15,13 @@ import '../../features/home/views/movie_detail_view.dart';
 import '../../features/profile/views/personal_info_view.dart';
 import '../../features/profile/views/profile_view.dart';
 import '../../features/profile/views/watched_videos_view.dart';
+import '../../features/profile/views/user_reviews_view.dart';
 import '../../features/search/views/search_view.dart';
 import '../../features/splash/views/splash_view.dart';
 import '../../features/actor/presentation/pages/actor_detail_page.dart';
 import '../../features/movie_detail/presentation/pages/movie_player_page.dart';
 import '../../features/home/controllers/home_controller.dart';
+import '../utils/user_session.dart';
 
 
 class AppRouter {
@@ -33,6 +35,9 @@ class AppRouter {
   static bool get isAuthenticated {
     if (_authCheckOverride != null) {
       return _authCheckOverride!();
+    }
+    if (UserSession.instance.isGuestMode) {
+      return true;
     }
     try {
       return Supabase.instance.client.auth.currentSession != null;
@@ -57,7 +62,7 @@ class AppRouter {
         return RoutePath.login;
       }
 
-      if (isAuthenticated && isLoggingIn) {
+      if (isAuthenticated && !UserSession.instance.isGuestMode && isLoggingIn) {
         return RoutePath.home;
       }
 
@@ -143,6 +148,11 @@ class AppRouter {
         builder: (context, state) => const WatchedVideosView(),
       ),
       GoRoute(
+        path: RoutePath.userReviews,
+        name: RouteName.userReviews,
+        builder: (context, state) => const UserReviewsView(),
+      ),
+      GoRoute(
         path: RoutePath.category,
         name: RouteName.category,
         builder: (context, state) {
@@ -159,7 +169,9 @@ class AppRouter {
             return MovieDetailView(movie: movieExtra);
           }
           final movieId = state.pathParameters['id'] ?? '0';
+          final parsedId = int.tryParse(movieId) ?? 0;
           final fallbackMovie = Movie(
+            id: parsedId,
             tenPhim: 'Phim #$movieId',
             hinhAnh: 'assets/images/dune2.jpg',
             theLoai: 'Action',

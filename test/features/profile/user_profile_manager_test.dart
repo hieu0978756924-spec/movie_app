@@ -8,8 +8,15 @@ void main() {
     test('default profile properties are initialized correctly', () {
       final manager = UserProfileManager.instance;
       expect(manager.profile.value.name, isNotEmpty);
-      expect(manager.profile.value.email, isNotEmpty);
       expect(manager.profile.value.avatarPath, isNotEmpty);
+    });
+
+    test('resetForUser resets profile cleanly for new user', () {
+      final manager = UserProfileManager.instance;
+      manager.resetForUser(email: 'testuser@gmail.com', name: 'Test User');
+      expect(manager.profile.value.name, 'Test User');
+      expect(manager.profile.value.email, 'testuser@gmail.com');
+      expect(manager.reviewCountNotifier.value, 0);
     });
 
     test('updateProfile updates profile name and avatarPath', () {

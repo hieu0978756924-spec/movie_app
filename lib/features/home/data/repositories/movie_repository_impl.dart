@@ -114,13 +114,10 @@ class MovieRepositoryImpl implements MovieRepository {
 
     try {
       final movie = HomeController.instance.danhSachPhim.firstWhere(
-        (m) => m.id == movieId || m.id == realTmdbId,
+        (m) => m.id == movieId || (movieId <= 10 && m.id == realTmdbId),
       );
       return Right(movie);
     } catch (_) {
-      if (HomeController.instance.danhSachPhim.isNotEmpty) {
-        return Right(HomeController.instance.danhSachPhim.first);
-      }
       return const Left(ServerFailure('Không tìm thấy phim'));
     }
   }
