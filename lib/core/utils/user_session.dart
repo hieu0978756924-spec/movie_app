@@ -16,14 +16,17 @@ class UserSession {
     _isGuestMode = guest;
   }
 
-  /// Checks if user is authenticated via Supabase or has a logged in session.
+  /// Checks if user is authenticated via Supabase session.
+  /// If in guest mode, this is always false.
   bool get isAuthenticated {
     if (_isGuestMode) return false;
     try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user != null) return true;
+      final session = Supabase.instance.client.auth.currentSession;
+      if (session != null && session.user.id.isNotEmpty) {
+        return true;
+      }
     } catch (_) {}
-    return !_isGuestMode;
+    return false;
   }
 
   /// Performs [onAuthenticated] if authenticated, otherwise shows auth requirement dialog.
@@ -39,70 +42,153 @@ class UserSession {
     }
   }
 
-  /// Displays an attractive dialog inviting non-registered / guest users to log in or register.
+  /// Displays an attractive cinematic dialog inviting guest users to log in or register.
   void showAuthRequiredDialog(
     BuildContext context, {
     required String actionName,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.darkSurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: AppColors.primaryRed, width: 1.5),
-          ),
-          title: const Row(
-            children: [
-              Icon(Icons.lock_outline_rounded, color: AppColors.primaryRed),
-              SizedBox(width: 10),
-              Text(
-                'Yêu Cầu Đăng Nhập',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightCard,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: AppColors.primaryRed.withAlpha(120),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryRed.withAlpha(50),
+                  blurRadius: 24,
+                  spreadRadius: 2,
                 ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Bạn cần đăng ký tài khoản hoặc đăng nhập để $actionName!',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Để sau',
-                style: TextStyle(color: Colors.white54),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryRed,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                BoxShadow(
+                  color: Colors.black.withAlpha(isDark ? 160 : 40),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
                 ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                try {
-                  context.push(RoutePath.login);
-                } catch (_) {
-                  Navigator.pushNamed(context, RoutePath.login);
-                }
-              },
-              child: const Text('Đăng Nhập / Đăng Ký'),
+              ],
             ),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Glowing Icon Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryRed.withAlpha(30),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primaryRed.withAlpha(80),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.lock_rounded,
+                    color: AppColors.primaryRed,
+                    size: 36,
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Title
+                Text(
+                  'Yêu Cầu Đăng Nhập',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+
+                // Description
+                Text(
+                  'Bạn đang ở Chế độ Trải nghiệm (Khách). Vui lòng đăng nhập hoặc tạo tài khoản để $actionName!',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.4,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          side: BorderSide(
+                            color: isDark ? Colors.white24 : Colors.black26,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text(
+                          'Để sau',
+                          style: TextStyle(
+                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryRed,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          elevation: 4,
+                          shadowColor: AppColors.primaryRed.withAlpha(120),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          UserSession.instance.setGuestMode(false);
+                          try {
+                            context.push(RoutePath.login);
+                          } catch (_) {
+                            context.go(RoutePath.login);
+                          }
+                        },
+                        icon: const Icon(Icons.login_rounded, size: 18),
+                        label: const Text(
+                          'Đăng Nhập Ngay',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
   }
 }
+

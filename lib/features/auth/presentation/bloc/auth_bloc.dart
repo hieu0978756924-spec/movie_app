@@ -4,7 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/di/injection.dart';
+import '../../../home/controllers/home_controller.dart';
 import '../../../profile/data/user_profile_manager.dart';
+import '../../../profile/data/watch_history_manager.dart';
+import '../../../review/data/datasources/user_review_manager.dart';
+import '../../../watchlist/data/datasources/watchlist_local_datasource.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -115,17 +120,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+
   Future<void> _onLoginSubmitted(
       LoginSubmittedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     final result = await loginUseCase(event.email, event.password);
-    result.fold(
-      (failure) => emit(AuthErrorState(failure.message)),
-      (response) {
+    await result.fold(
+      (failure) async {
+        if (!emit.isDone) {
+          emit(AuthErrorState(failure.message));
+        }
+      },
+      (response) async {
         if (response.user != null) {
-          emit(AuthenticatedState(response.user!));
+          final loggedEmail = response.user!.email ?? event.email;
+          final metaName = response.user!.userMetadata?['name'] ?? response.user!.userMetadata?['full_name'];
+          final nameToUse = (metaName != null && metaName.toString().isNotEmpty)
+              ? metaName.toString()
+              : null;
+
+          await Future.wait([
+            WatchHistoryManager.instance.loadForUser(loggedEmail),
+            UserReviewManager.instance.loadForUser(loggedEmail),
+            HomeController.instance.loadForUser(loggedEmail),
+            UserProfileManager.instance.loadProfile(loggedEmail),
+          ]);
+          UserProfileManager.instance.fetchReviewCount();
+
+          if (!emit.isDone) {
+            emit(AuthenticatedState(response.user!));
+          }
         } else {
-          emit(const AuthErrorState('User object is null after login'));
+          if (!emit.isDone) {
+            emit(const AuthErrorState('User object is null after login'));
+          }
         }
       },
     );
@@ -134,11 +162,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegisterSubmitted(
       RegisterSubmittedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
-    UserProfileManager.instance.updateProfile(
-      name: (event.name != null && event.name!.isNotEmpty) ? event.name : null,
-      dob: (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
-      email: event.email,
-    );
     try {
       final result = await registerUseCase(event.email, event.password)
           .timeout(const Duration(seconds: 10));
@@ -155,10 +178,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   onTimeout: () {},
                 );
           } catch (_) {}
+
+          WatchHistoryManager.instance.clearHistory();
+          UserReviewManager.instance.clearReviews();
+          HomeController.instance.clearFavorites();
+          try {
+            getIt<WatchlistLocalDataSource>().clearWatchlist();
+          } catch (_) {}
+          UserProfileManager.instance.resetForUser(
+            email: event.email,
+            name: (event.name != null && event.name!.isNotEmpty) ? event.name : null,
+            dob: (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
+          );
+          await WatchHistoryManager.instance.loadForUser(event.email);
+          await UserReviewManager.instance.loadForUser(event.email);
+          await HomeController.instance.loadForUser(event.email);
+
           if (!emit.isDone) {
             emit(const RegisterSuccessState());
           }
         },
+
       );
     } on TimeoutException {
       if (!emit.isDone) {

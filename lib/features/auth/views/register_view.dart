@@ -113,11 +113,6 @@ class _RegisterViewState extends State<RegisterView> {
                         listener: (context, state) {
                           if (state is RegisterSuccessState) {
                             UserSession.instance.setGuestMode(false);
-                            UserProfileManager.instance.updateProfile(
-                              name: nameController.text.trim().isNotEmpty ? nameController.text.trim() : null,
-                              dob: dobController.text.trim().isNotEmpty ? dobController.text.trim() : null,
-                              email: emailController.text.trim().isNotEmpty ? emailController.text.trim() : null,
-                            );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(state.message),
@@ -129,12 +124,25 @@ class _RegisterViewState extends State<RegisterView> {
                           } else if (state is AuthErrorState) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(state.message),
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        state.message,
+                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 backgroundColor: AppColors.error,
+                                duration: const Duration(seconds: 4),
                               ),
                             );
                           }
                         },
+
                         builder: (context, state) {
                           final isLoading = state is AuthLoadingState;
 

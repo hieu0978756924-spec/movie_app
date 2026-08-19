@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants/supabase_constants.dart';
 import 'core/di/injection.dart';
@@ -24,7 +25,17 @@ Future<void> main() async {
     );
   }
 
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('watched_video_history_json');
+    await prefs.remove('user_movie_reviews_json_v2');
+    await prefs.remove('user_movie_reviews_json');
+    await prefs.remove('favorite_movie_ids');
+    await prefs.remove('favorite_movies_json');
+  } catch (_) {}
+
   configureDependencies();
+
   runApp(const MovieApp());
 }
 

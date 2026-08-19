@@ -10,3 +10,5 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> resetPassword(String email);
   Future<Either<Failure, void>> logout();
 }
+
+

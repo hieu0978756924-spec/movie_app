@@ -27,15 +27,32 @@ class LoadMoreMovieReviewsEvent extends ReviewEvent {
 
 class SubmitReviewEvent extends ReviewEvent {
   final int movieId;
+  final String? movieTitle;
+  final String? moviePoster;
   final double rating;
   final String content;
 
   const SubmitReviewEvent({
     required this.movieId,
+    this.movieTitle,
+    this.moviePoster,
     required this.rating,
     required this.content,
   });
 
   @override
-  List<Object?> get props => [movieId, rating, content];
+  List<Object?> get props => [movieId, movieTitle, moviePoster, rating, content];
+}
+
+class DeleteReviewEvent extends ReviewEvent {
+  final int movieId;
+  final String? reviewId;
+
+  const DeleteReviewEvent({
+    required this.movieId,
+    this.reviewId,
+  });
+
+  @override
+  List<Object?> get props => [movieId, reviewId];
 }

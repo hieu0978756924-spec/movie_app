@@ -10,7 +10,14 @@ abstract class ReviewRepository {
 
   Future<Either<Failure, void>> submitReview({
     required int movieId,
+    String? movieTitle,
+    String? moviePoster,
     required double rating,
     required String content,
+  });
+
+  Future<Either<Failure, void>> deleteReview({
+    required int movieId,
+    String? reviewId,
   });
 }

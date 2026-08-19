@@ -79,6 +79,14 @@ void main() {
     addedAt: DateTime.now().toIso8601String(),
   );
 
+  final tUpcomingMovie = Movie(
+    id: 2,
+    tenPhim: 'Upcoming Movie',
+    hinhAnh: '/upcoming.jpg',
+    diemDanhGia: 8.0,
+    moTa: 'Upcoming Overview',
+  );
+
   group('HomeBloc Tests', () {
     test('initial state should be HomeInitialState', () {
       expect(homeBloc.state, equals(HomeInitialState()));
@@ -95,7 +103,7 @@ void main() {
       when(() => mockGetTopRated())
           .thenAnswer((_) async => Right([tMovie]));
       when(() => mockGetUpcoming())
-          .thenAnswer((_) async => Right([tMovie]));
+          .thenAnswer((_) async => Right([tUpcomingMovie]));
       when(() => mockWatchlistLocal.getWatchlist())
           .thenAnswer((_) async => [tWatchlistItem]);
       when(() => mockGetSimilar(any()))
@@ -108,7 +116,7 @@ void main() {
           nowPlayingMovies: [tMovie],
           popularMovies: [tMovie],
           topRatedMovies: [tMovie],
-          upcomingMovies: [tMovie],
+          upcomingMovies: [tUpcomingMovie],
           recommendedMovies: [tMovie],
           recommendedSourceTitle: 'Test Movie',
         ),

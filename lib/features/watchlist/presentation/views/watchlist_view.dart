@@ -6,6 +6,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/image_url_helper.dart';
+import '../../../../core/utils/user_session.dart';
 import '../../../home/models/movie.dart';
 import '../../../home/views/movie_detail_view.dart';
 import '../bloc/watchlist_bloc.dart';
@@ -55,6 +56,110 @@ class _WatchlistContentState extends State<_WatchlistContent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (UserSession.instance.isGuestMode) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        appBar: AppBar(
+          backgroundColor: (isDark ? AppColors.darkBackground : AppColors.lightBackground).withAlpha(200),
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(
+            'Watchlist Của Tôi',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            ),
+          ),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: AppColors.deepPink.withAlpha(25),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.deepPink.withAlpha(90),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.deepPink.withAlpha(60),
+                        blurRadius: 24,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.bookmark_added_rounded,
+                    color: AppColors.deepPink,
+                    size: 52,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Watchlist - Danh Sách Xem Sau',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Bạn đang ở Chế độ Trải nghiệm (Khách). Hãy đăng nhập để lưu trữ, phân loại và quản lý danh sách các bộ phim bạn muốn xem sau!',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.deepPink,
+                      foregroundColor: Colors.white,
+                      elevation: 6,
+                      shadowColor: AppColors.deepPink.withAlpha(120),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    onPressed: () {
+                      UserSession.instance.setGuestMode(false);
+                      try {
+                        context.push(RoutePath.login);
+                      } catch (_) {
+                        context.go(RoutePath.login);
+                      }
+                    },
+                    icon: const Icon(Icons.login_rounded, size: 20),
+                    label: const Text(
+                      'Đăng Nhập / Đăng Ký Ngay',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,

@@ -31,11 +31,8 @@ class PipTrailerManager {
     required String youtubeKey,
     required String title,
     Movie? movie,
+    bool startInPip = false,
   }) {
-    if (movie != null) {
-      WatchHistoryManager.instance.addWatchedVideo(movie);
-    }
-
     String keyToPlay = YoutubeUtils.extractYoutubeKey(youtubeKey);
     if (keyToPlay.isEmpty && movie != null) {
       keyToPlay = YoutubeUtils.getFallbackTrailerKeyForMovieId(movie.id);
@@ -53,7 +50,13 @@ class PipTrailerManager {
             );
             final apiKey = YoutubeUtils.extractYoutubeKey(official.key);
             if (apiKey.isNotEmpty && context.mounted) {
-              playTrailer(context, youtubeKey: apiKey, title: title, movie: movie);
+              playTrailer(
+                context,
+                youtubeKey: apiKey,
+                title: title,
+                movie: movie,
+                startInPip: startInPip,
+              );
             }
           }
         });
@@ -87,7 +90,27 @@ class PipTrailerManager {
         ),
       );
     }
-    _showDialogMode(context);
+
+    if (startInPip) {
+      switchToPip(context);
+    } else {
+      _showDialogMode(context);
+    }
+  }
+
+  void playInPip(
+    BuildContext context, {
+    required String youtubeKey,
+    required String title,
+    Movie? movie,
+  }) {
+    playTrailer(
+      context,
+      youtubeKey: youtubeKey,
+      title: title,
+      movie: movie,
+      startInPip: true,
+    );
   }
 
   void _showDialogMode(BuildContext context) {
@@ -229,194 +252,220 @@ class PipTrailerManager {
                               }),
 
                             // 2. Toolbar Row (Play, Mute, Time 0:43/1:23:22, Seek -10/+10, Speed Badge, Gear ⚙️, Fullscreen)
-                            Row(
-                              children: [
-                                // Play / Pause Button
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  tooltip: (_controller?.value.isPlaying ?? false) ? 'Tạm dừng' : 'Phát',
-                                  icon: Icon(
-                                    (_controller?.value.isPlaying ?? false)
-                                        ? Icons.pause_rounded
-                                        : Icons.play_arrow_rounded,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                  onPressed: () {
-                                    if (_controller?.value.isPlaying ?? false) {
-                                      _controller?.pause();
-                                    } else {
-                                      _controller?.play();
-                                    }
-                                  },
-                                ),
-                                const SizedBox(width: 6),
-
-                                // Mute / Unmute Button
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  tooltip: ((_controller?.value.volume ?? 100) == 0) ? 'Bật âm' : 'Tắt âm',
-                                  icon: Icon(
-                                    ((_controller?.value.volume ?? 100) == 0)
-                                        ? Icons.volume_off_rounded
-                                        : Icons.volume_up_rounded,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  onPressed: () {
-                                    if ((_controller?.value.volume ?? 100) == 0) {
-                                      _controller?.unMute();
-                                      _controller?.setVolume(100);
-                                    } else {
-                                      _controller?.mute();
-                                    }
-                                  },
-                                ),
-                                const SizedBox(width: 6),
-
-                                // Timestamp: 0:43 / 1:23:22
-                                Builder(builder: (ctx) {
-                                  String fmt(Duration d) {
-                                    if (d.inSeconds <= 0) return '00:00';
-                                    final h = d.inHours;
-                                    final m = d.inMinutes.remainder(60);
-                                    final s = d.inSeconds.remainder(60);
-                                    return h > 0
-                                        ? '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}'
-                                        : '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-                                  }
-
-                                  final p = _controller?.value.position ?? Duration.zero;
-                                  final d = _controller?.value.metaData.duration ?? Duration.zero;
-                                  return Text(
-                                    '${fmt(p)} / ${fmt(d)}',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 10,
-                                      fontFamily: 'monospace',
-                                    ),
-                                  );
-                                }),
-
-                                const Spacer(),
-
-                                // Tua lùi -10s
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  tooltip: 'Tua lùi 10s',
-                                  icon: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 20),
-                                  onPressed: () {
-                                    final currentPos = _controller?.value.position ?? Duration.zero;
-                                    final target = currentPos - const Duration(seconds: 10);
-                                    _controller?.seekTo(target < Duration.zero ? Duration.zero : target);
-                                  },
-                                ),
-                                const SizedBox(width: 8),
-
-                                // Tua tới +10s
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  tooltip: 'Tua tới 10s',
-                                  icon: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 20),
-                                  onPressed: () {
-                                    final currentPos = _controller?.value.position ?? Duration.zero;
-                                    final duration = _controller?.value.metaData.duration ?? Duration.zero;
-                                    final target = currentPos + const Duration(seconds: 10);
-                                    _controller?.seekTo(duration > Duration.zero && target > duration ? duration : target);
-                                  },
-                                ),
-                                const SizedBox(width: 8),
-
-                                // Speed Badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryRed.withAlpha(40),
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(color: AppColors.primaryRed, width: 0.8),
-                                  ),
-                                  child: Text(
-                                    '${playbackSpeed}x',
-                                    style: const TextStyle(
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Play / Pause Button
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    tooltip: (_controller?.value.isPlaying ?? false) ? 'Tạm dừng' : 'Phát',
+                                    icon: Icon(
+                                      (_controller?.value.isPlaying ?? false)
+                                          ? Icons.pause_rounded
+                                          : Icons.play_arrow_rounded,
                                       color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                                      size: 24,
+                                    ),
+                                    onPressed: () {
+                                      if (_controller?.value.isPlaying ?? false) {
+                                        _controller?.pause();
+                                      } else {
+                                        _controller?.play();
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Mute / Unmute Button
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    tooltip: ((_controller?.value.volume ?? 100) == 0) ? 'Bật âm' : 'Tắt âm',
+                                    icon: Icon(
+                                      ((_controller?.value.volume ?? 100) == 0)
+                                          ? Icons.volume_off_rounded
+                                          : Icons.volume_up_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      if ((_controller?.value.volume ?? 100) == 0) {
+                                        _controller?.unMute();
+                                        _controller?.setVolume(100);
+                                      } else {
+                                        _controller?.mute();
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Timestamp: 0:43 / 1:23:22
+                                  Builder(builder: (ctx) {
+                                    String fmt(Duration d) {
+                                      if (d.inSeconds <= 0) return '00:00';
+                                      final h = d.inHours;
+                                      final m = d.inMinutes.remainder(60);
+                                      final s = d.inSeconds.remainder(60);
+                                      return h > 0
+                                          ? '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}'
+                                          : '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+                                    }
+
+                                    final p = _controller?.value.position ?? Duration.zero;
+                                    final d = _controller?.value.metaData.duration ?? Duration.zero;
+                                    return Text(
+                                      '${fmt(p)} / ${fmt(d)}',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 10,
+                                        fontFamily: 'monospace',
+                                      ),
+                                    );
+                                  }),
+
+                                  const SizedBox(width: 8),
+
+                                  // Tua lùi -10s
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    tooltip: 'Tua lùi 10s',
+                                    icon: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 20),
+                                    onPressed: () {
+                                      final currentPos = _controller?.value.position ?? Duration.zero;
+                                      final target = currentPos - const Duration(seconds: 10);
+                                      _controller?.seekTo(target < Duration.zero ? Duration.zero : target);
+                                    },
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Tua tới +10s
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    tooltip: 'Tua tới 10s',
+                                    icon: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 20),
+                                    onPressed: () {
+                                      final currentPos = _controller?.value.position ?? Duration.zero;
+                                      final duration = _controller?.value.metaData.duration ?? Duration.zero;
+                                      final target = currentPos + const Duration(seconds: 10);
+                                      _controller?.seekTo(duration > Duration.zero && target > duration ? duration : target);
+                                    },
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Speed Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryRed.withAlpha(40),
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(color: AppColors.primaryRed, width: 0.8),
+                                    ),
+                                    child: Text(
+                                      '${playbackSpeed}x',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
+                                  const SizedBox(width: 6),
 
-                                // Settings Gear Icon ⚙️
-                                PopupMenuButton<dynamic>(
-                                  tooltip: 'Cài đặt (Tốc độ & Xoay)',
-                                  color: const Color(0xFF24242A),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 20),
-                                  onSelected: (value) {
-                                    if (value is double) {
-                                      setDialogState(() {
-                                        playbackSpeed = value;
-                                      });
-                                      _controller?.setPlaybackRate(value);
-                                    } else if (value == 'rotate_left') {
-                                      setDialogState(() {
-                                        quarterTurns = (quarterTurns - 1) % 4;
-                                        if (quarterTurns < 0) quarterTurns += 4;
-                                      });
-                                    } else if (value == 'rotate_right') {
-                                      setDialogState(() {
-                                        quarterTurns = (quarterTurns + 1) % 4;
-                                      });
-                                    } else if (value == 'reset_rotate') {
-                                      setDialogState(() {
-                                        quarterTurns = 0;
-                                      });
-                                    }
-                                  },
-                                  itemBuilder: (ctx) => [
-                                    const PopupMenuItem<dynamic>(
-                                      enabled: false,
-                                      child: Text('⚡ TỐC ĐỘ PHÁT', style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
-                                    ),
-                                    ...[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((s) => PopupMenuItem<dynamic>(
-                                          value: s,
-                                          child: Text(s == 1.0 ? '1.0x (Chuẩn)' : '${s}x', style: TextStyle(color: s == playbackSpeed ? AppColors.primaryRed : Colors.white)),
-                                        )),
-                                    const PopupMenuDivider(),
-                                    const PopupMenuItem<dynamic>(
-                                      enabled: false,
-                                      child: Text('🔄 XOAY MÀN HÌNH', style: TextStyle(color: Colors.cyanAccent, fontSize: 11, fontWeight: FontWeight.bold)),
-                                    ),
-                                    const PopupMenuItem<dynamic>(
-                                      value: 'rotate_left',
-                                      child: Row(children: [Icon(Icons.rotate_left_rounded, color: Colors.cyanAccent, size: 16), SizedBox(width: 6), Text('Xoay Trái 90°', style: TextStyle(color: Colors.white))]),
-                                    ),
-                                    const PopupMenuItem<dynamic>(
-                                      value: 'rotate_right',
-                                      child: Row(children: [Icon(Icons.rotate_right_rounded, color: Colors.cyanAccent, size: 16), SizedBox(width: 6), Text('Xoay Phải 90°', style: TextStyle(color: Colors.white))]),
-                                    ),
-                                    const PopupMenuItem<dynamic>(
-                                      value: 'reset_rotate',
-                                      child: Row(children: [Icon(Icons.screen_rotation_rounded, color: Colors.amber, size: 16), SizedBox(width: 6), Text('Đặt lại góc xoay', style: TextStyle(color: Colors.white))]),
-                                    ),
-                                  ],
-                                ),
+                                  // Settings Gear Icon ⚙️
+                                  PopupMenuButton<dynamic>(
+                                    tooltip: 'Cài đặt (Tốc độ & Xoay)',
+                                    color: const Color(0xFF24242A),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 20),
+                                    onSelected: (value) {
+                                      if (value == 'exit') {
+                                        Navigator.of(dialogContext).pop();
+                                        closePip();
+                                      } else if (value is double) {
+                                        setDialogState(() {
+                                          playbackSpeed = value;
+                                        });
+                                        _controller?.setPlaybackRate(value);
+                                      } else if (value == 'rotate_left') {
+                                        setDialogState(() {
+                                          quarterTurns = (quarterTurns - 1) % 4;
+                                          if (quarterTurns < 0) quarterTurns += 4;
+                                        });
+                                      } else if (value == 'rotate_right') {
+                                        setDialogState(() {
+                                          quarterTurns = (quarterTurns + 1) % 4;
+                                        });
+                                      } else if (value == 'reset_rotate') {
+                                        setDialogState(() {
+                                          quarterTurns = 0;
+                                        });
+                                      }
+                                    },
+                                    itemBuilder: (ctx) => [
+                                      const PopupMenuItem<dynamic>(
+                                        enabled: false,
+                                        child: Text('⚡ TỐC ĐỘ PHÁT', style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ),
+                                      ...[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((s) => PopupMenuItem<dynamic>(
+                                            value: s,
+                                            child: Text(s == 1.0 ? '1.0x (Chuẩn)' : '${s}x', style: TextStyle(color: s == playbackSpeed ? AppColors.primaryRed : Colors.white)),
+                                          )),
+                                      const PopupMenuDivider(),
+                                      const PopupMenuItem<dynamic>(
+                                        enabled: false,
+                                        child: Text('🔄 XOAY MÀN HÌNH', style: TextStyle(color: Colors.cyanAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ),
+                                      const PopupMenuItem<dynamic>(
+                                        value: 'rotate_left',
+                                        child: Row(children: [Icon(Icons.rotate_left_rounded, color: Colors.cyanAccent, size: 16), SizedBox(width: 6), Text('Xoay Trái 90°', style: TextStyle(color: Colors.white))]),
+                                      ),
+                                      const PopupMenuItem<dynamic>(
+                                        value: 'rotate_right',
+                                        child: Row(children: [Icon(Icons.rotate_right_rounded, color: Colors.cyanAccent, size: 16), SizedBox(width: 6), Text('Xoay Phải 90°', style: TextStyle(color: Colors.white))]),
+                                      ),
+                                      const PopupMenuItem<dynamic>(
+                                        value: 'reset_rotate',
+                                        child: Row(children: [Icon(Icons.screen_rotation_rounded, color: Colors.amber, size: 16), SizedBox(width: 6), Text('Đặt lại góc xoay', style: TextStyle(color: Colors.white))]),
+                                      ),
+                                      const PopupMenuDivider(),
+                                      const PopupMenuItem<dynamic>(
+                                        value: 'exit',
+                                        child: Row(children: [Icon(Icons.exit_to_app_rounded, color: AppColors.primaryRed, size: 16), SizedBox(width: 6), Text('Thoát trình phát', style: TextStyle(color: AppColors.primaryRed, fontWeight: FontWeight.bold))]),
+                                      ),
+                                    ],
+                                  ),
 
-                                // Fullscreen Button ⛶
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  tooltip: 'Xem Toàn Màn Hình',
-                                  icon: const Icon(Icons.fullscreen_rounded, color: Colors.white, size: 24),
-                                  onPressed: () {
-                                    _controller?.toggleFullScreenMode();
-                                  },
-                                ),
-                              ],
+                                  // Fullscreen Button ⛶
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    tooltip: 'Xem Toàn Màn Hình',
+                                    icon: const Icon(Icons.fullscreen_rounded, color: Colors.white, size: 24),
+                                    onPressed: () {
+                                      _controller?.toggleFullScreenMode();
+                                    },
+                                  ),
+                                  const SizedBox(width: 4),
+
+                                  // Exit Player Button 🚪 (Thoát)
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    tooltip: 'Thoát trình phát',
+                                    icon: const Icon(Icons.exit_to_app_rounded, color: AppColors.primaryRed, size: 22),
+                                    onPressed: () {
+                                      Navigator.of(dialogContext).pop();
+                                      closePip();
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

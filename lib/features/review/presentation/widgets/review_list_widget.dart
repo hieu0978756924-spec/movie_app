@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/user_session.dart';
 import '../bloc/review_bloc.dart';
 import '../bloc/review_event.dart';
 import '../bloc/review_state.dart';
@@ -14,22 +15,39 @@ import 'write_review_bottom_sheet.dart';
 
 class ReviewListWidget extends StatelessWidget {
   final int movieId;
+  final String? movieTitle;
+  final String? moviePoster;
 
-  const ReviewListWidget({super.key, required this.movieId});
+  const ReviewListWidget({
+    super.key,
+    required this.movieId,
+    this.movieTitle,
+    this.moviePoster,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ReviewBloc>(
       create: (_) => getIt<ReviewBloc>()..add(FetchMovieReviewsEvent(movieId)),
-      child: _ReviewListContent(movieId: movieId),
+      child: _ReviewListContent(
+        movieId: movieId,
+        movieTitle: movieTitle,
+        moviePoster: moviePoster,
+      ),
     );
   }
 }
 
 class _ReviewListContent extends StatefulWidget {
   final int movieId;
+  final String? movieTitle;
+  final String? moviePoster;
 
-  const _ReviewListContent({required this.movieId});
+  const _ReviewListContent({
+    required this.movieId,
+    this.movieTitle,
+    this.moviePoster,
+  });
 
   @override
   State<_ReviewListContent> createState() => _ReviewListContentState();
@@ -52,24 +70,30 @@ class _ReviewListContentState extends State<_ReviewListContent> {
   }
 
   void _onWriteReviewPressed(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Vui lòng đăng nhập để viết đánh giá'),
-          backgroundColor: AppColors.error,
-          action: SnackBarAction(
-            label: 'Đăng nhập',
-            textColor: AppColors.accentGold,
-            onPressed: () {
-              context.push(RoutePath.login);
-            },
-          ),
-        ),
-      );
-      return;
-    }
-    WriteReviewBottomSheet.show(context, movieId: widget.movieId);
+    UserSession.instance.requireAuth(
+      context,
+      actionName: 'viết đánh giá & bình luận',
+      onAuthenticated: () {
+        WriteReviewBottomSheet.show(
+          context,
+          movieId: widget.movieId,
+          movieTitle: widget.movieTitle,
+          moviePoster: widget.moviePoster,
+        );
+      },
+    );
+  }
+
+  void _onDeleteReviewPressed(BuildContext context) {
+    context.read<ReviewBloc>().add(
+      DeleteReviewEvent(movieId: widget.movieId),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đã xóa đánh giá của bạn!'),
+        backgroundColor: AppColors.success,
+      ),
+    );
   }
 
   @override
@@ -192,7 +216,11 @@ class _ReviewListContentState extends State<_ReviewListContent> {
                 itemCount: reviews.length + (state.isLoadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index < reviews.length) {
-                    return ReviewCardWidget(review: reviews[index]);
+                    return ReviewCardWidget(
+                      review: reviews[index],
+                      onEdit: () => _onWriteReviewPressed(context),
+                      onDelete: () => _onDeleteReviewPressed(context),
+                    );
                   }
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),

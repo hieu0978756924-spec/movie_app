@@ -498,54 +498,6 @@ class _LoginViewState extends State<LoginView> {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 20),
-
-                                      // --- Google Social Login Button ---
-                                      OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size.fromHeight(50),
-                                          backgroundColor:
-                                              Colors.white.withValues(alpha: 0.06),
-                                          side: BorderSide(
-                                            color: Colors.white.withValues(alpha: 0.15),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                        ),
-                                        onPressed: isLoading
-                                            ? null
-                                            : () {
-                                                // Trigger Google Login Event if implemented
-                                              },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.network(
-                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/480px-Google_%22G%22_logo.svg.png',
-                                              height: 20,
-                                              width: 20,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) =>
-                                                      const Icon(
-                                                Icons.g_mobiledata_rounded,
-                                                color: Colors.white,
-                                                size: 24,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            const Text(
-                                              "Đăng nhập bằng Google",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                       const SizedBox(height: 12),
                                       // --- Guest Mode Experience Button ---
                                       OutlinedButton.icon(

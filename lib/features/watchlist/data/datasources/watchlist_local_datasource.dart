@@ -1,5 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../profile/data/user_profile_manager.dart';
 import '../models/watchlist_item_model.dart';
 
 abstract class WatchlistLocalDataSource {
@@ -8,17 +10,43 @@ abstract class WatchlistLocalDataSource {
   Future<void> removeFromWatchlist(int id);
   Future<void> toggleWatched(int id, bool daXem);
   Future<bool> isWatchlisted(int id);
+  Future<void> clearWatchlist();
 }
 
 @LazySingleton(as: WatchlistLocalDataSource)
 class WatchlistLocalDataSourceImpl implements WatchlistLocalDataSource {
-  static const String boxName = 'watchlist_box';
+  static const String baseBoxName = 'watchlist_box';
+
+  String _getBoxName() {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null && user.id.isNotEmpty) {
+        return '${baseBoxName}_${user.id.replaceAll('-', '_')}';
+      }
+    } catch (_) {}
+    final email = UserProfileManager.instance.profile.value.email;
+    if (email.isNotEmpty) {
+      return '${baseBoxName}_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
+    }
+    return baseBoxName;
+  }
 
   Future<Box?> _getBox() async {
     try {
-      return await Future.value().then((_) => Hive.openBox(boxName));
+      final name = _getBoxName();
+      if (Hive.isBoxOpen(name)) {
+        return Hive.box(name);
+      }
+      return await Hive.openBox(name);
     } catch (_) {
-      return null;
+      try {
+        if (Hive.isBoxOpen(baseBoxName)) {
+          return Hive.box(baseBoxName);
+        }
+        return await Hive.openBox(baseBoxName);
+      } catch (_) {
+        return null;
+      }
     }
   }
 
@@ -85,5 +113,15 @@ class WatchlistLocalDataSourceImpl implements WatchlistLocalDataSource {
     } catch (_) {
       return false;
     }
+  }
+
+  @override
+  Future<void> clearWatchlist() async {
+    try {
+      final box = await _getBox();
+      if (box == null) return;
+      await box.clear();
+      await box.flush();
+    } catch (_) {}
   }
 }

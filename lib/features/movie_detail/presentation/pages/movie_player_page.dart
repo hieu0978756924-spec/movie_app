@@ -9,6 +9,7 @@ import '../../../../core/utils/youtube_utils.dart';
 import '../../../home/domain/usecases/get_movie_trailers_usecase.dart';
 import '../../../home/models/movie.dart';
 import '../../../home/presentation/widgets/pip_trailer_manager.dart';
+import '../../../profile/data/watch_history_manager.dart';
 
 class MoviePlayerPage extends StatefulWidget {
   final Movie movie;
@@ -48,12 +49,18 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
   @override
   void initState() {
     super.initState();
+    PipTrailerManager.instance.closePip();
+    WatchHistoryManager.instance.addWatchedVideo(widget.movie);
+
     String initialKey = widget.youtubeKey ?? '';
+    if (initialKey.isEmpty) {
+      initialKey = YoutubeUtils.extractYoutubeKey(widget.movie.videoUrl);
+    }
     if (initialKey.isEmpty) {
       initialKey = YoutubeUtils.extractYoutubeKey(widget.movie.trailerUrl);
     }
     if (initialKey.isEmpty) {
-      initialKey = YoutubeUtils.getFallbackTrailerKeyForMovieId(widget.movie.id);
+      initialKey = 'oA-BhGNK7qw';
     }
     _currentKey = initialKey;
 
@@ -68,7 +75,9 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
         if (mounted) setState(() {});
       });
 
-    _fetchTrailerFromApi();
+    if (widget.youtubeKey == null || widget.youtubeKey!.isEmpty) {
+      _fetchTrailerFromApi();
+    }
   }
 
   Future<void> _fetchTrailerFromApi() async {
@@ -227,19 +236,29 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
     }
   }
 
+  void _exitPlayer() {
+    if (_isManualFullScreen) {
+      _toggleFullScreen();
+    }
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/');
+    }
+  }
+
   void _switchToPipMode() {
     final currentKey = _currentKey;
     final movieTitle = widget.movie.tenPhim;
     final movie = widget.movie;
 
     context.pop(); // Close current page
-    PipTrailerManager.instance.playTrailer(
+    PipTrailerManager.instance.playInPip(
       context,
       youtubeKey: currentKey,
       title: movieTitle,
       movie: movie,
     );
-    PipTrailerManager.instance.switchToPip(context);
   }
 
   @override
@@ -392,6 +411,27 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                             ),
                           ),
                         ),
+
+                      // Floating Top-Left Back / Exit Button
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            tooltip: 'Thoát',
+                            icon: const Icon(
+                              Icons.arrow_back_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                            onPressed: _exitPlayer,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -425,236 +465,274 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
 
                       // 2. Toolbar Row: Play, Volume, Timestamp, Seek -10/+10, Speed Badge, Settings Gear ⚙️, Fullscreen
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          children: [
-                            // Play / Pause Button
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              tooltip: _controller.value.isPlaying ? 'Tạm dừng' : 'Phát',
-                              icon: Icon(
-                                _controller.value.isPlaying
-                                    ? Icons.pause_rounded
-                                    : Icons.play_arrow_rounded,
-                                color: Colors.white,
-                                size: 26,
-                              ),
-                              onPressed: () {
-                                if (_controller.value.isPlaying) {
-                                  _controller.pause();
-                                } else {
-                                  _controller.play();
-                                }
-                              },
-                            ),
-                            const SizedBox(width: 10),
-
-                            // Mute / Unmute Button
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              tooltip: _controller.value.volume == 0 ? 'Bật âm thanh' : 'Tắt âm thanh',
-                              icon: Icon(
-                                _controller.value.volume == 0
-                                    ? Icons.volume_off_rounded
-                                    : Icons.volume_up_rounded,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                              onPressed: () {
-                                if (_controller.value.volume == 0) {
-                                  _controller.unMute();
-                                  _controller.setVolume(100);
-                                } else {
-                                  _controller.mute();
-                                }
-                              },
-                            ),
-                            const SizedBox(width: 10),
-
-                            // Timestamp: 0:43 / 1:23:22
-                            Text(
-                              '${_formatDuration(_controller.value.position)} / ${_formatDuration(_controller.value.metaData.duration)}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-
-                            const Spacer(),
-
-                            // Tua lùi -10s
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              tooltip: 'Tua lùi 10s',
-                              icon: const Icon(
-                                Icons.replay_10_rounded,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                              onPressed: () => _seekRelative(-10),
-                            ),
-                            const SizedBox(width: 12),
-
-                            // Tua tới +10s
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              tooltip: 'Tua tới 10s',
-                              icon: const Icon(
-                                Icons.forward_10_rounded,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                              onPressed: () => _seekRelative(10),
-                            ),
-                            const SizedBox(width: 12),
-
-                            // Speed Badge (e.g. x1.25, x1.5, x2)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryRed.withAlpha(40),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: AppColors.primaryRed, width: 0.8),
-                              ),
-                              child: Text(
-                                '${_playbackSpeed}x',
-                                style: const TextStyle(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Play / Pause Button
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: _controller.value.isPlaying ? 'Tạm dừng' : 'Phát',
+                                icon: Icon(
+                                  _controller.value.isPlaying
+                                      ? Icons.pause_rounded
+                                      : Icons.play_arrow_rounded,
                                   color: Colors.white,
+                                  size: 24,
+                                ),
+                                onPressed: () {
+                                  if (_controller.value.isPlaying) {
+                                    _controller.pause();
+                                  } else {
+                                    _controller.play();
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 8),
+
+                              // Mute / Unmute Button
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: _controller.value.volume == 0 ? 'Bật âm thanh' : 'Tắt âm thanh',
+                                icon: Icon(
+                                  _controller.value.volume == 0
+                                      ? Icons.volume_off_rounded
+                                      : Icons.volume_up_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  if (_controller.value.volume == 0) {
+                                    _controller.unMute();
+                                    _controller.setVolume(100);
+                                  } else {
+                                    _controller.mute();
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 8),
+
+                              // Timestamp: 0:43 / 1:23:22
+                              Text(
+                                '${_formatDuration(_controller.value.position)} / ${_formatDuration(_controller.value.metaData.duration)}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
+                              const SizedBox(width: 12),
 
-                            // Settings Gear Icon ⚙️ (Speed Menu & Rotation)
-                            PopupMenuButton<dynamic>(
-                              tooltip: 'Cài đặt (Tốc độ phát & Xoay)',
-                              color: const Color(0xFF24242A),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              // Tua lùi -10s
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: 'Tua lùi 10s',
+                                icon: const Icon(
+                                  Icons.replay_10_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed: () => _seekRelative(-10),
                               ),
-                              icon: const Icon(
-                                Icons.settings_rounded,
-                                color: Colors.white,
-                                size: 22,
+                              const SizedBox(width: 8),
+
+                              // Tua tới +10s
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: 'Tua tới 10s',
+                                icon: const Icon(
+                                  Icons.forward_10_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed: () => _seekRelative(10),
                               ),
-                              onSelected: (value) {
-                                if (value is double) {
-                                  _setSpeed(value);
-                                } else if (value == 'rotate_left') {
-                                  _rotateLeft();
-                                } else if (value == 'rotate_right') {
-                                  _rotateRight();
-                                } else if (value == 'reset_rotate') {
-                                  _resetRotation();
-                                }
-                              },
-                              itemBuilder: (ctx) => [
-                                const PopupMenuItem<dynamic>(
-                                  enabled: false,
-                                  child: Text(
-                                    '⚡ TỐC ĐỘ PHÁT VIDEO',
-                                    style: TextStyle(
-                                      color: Colors.amber,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              const SizedBox(width: 8),
+
+                              // Speed Badge (e.g. x1.25, x1.5, x2)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryRed.withAlpha(40),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.primaryRed, width: 0.8),
+                                ),
+                                child: Text(
+                                  '${_playbackSpeed}x',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                ..._availableSpeeds.map((s) => PopupMenuItem<dynamic>(
-                                      value: s,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            s == _playbackSpeed
-                                                ? Icons.check_circle
-                                                : Icons.circle_outlined,
-                                            color: s == _playbackSpeed
-                                                ? AppColors.primaryRed
-                                                : Colors.white38,
-                                            size: 16,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            s == 1.0 ? '1.0x (Chuẩn)' : '${s}x',
-                                            style: TextStyle(
+                              ),
+                              const SizedBox(width: 6),
+
+                              // Settings Gear Icon ⚙️ (Speed Menu & Rotation)
+                              PopupMenuButton<dynamic>(
+                                tooltip: 'Cài đặt (Tốc độ phát & Xoay)',
+                                color: const Color(0xFF24242A),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                icon: const Icon(
+                                  Icons.settings_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onSelected: (value) {
+                                  if (value == 'exit') {
+                                    _exitPlayer();
+                                  } else if (value is double) {
+                                    _setSpeed(value);
+                                  } else if (value == 'rotate_left') {
+                                    _rotateLeft();
+                                  } else if (value == 'rotate_right') {
+                                    _rotateRight();
+                                  } else if (value == 'reset_rotate') {
+                                    _resetRotation();
+                                  }
+                                },
+                                itemBuilder: (ctx) => [
+                                  const PopupMenuItem<dynamic>(
+                                    enabled: false,
+                                    child: Text(
+                                      '⚡ TỐC ĐỘ PHÁT VIDEO',
+                                      style: TextStyle(
+                                        color: Colors.amber,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  ..._availableSpeeds.map((s) => PopupMenuItem<dynamic>(
+                                        value: s,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              s == _playbackSpeed
+                                                  ? Icons.check_circle
+                                                  : Icons.circle_outlined,
                                               color: s == _playbackSpeed
                                                   ? AppColors.primaryRed
-                                                  : Colors.white,
-                                              fontWeight: s == _playbackSpeed
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
+                                                  : Colors.white38,
+                                              size: 16,
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              s == 1.0 ? '1.0x (Chuẩn)' : '${s}x',
+                                              style: TextStyle(
+                                                color: s == _playbackSpeed
+                                                    ? AppColors.primaryRed
+                                                    : Colors.white,
+                                                fontWeight: s == _playbackSpeed
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                  const PopupMenuDivider(),
+                                  const PopupMenuItem<dynamic>(
+                                    enabled: false,
+                                    child: Text(
+                                      '🔄 GÓC XOAY MÀN HÌNH',
+                                      style: TextStyle(
+                                        color: Colors.cyanAccent,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    )),
-                                const PopupMenuDivider(),
-                                const PopupMenuItem<dynamic>(
-                                  enabled: false,
-                                  child: Text(
-                                    '🔄 GÓC XOAY MÀN HÌNH',
-                                    style: TextStyle(
-                                      color: Colors.cyanAccent,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
-                                const PopupMenuItem<dynamic>(
-                                  value: 'rotate_left',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.rotate_left_rounded, color: Colors.cyanAccent, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Xoay Trái 90°', style: TextStyle(color: Colors.white)),
-                                    ],
+                                  const PopupMenuItem<dynamic>(
+                                    value: 'rotate_left',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.rotate_left_rounded, color: Colors.cyanAccent, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Xoay Trái 90°', style: TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const PopupMenuItem<dynamic>(
-                                  value: 'rotate_right',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.rotate_right_rounded, color: Colors.cyanAccent, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Xoay Phải 90°', style: TextStyle(color: Colors.white)),
-                                    ],
+                                  const PopupMenuItem<dynamic>(
+                                    value: 'rotate_right',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.rotate_right_rounded, color: Colors.cyanAccent, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Xoay Phải 90°', style: TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const PopupMenuItem<dynamic>(
-                                  value: 'reset_rotate',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.screen_rotation_rounded, color: Colors.amber, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Đặt lại góc xoay', style: TextStyle(color: Colors.white)),
-                                    ],
+                                  const PopupMenuItem<dynamic>(
+                                    value: 'reset_rotate',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.screen_rotation_rounded, color: Colors.amber, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Đặt lại góc xoay', style: TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-
-                            // Fullscreen Button ⛶
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              tooltip: _isManualFullScreen ? 'Thoát toàn màn hình' : 'Toàn màn hình',
-                              icon: Icon(
-                                _isManualFullScreen
-                                    ? Icons.fullscreen_exit_rounded
-                                    : Icons.fullscreen_rounded,
-                                color: Colors.white,
-                                size: 26,
+                                  const PopupMenuDivider(),
+                                  const PopupMenuItem<dynamic>(
+                                    value: 'exit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.exit_to_app_rounded, color: AppColors.primaryRed, size: 18),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Thoát trình phát',
+                                          style: TextStyle(
+                                            color: AppColors.primaryRed,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              onPressed: _toggleFullScreen,
-                            ),
-                          ],
+                              const SizedBox(width: 2),
+
+                              // Fullscreen Button ⛶
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: _isManualFullScreen ? 'Thoát toàn màn hình' : 'Toàn màn hình',
+                                icon: Icon(
+                                  _isManualFullScreen
+                                      ? Icons.fullscreen_exit_rounded
+                                      : Icons.fullscreen_rounded,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                                onPressed: _toggleFullScreen,
+                              ),
+                              const SizedBox(width: 6),
+
+                              // Exit Player Button 🚪 (Thoát)
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: 'Thoát',
+                                icon: const Icon(
+                                  Icons.exit_to_app_rounded,
+                                  color: AppColors.primaryRed,
+                                  size: 22,
+                                ),
+                                onPressed: _exitPlayer,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
