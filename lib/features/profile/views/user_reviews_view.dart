@@ -14,13 +14,15 @@ import '../../review/presentation/widgets/write_review_bottom_sheet.dart';
 class UserReviewsView extends StatelessWidget {
   const UserReviewsView({super.key});
 
-  void _confirmDeleteReview(BuildContext context, int movieId, String movieTitle) {
+  void _confirmDeleteReview(
+      BuildContext context, int movieId, String movieTitle) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.darkSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Xác nhận xóa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Xác nhận xóa',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
           'Bạn có chắc chắn muốn xóa đánh giá của phim "$movieTitle" không?',
           style: const TextStyle(color: Colors.white70),
@@ -33,7 +35,8 @@ class UserReviewsView extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryRed,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () async {
               Navigator.pop(ctx);
@@ -54,16 +57,21 @@ class UserReviewsView extends StatelessWidget {
     );
   }
 
-  void _navigateToMovie(BuildContext context, int movieId, String? title, String? poster) {
+  void _navigateToMovie(
+      BuildContext context, int movieId, String? title, String? poster) {
     final cachedMovie = HomeController.instance.getMovieById(movieId);
     Movie targetMovie;
-    if (cachedMovie != null && (title == null || cachedMovie.tenPhim.toLowerCase() == title.toLowerCase())) {
+    if (cachedMovie != null &&
+        (title == null ||
+            cachedMovie.tenPhim.toLowerCase() == title.toLowerCase())) {
       targetMovie = cachedMovie;
     } else {
       targetMovie = Movie(
         id: movieId,
         tenPhim: title ?? (cachedMovie?.tenPhim ?? 'Phim #$movieId'),
-        hinhAnh: poster ?? (cachedMovie?.hinhAnh ?? ImageUrlHelper.getLocalFallbackImage(movieId)),
+        hinhAnh: poster ??
+            (cachedMovie?.hinhAnh ??
+                ImageUrlHelper.getLocalFallbackImage(movieId)),
         theLoai: 'Chi tiết phim',
         diemDanhGia: 8.0,
         thoiLuong: '120 min',
@@ -90,13 +98,15 @@ class UserReviewsView extends StatelessWidget {
   Widget _buildPoster(String? posterPath, int movieId, bool isDark) {
     final resolvedUrl = ImageUrlHelper.getPosterUrl(posterPath);
     if (resolvedUrl != null &&
-        (resolvedUrl.startsWith('http://') || resolvedUrl.startsWith('https://'))) {
+        (resolvedUrl.startsWith('http://') ||
+            resolvedUrl.startsWith('https://'))) {
       return Image.network(
         resolvedUrl,
         width: 75,
         height: 110,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildLocalPosterFallback(posterPath, movieId, isDark),
+        errorBuilder: (_, __, ___) =>
+            _buildLocalPosterFallback(posterPath, movieId, isDark),
       );
     }
     return _buildLocalPosterFallback(posterPath, movieId, isDark);
@@ -114,7 +124,9 @@ class UserReviewsView extends StatelessWidget {
       errorBuilder: (_, __, ___) => Container(
         width: 75,
         height: 110,
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.lightSurfaceVariant,
         child: const Icon(Icons.movie_rounded, color: Colors.grey),
       ),
     );
@@ -129,12 +141,14 @@ class UserReviewsView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black87),
+          icon: Icon(Icons.arrow_back,
+              color: isDark ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -196,8 +210,10 @@ class UserReviewsView extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryRed,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () {
                         context.go(RoutePath.home);
@@ -224,11 +240,14 @@ class UserReviewsView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.accentGold.withAlpha(25),
                         borderRadius: BorderRadius.circular(8),
@@ -247,20 +266,25 @@ class UserReviewsView extends StatelessWidget {
               ),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: reviewsList.length,
                   itemBuilder: (context, index) {
                     final item = reviewsList[index];
-                    final cachedMovie = HomeController.instance.getMovieById(item.movieId);
+                    final cachedMovie =
+                        HomeController.instance.getMovieById(item.movieId);
                     final movieTitle = item.movieTitle ??
-                        (cachedMovie != null ? cachedMovie.tenPhim : 'Phim #${item.movieId}');
-                    final moviePoster = item.moviePoster ??
-                        (cachedMovie != null ? cachedMovie.hinhAnh : null);
+                        (cachedMovie != null
+                            ? cachedMovie.tenPhim
+                            : 'Phim #${item.movieId}');
+                    final moviePoster =
+                        item.moviePoster ?? cachedMovie?.hinhAnh;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                        color:
+                            isDark ? AppColors.darkCard : AppColors.lightCard,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: AppColors.accentGold.withAlpha(100),
@@ -281,7 +305,8 @@ class UserReviewsView extends StatelessWidget {
                           children: [
                             // Header Row: Poster + Title + Rating
                             InkWell(
-                              onTap: () => _navigateToMovie(context, item.movieId, movieTitle, moviePoster),
+                              onTap: () => _navigateToMovie(context,
+                                  item.movieId, movieTitle, moviePoster),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
@@ -289,12 +314,14 @@ class UserReviewsView extends StatelessWidget {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child: _buildPoster(moviePoster, item.movieId, isDark),
+                                      child: _buildPoster(
+                                          moviePoster, item.movieId, isDark),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             movieTitle,
@@ -303,15 +330,20 @@ class UserReviewsView extends StatelessWidget {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
-                                              color: isDark ? Colors.white : Colors.black87,
+                                              color: isDark
+                                                  ? Colors.white
+                                                  : Colors.black87,
                                             ),
                                           ),
                                           const SizedBox(height: 6),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 3),
                                             decoration: BoxDecoration(
-                                              color: AppColors.accentGold.withAlpha(30),
-                                              borderRadius: BorderRadius.circular(6),
+                                              color: AppColors.accentGold
+                                                  .withAlpha(30),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
@@ -338,7 +370,9 @@ class UserReviewsView extends StatelessWidget {
                                             _formatDate(item.createdAt),
                                             style: TextStyle(
                                               fontSize: 11,
-                                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                              color: isDark
+                                                  ? AppColors.darkTextMuted
+                                                  : AppColors.lightTextMuted,
                                             ),
                                           ),
                                         ],
@@ -352,7 +386,8 @@ class UserReviewsView extends StatelessWidget {
                             // Review Content Area
                             Container(
                               width: double.infinity,
-                              margin: const EdgeInsets.symmetric(horizontal: 12),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: isDark
@@ -365,7 +400,9 @@ class UserReviewsView extends StatelessWidget {
                                 children: [
                                   const Row(
                                     children: [
-                                      Icon(Icons.format_quote_rounded, color: AppColors.accentGold, size: 16),
+                                      Icon(Icons.format_quote_rounded,
+                                          color: AppColors.accentGold,
+                                          size: 16),
                                       SizedBox(width: 4),
                                       Text(
                                         'Bình luận của bạn:',
@@ -383,7 +420,9 @@ class UserReviewsView extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 14,
                                       height: 1.4,
-                                      color: isDark ? Colors.white70 : Colors.black87,
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -397,9 +436,16 @@ class UserReviewsView extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   TextButton.icon(
-                                    onPressed: () => _confirmDeleteReview(context, item.movieId, movieTitle),
-                                    icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
-                                    label: const Text('Xóa', style: TextStyle(color: Colors.redAccent, fontSize: 13)),
+                                    onPressed: () => _confirmDeleteReview(
+                                        context, item.movieId, movieTitle),
+                                    icon: const Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: Colors.redAccent,
+                                        size: 18),
+                                    label: const Text('Xóa',
+                                        style: TextStyle(
+                                            color: Colors.redAccent,
+                                            fontSize: 13)),
                                   ),
                                   const SizedBox(width: 8),
                                   TextButton.icon(
@@ -411,20 +457,32 @@ class UserReviewsView extends StatelessWidget {
                                         moviePoster: moviePoster,
                                       );
                                     },
-                                    icon: const Icon(Icons.edit_note_rounded, color: AppColors.accentGold, size: 18),
-                                    label: const Text('Chỉnh sửa', style: TextStyle(color: AppColors.accentGold, fontSize: 13)),
+                                    icon: const Icon(Icons.edit_note_rounded,
+                                        color: AppColors.accentGold, size: 18),
+                                    label: const Text('Chỉnh sửa',
+                                        style: TextStyle(
+                                            color: AppColors.accentGold,
+                                            fontSize: 13)),
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primaryRed,
                                       foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
                                     ),
-                                    onPressed: () => _navigateToMovie(context, item.movieId, movieTitle, moviePoster),
-                                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                                    label: const Text('Xem ngay', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                    onPressed: () => _navigateToMovie(context,
+                                        item.movieId, movieTitle, moviePoster),
+                                    icon: const Icon(Icons.play_arrow_rounded,
+                                        size: 18),
+                                    label: const Text('Xem ngay',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold)),
                                   ),
                                 ],
                               ),

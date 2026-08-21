@@ -63,17 +63,21 @@ class _SearchViewContentState extends State<_SearchViewContent> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        backgroundColor:
+            isDark ? AppColors.darkBackground : AppColors.lightBackground,
         elevation: 0,
         iconTheme: IconThemeData(
-          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          color:
+              isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
         title: Text(
           'Tìm kiếm phim',
           style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -91,7 +95,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                     IconButton(
                       icon: Icon(
                         Icons.tune_rounded,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                       onPressed: () => _openFilterBottomSheet(state),
                     ),
@@ -137,17 +143,23 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+                      color: isDark
+                          ? AppColors.darkSurfaceVariant
+                          : AppColors.lightSurfaceVariant,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark ? AppColors.glassBorder : AppColors.lightSurfaceVariant,
+                        color: isDark
+                            ? AppColors.glassBorder
+                            : AppColors.lightSurfaceVariant,
                         width: 1,
                       ),
                     ),
                     child: TextField(
                       controller: _searchController,
                       style: TextStyle(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                       onChanged: (query) {
                         setState(() {});
@@ -158,7 +170,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                       decoration: InputDecoration(
                         hintText: 'Nhập tên phim, diễn viên...',
                         hintStyle: TextStyle(
-                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                          color: isDark
+                              ? AppColors.darkTextMuted
+                              : AppColors.lightTextMuted,
                           fontSize: 14,
                         ),
                         prefixIcon: const Icon(
@@ -169,7 +183,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                             ? IconButton(
                                 icon: Icon(
                                   Icons.close_rounded,
-                                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                  color: isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary,
                                 ),
                                 onPressed: _onClearSearch,
                               )
@@ -192,7 +208,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
             builder: (context, state) {
               if (state.filter.isDefault) return const SizedBox.shrink();
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: Row(
                   children: [
                     const Icon(
@@ -207,14 +224,18 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                           fontSize: 12,
                         ),
                       ),
                     ),
                     TextButton(
                       onPressed: () {
-                        context.read<SearchBloc>().add(const ResetFilterEvent());
+                        context
+                            .read<SearchBloc>()
+                            .add(const ResetFilterEvent());
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -293,7 +314,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
           Text(
             'Tìm kiếm phim bạn yêu thích',
             style: TextStyle(
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -302,7 +325,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
           Text(
             'Nhập tên phim hoặc dùng nút bộ lọc ở trên',
             style: TextStyle(
-              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+              color:
+                  isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
               fontSize: 13,
             ),
           ),
@@ -346,7 +370,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: isDark ? const Color(0x4D000000) : const Color(0x1F000000),
+                  color: isDark
+                      ? const Color(0x4D000000)
+                      : const Color(0x1F000000),
                   blurRadius: 6,
                   offset: const Offset(0, 3),
                 ),
@@ -366,16 +392,19 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallbackPoster(isDark, movie.id),
+                                errorBuilder: (_, __, ___) =>
+                                    _buildFallbackPoster(isDark, movie.id),
                               )
                             : Image.asset(
                                 movie.hinhAnh.startsWith('assets/')
                                     ? movie.hinhAnh
-                                    : ImageUrlHelper.getLocalFallbackImage(movie.id),
+                                    : ImageUrlHelper.getLocalFallbackImage(
+                                        movie.id),
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallbackPoster(isDark, movie.id),
+                                errorBuilder: (_, __, ___) =>
+                                    _buildFallbackPoster(isDark, movie.id),
                               ),
                         // Rating Badge
                         Positioned(
@@ -424,7 +453,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -435,7 +466,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            color: isDark
+                                ? AppColors.darkTextMuted
+                                : AppColors.lightTextMuted,
                             fontSize: 11,
                           ),
                         ),
@@ -458,7 +491,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
       height: double.infinity,
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) => Container(
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.lightSurfaceVariant,
         child: Center(
           child: Icon(
             Icons.movie_outlined,
@@ -480,13 +515,16 @@ class _SearchViewContentState extends State<_SearchViewContent> {
             Icon(
               Icons.search_off_rounded,
               size: 64,
-              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+              color:
+                  isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
             ),
             const SizedBox(height: 16),
             Text(
               'Không tìm thấy phim phù hợp',
               style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -498,7 +536,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
                   : 'Không có phim nào phù hợp với bộ lọc hiện tại',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                color:
+                    isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                 fontSize: 13,
               ),
             ),
@@ -539,7 +578,9 @@ class _SearchViewContentState extends State<_SearchViewContent> {
             Text(
               'Đã có lỗi xảy ra',
               style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -549,7 +590,8 @@ class _SearchViewContentState extends State<_SearchViewContent> {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                color:
+                    isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
                 fontSize: 13,
               ),
             ),

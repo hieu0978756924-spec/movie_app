@@ -11,7 +11,8 @@ class SearchMoviesUseCase {
 
   SearchMoviesUseCase(this.repository);
 
-  Future<Either<Failure, List<Movie>>> call({required String query, int page = 1}) {
+  Future<Either<Failure, List<Movie>>> call(
+      {required String query, int page = 1}) {
     return repository.searchMovies(query: query, page: page);
   }
 }

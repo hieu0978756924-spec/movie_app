@@ -155,7 +155,6 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     );
   }
 
-
   Future<Either<Failure, List<Movie>>> _fetchMoviesForCategory(
       String categoryType, int page) {
     switch (categoryType) {

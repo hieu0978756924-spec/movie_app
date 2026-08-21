@@ -21,7 +21,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     Emitter<ReviewState> emit,
   ) async {
     emit(const ReviewLoadingState());
-    final result = await reviewRepository.getMovieReviews(event.movieId, page: 1);
+    final result =
+        await reviewRepository.getMovieReviews(event.movieId, page: 1);
     result.fold(
       (failure) => emit(ReviewErrorState(failure.message)),
       (tuple) => emit(ReviewLoadedState(
@@ -51,7 +52,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     result.fold(
       (failure) => emit(currentState.copyWith(isLoadingMore: false)),
       (tuple) {
-        final updatedReviews = List.of(currentState.reviews)..addAll(tuple.value1);
+        final updatedReviews = List.of(currentState.reviews)
+          ..addAll(tuple.value1);
         emit(ReviewLoadedState(
           reviews: updatedReviews,
           hasMore: tuple.value2,

@@ -3,13 +3,16 @@ import 'package:movie_app/core/utils/youtube_utils.dart';
 
 void main() {
   group('YoutubeUtils', () {
-    test('extractYoutubeKey correctly extracts key from standard YouTube URLs', () {
+    test('extractYoutubeKey correctly extracts key from standard YouTube URLs',
+        () {
       expect(
-        YoutubeUtils.extractYoutubeKey('https://www.youtube.com/watch?v=uYPbbksJxIg'),
+        YoutubeUtils.extractYoutubeKey(
+            'https://www.youtube.com/watch?v=uYPbbksJxIg'),
         'uYPbbksJxIg',
       );
       expect(
-        YoutubeUtils.extractYoutubeKey('https://www.youtube.com/watch?v=73_1biulkYk&feature=shared'),
+        YoutubeUtils.extractYoutubeKey(
+            'https://www.youtube.com/watch?v=73_1biulkYk&feature=shared'),
         '73_1biulkYk',
       );
       expect(
@@ -17,7 +20,8 @@ void main() {
         'd9MyW72ELq0',
       );
       expect(
-        YoutubeUtils.extractYoutubeKey('https://www.youtube.com/embed/TcMBFSGVi1c'),
+        YoutubeUtils.extractYoutubeKey(
+            'https://www.youtube.com/embed/TcMBFSGVi1c'),
         'TcMBFSGVi1c',
       );
     });
@@ -31,15 +35,24 @@ void main() {
       expect(YoutubeUtils.extractYoutubeKey(null), '');
     });
 
-    test('getFallbackTrailerKeyForMovieId returns correct trailer key for local/TMDB movies', () {
-      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(1), 'Way9Dexny3w'); // Dune 2
-      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(2), 'uYPbbksJxIg'); // Oppenheimer
-      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(3), '73_1biulkYk'); // Deadpool
-      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(4), 'd9MyW72ELq0'); // Avatar 2
-      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(872585), 'uYPbbksJxIg'); // Oppenheimer TMDB
+    test(
+        'getFallbackTrailerKeyForMovieId returns correct trailer key for local/TMDB movies',
+        () {
+      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(1),
+          'Way9Dexny3w'); // Dune 2
+      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(2),
+          'uYPbbksJxIg'); // Oppenheimer
+      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(3),
+          '73_1biulkYk'); // Deadpool
+      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(4),
+          'd9MyW72ELq0'); // Avatar 2
+      expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(872585),
+          'uYPbbksJxIg'); // Oppenheimer TMDB
     });
 
-    test('getFallbackTrailerKeyForMovieId returns empty string for unknown movie ID', () {
+    test(
+        'getFallbackTrailerKeyForMovieId returns empty string for unknown movie ID',
+        () {
       expect(YoutubeUtils.getFallbackTrailerKeyForMovieId(99999999), '');
     });
   });

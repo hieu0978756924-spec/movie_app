@@ -73,7 +73,6 @@ class MovieDetailModel {
       hinhAnh: posterPath ?? '',
       backdropPath: backdropPath,
       diemDanhGia: voteAverage,
-
       theLoai: genresString.isNotEmpty ? genresString : 'Action',
       thoiLuong: runtime != null ? '$runtime min' : '120 min',
       moTa: overview,

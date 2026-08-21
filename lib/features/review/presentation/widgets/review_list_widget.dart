@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/user_session.dart';
 import '../bloc/review_bloc.dart';
@@ -86,8 +83,8 @@ class _ReviewListContentState extends State<_ReviewListContent> {
 
   void _onDeleteReviewPressed(BuildContext context) {
     context.read<ReviewBloc>().add(
-      DeleteReviewEvent(movieId: widget.movieId),
-    );
+          DeleteReviewEvent(movieId: widget.movieId),
+        );
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Đã xóa đánh giá của bạn!'),
@@ -124,7 +121,9 @@ class _ReviewListContentState extends State<_ReviewListContent> {
               child: Text(
                 'Không thể tải đánh giá',
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  color: isDark
+                      ? AppColors.darkTextMuted
+                      : AppColors.lightTextMuted,
                 ),
               ),
             ),

@@ -5,7 +5,8 @@ import 'package:movie_app/features/review/data/models/review_model.dart';
 import 'package:movie_app/features/review/data/models/review_response_model.dart';
 import 'package:movie_app/features/review/data/repositories/review_repository_impl.dart';
 
-class MockReviewRemoteDataSource extends Mock implements ReviewRemoteDataSource {}
+class MockReviewRemoteDataSource extends Mock
+    implements ReviewRemoteDataSource {}
 
 void main() {
   late MockReviewRemoteDataSource mockRemoteDataSource;
@@ -33,7 +34,8 @@ void main() {
   );
 
   group('ReviewRepositoryImpl Tests', () {
-    test('getMovieReviews returns Right(Tuple2(reviews, hasMore)) on success', () async {
+    test('getMovieReviews returns Right(Tuple2(reviews, hasMore)) on success',
+        () async {
       when(() => mockRemoteDataSource.getMovieReviews(123, page: 1))
           .thenAnswer((_) async => tResponse);
 
@@ -50,7 +52,8 @@ void main() {
       );
     });
 
-    test('submitReview calls remoteDataSource.submitReview and returns Right', () async {
+    test('submitReview calls remoteDataSource.submitReview and returns Right',
+        () async {
       when(() => mockRemoteDataSource.submitReview(
             movieId: 123,
             rating: 9.0,

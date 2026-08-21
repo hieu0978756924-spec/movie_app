@@ -30,7 +30,8 @@ class MovieModel {
       posterPath: json['poster_path'] as String?,
       backdropPath: json['backdrop_path'] as String?,
       voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0.0,
-      releaseDate: json['release_date'] as String? ?? json['first_air_date'] as String?,
+      releaseDate:
+          json['release_date'] as String? ?? json['first_air_date'] as String?,
       overview: json['overview'] as String? ?? '',
       genreIds: (json['genre_ids'] as List<dynamic>?)
               ?.map((e) => e as int)
@@ -66,7 +67,6 @@ class MovieModel {
       hinhAnh: posterPath ?? '',
       backdropPath: backdropPath,
       diemDanhGia: voteAverage,
-
       moTa: overview,
       namPhatHanh: year,
       genreIds: genreIds,

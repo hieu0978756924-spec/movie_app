@@ -92,7 +92,8 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                         : Image.asset(
                             widget.movie.hinhAnh.startsWith('assets/')
                                 ? widget.movie.hinhAnh
-                                : ImageUrlHelper.getLocalFallbackImage(widget.movie.id),
+                                : ImageUrlHelper.getLocalFallbackImage(
+                                    widget.movie.id),
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.cover,
@@ -106,7 +107,9 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                       child: ListenableBuilder(
                         listenable: HomeController.instance,
                         builder: (context, _) {
-                          final isFav = HomeController.instance.favoriteMovieIds.contains(widget.movie.id) || widget.movie.yeuThich;
+                          final isFav = HomeController.instance.favoriteMovieIds
+                                  .contains(widget.movie.id) ||
+                              widget.movie.yeuThich;
                           return GestureDetector(
                             onTap: _toggleFavorite,
                             child: Container(
@@ -117,7 +120,8 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                               ),
                               child: Icon(
                                 isFav ? Icons.favorite : Icons.favorite_border,
-                                color: isFav ? AppColors.primaryRed : Colors.white,
+                                color:
+                                    isFav ? AppColors.primaryRed : Colors.white,
                                 size: 16,
                               ),
                             ),

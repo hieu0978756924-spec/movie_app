@@ -80,7 +80,8 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     if (state is WatchlistLoadedState) {
       final currentItems = (state as WatchlistLoadedState).items;
       try {
-        removedItem = currentItems.firstWhere((item) => item.id == event.movieId);
+        removedItem =
+            currentItems.firstWhere((item) => item.id == event.movieId);
       } catch (_) {}
     }
 

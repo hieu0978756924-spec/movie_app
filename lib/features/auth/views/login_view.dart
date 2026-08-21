@@ -107,14 +107,18 @@ class _LoginViewState extends State<LoginView> {
                         listener: (context, state) {
                           if (state is AuthenticatedState) {
                             UserSession.instance.setGuestMode(false);
-                            final loggedEmail = state.user.email ?? emailController.text.trim();
-                            final metaName = state.user.userMetadata?['name'] ?? state.user.userMetadata?['full_name'];
-                            final nameToUse = (metaName != null && metaName.toString().isNotEmpty)
+                            final loggedEmail =
+                                state.user.email ?? emailController.text.trim();
+                            final metaName = state.user.userMetadata?['name'] ??
+                                state.user.userMetadata?['full_name'];
+                            final nameToUse = (metaName != null &&
+                                    metaName.toString().isNotEmpty)
                                 ? metaName.toString()
                                 : null;
 
                             UserProfileManager.instance.updateProfile(
-                              email: loggedEmail.isNotEmpty ? loggedEmail : null,
+                              email:
+                                  loggedEmail.isNotEmpty ? loggedEmail : null,
                               name: nameToUse,
                             );
                             context.go(RoutePath.home);
@@ -139,14 +143,17 @@ class _LoginViewState extends State<LoginView> {
                                 height: 88,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  color: AppColors.darkSurface.withValues(alpha: 0.8),
+                                  color: AppColors.darkSurface
+                                      .withValues(alpha: 0.8),
                                   border: Border.all(
-                                    color: AppColors.neonCoral.withValues(alpha: 0.3),
+                                    color: AppColors.neonCoral
+                                        .withValues(alpha: 0.3),
                                     width: 1.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.neonCoral.withValues(alpha: 0.25),
+                                      color: AppColors.neonCoral
+                                          .withValues(alpha: 0.25),
                                       blurRadius: 30,
                                       spreadRadius: 2,
                                     ),
@@ -168,7 +175,8 @@ class _LoginViewState extends State<LoginView> {
                                   letterSpacing: -0.5,
                                   shadows: [
                                     Shadow(
-                                      color: AppColors.neonCoral.withValues(alpha: 0.5),
+                                      color: AppColors.neonCoral
+                                          .withValues(alpha: 0.5),
                                       blurRadius: 16,
                                     ),
                                   ],
@@ -190,13 +198,16 @@ class _LoginViewState extends State<LoginView> {
                               GlassCard(
                                 blur: 40,
                                 borderRadius: BorderRadius.circular(24),
-                                backgroundColor: Colors.white.withValues(alpha: 0.06),
-                                borderColor: Colors.white.withValues(alpha: 0.12),
+                                backgroundColor:
+                                    Colors.white.withValues(alpha: 0.06),
+                                borderColor:
+                                    Colors.white.withValues(alpha: 0.12),
                                 padding: const EdgeInsets.all(24),
                                 child: Form(
                                   key: _formKey,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Top Subtle Accent Line
                                       Container(
@@ -206,7 +217,8 @@ class _LoginViewState extends State<LoginView> {
                                           gradient: LinearGradient(
                                             colors: [
                                               Colors.transparent,
-                                              AppColors.neonCoral.withValues(alpha: 0.6),
+                                              AppColors.neonCoral
+                                                  .withValues(alpha: 0.6),
                                               Colors.transparent,
                                             ],
                                           ),
@@ -229,7 +241,8 @@ class _LoginViewState extends State<LoginView> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.6),
                                           letterSpacing: 1.1,
                                         ),
                                       ),
@@ -237,7 +250,8 @@ class _LoginViewState extends State<LoginView> {
                                       TextFormField(
                                         key: const Key('login_email_field'),
                                         controller: emailController,
-                                        keyboardType: TextInputType.emailAddress,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
                                         textInputAction: TextInputAction.next,
                                         enabled: !isLoading,
                                         style: const TextStyle(
@@ -247,34 +261,43 @@ class _LoginViewState extends State<LoginView> {
                                         decoration: InputDecoration(
                                           hintText: "Nhập địa chỉ email",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.mail_outline_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
                                             horizontal: 16,
                                             vertical: 14,
                                           ),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                              color: Colors.white.withValues(alpha: 0.1),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.1),
                                             ),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                              color: Colors.white.withValues(alpha: 0.12),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.12),
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             borderSide: const BorderSide(
                                               color: AppColors.neonCoral,
                                               width: 1.5,
@@ -282,12 +305,14 @@ class _LoginViewState extends State<LoginView> {
                                           ),
                                         ),
                                         validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
                                             return "Vui lòng nhập email";
                                           }
                                           final emailRegex = RegExp(
                                               r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                                          if (!emailRegex.hasMatch(value.trim())) {
+                                          if (!emailRegex
+                                              .hasMatch(value.trim())) {
                                             return "Email không hợp lệ";
                                           }
                                           return null;
@@ -297,34 +322,15 @@ class _LoginViewState extends State<LoginView> {
 
                                       // --- Password Label, Forgot Password & Field ---
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             "MẬT KHẨU",
                                             style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w700,
-                                              color: Colors.white.withValues(alpha: 0.6),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.6),
                                               letterSpacing: 1.1,
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            key: const Key(
-                                                'login_forgot_password_button'),
-                                            onTap: isLoading
-                                                ? null
-                                                : () {
-                                                    context.push(
-                                                        RoutePath.forgotPassword);
-                                                  },
-                                            child: const Text(
-                                              "Quên mật khẩu?",
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: AppColors.accentGold,
-                                                fontWeight: FontWeight.w500,
-                                              ),
                                             ),
                                           ),
                                         ],
@@ -343,12 +349,14 @@ class _LoginViewState extends State<LoginView> {
                                         decoration: InputDecoration(
                                           hintText: "Nhập mật khẩu",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.lock_outline_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           suffixIcon: IconButton(
@@ -362,31 +370,40 @@ class _LoginViewState extends State<LoginView> {
                                             icon: Icon(
                                               hidePassword
                                                   ? Icons.visibility_outlined
-                                                  : Icons.visibility_off_outlined,
-                                              color: Colors.white.withValues(alpha: 0.6),
+                                                  : Icons
+                                                      .visibility_off_outlined,
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.6),
                                               size: 20,
                                             ),
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
                                             horizontal: 16,
                                             vertical: 14,
                                           ),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                              color: Colors.white.withValues(alpha: 0.1),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.1),
                                             ),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                              color: Colors.white.withValues(alpha: 0.12),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.12),
                                             ),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             borderSide: const BorderSide(
                                               color: AppColors.neonCoral,
                                               width: 1.5,
@@ -412,7 +429,8 @@ class _LoginViewState extends State<LoginView> {
                                         width: double.infinity,
                                         height: 52,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(14),
+                                          borderRadius:
+                                              BorderRadius.circular(14),
                                           boxShadow: [
                                             BoxShadow(
                                               color: AppColors.neonCoral
@@ -425,7 +443,8 @@ class _LoginViewState extends State<LoginView> {
                                         child: ElevatedButton(
                                           key: const Key('login_submit_button'),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.neonCoral,
+                                            backgroundColor:
+                                                AppColors.neonCoral,
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
@@ -443,7 +462,8 @@ class _LoginViewState extends State<LoginView> {
                                               ? const SizedBox(
                                                   height: 22,
                                                   width: 22,
-                                                  child: CircularProgressIndicator(
+                                                  child:
+                                                      CircularProgressIndicator(
                                                     strokeWidth: 2.5,
                                                     color: Colors.white,
                                                   ),
@@ -456,12 +476,14 @@ class _LoginViewState extends State<LoginView> {
                                                       "Đăng Nhập",
                                                       style: TextStyle(
                                                         fontSize: 16,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     ),
                                                     SizedBox(width: 8),
                                                     Icon(
-                                                      Icons.arrow_forward_rounded,
+                                                      Icons
+                                                          .arrow_forward_rounded,
                                                       size: 20,
                                                     ),
                                                   ],
@@ -476,7 +498,8 @@ class _LoginViewState extends State<LoginView> {
                                           Expanded(
                                             child: Container(
                                               height: 1,
-                                              color: Colors.white.withValues(alpha: 0.12),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.12),
                                             ),
                                           ),
                                           Padding(
@@ -486,14 +509,16 @@ class _LoginViewState extends State<LoginView> {
                                               "Hoặc",
                                               style: TextStyle(
                                                 fontSize: 13,
-                                                color: Colors.white.withValues(alpha: 0.5),
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.5),
                                               ),
                                             ),
                                           ),
                                           Expanded(
                                             child: Container(
                                               height: 1,
-                                              color: Colors.white.withValues(alpha: 0.12),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.12),
                                             ),
                                           ),
                                         ],
@@ -502,18 +527,22 @@ class _LoginViewState extends State<LoginView> {
                                       // --- Guest Mode Experience Button ---
                                       OutlinedButton.icon(
                                         style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size.fromHeight(50),
-                                          backgroundColor: AppColors.primaryRed.withAlpha(25),
+                                          minimumSize:
+                                              const Size.fromHeight(50),
+                                          backgroundColor: AppColors.primaryRed
+                                              .withAlpha(25),
                                           side: const BorderSide(
                                             color: AppColors.primaryRed,
                                             width: 1.5,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(14),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
                                           ),
                                         ),
                                         onPressed: () {
-                                          UserSession.instance.setGuestMode(true);
+                                          UserSession.instance
+                                              .setGuestMode(true);
                                           context.go(RoutePath.home);
                                         },
                                         icon: const Icon(
@@ -543,7 +572,8 @@ class _LoginViewState extends State<LoginView> {
                                     "Chưa có tài khoản? ",
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.white.withValues(alpha: 0.6),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.6),
                                     ),
                                   ),
                                   GestureDetector(

@@ -33,6 +33,9 @@ Failure parseFailure(dynamic e) {
     return ServerFailure(e.message);
   }
   return ServerFailure(
-    e.toString().replaceAll('Exception: ', '').replaceAll('ServerException: ', ''),
+    e
+        .toString()
+        .replaceAll('Exception: ', '')
+        .replaceAll('ServerException: ', ''),
   );
 }

@@ -30,12 +30,14 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
   ReviewRemoteDataSourceImpl(this.dio, this.supabaseClient);
 
   @override
-  Future<ReviewResponseModel> getMovieReviews(int movieId, {int page = 1}) async {
+  Future<ReviewResponseModel> getMovieReviews(int movieId,
+      {int page = 1}) async {
     final response = await dio.get(
       '/movie/$movieId/reviews',
       queryParameters: {'page': page},
     );
-    final tmdbResult = ReviewResponseModel.fromJson(response.data as Map<String, dynamic>);
+    final tmdbResult =
+        ReviewResponseModel.fromJson(response.data as Map<String, dynamic>);
 
     if (page == 1) {
       final List<ReviewModel> userReviews = [];
@@ -53,33 +55,69 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
         ));
       }
 
-      // 2. Fetch from Supabase
+      // 2. Fetch from Supabase (join với profiles để lấy tên người dùng)
       try {
-        final supabaseRows = await supabaseClient
-            .from(SupabaseConstants.reviewsTable)
-            .select()
-            .eq('movie_id', movieId)
-            .order('updated_at', ascending: false);
+        List<dynamic> supabaseRows = [];
+        bool hasProfileJoin = true;
+
+        try {
+          // Thử join với profiles để lấy full_name
+          supabaseRows = await supabaseClient
+              .from(SupabaseConstants.reviewsTable)
+              .select('*, profiles(full_name)')
+              .eq('movie_id', movieId)
+              .order('updated_at', ascending: false);
+        } catch (_) {
+          hasProfileJoin = false;
+          // Fallback: query không join nếu không có foreign key
+          supabaseRows = await supabaseClient
+              .from(SupabaseConstants.reviewsTable)
+              .select()
+              .eq('movie_id', movieId)
+              .order('updated_at', ascending: false);
+        }
 
         final currentUserId = supabaseClient.auth.currentUser?.id;
 
-        for (var row in supabaseRows as List) {
+        for (var row in supabaseRows) {
           if (row is Map) {
             final rowUserId = row['user_id'] as String?;
-            // Skip if it is current user's review and we already added localReview
-            if (localReview != null && currentUserId != null && rowUserId == currentUserId) {
+            // Skip nếu là review của user hiện tại (đã có từ local)
+            if (localReview != null &&
+                currentUserId != null &&
+                rowUserId == currentUserId) {
               continue;
+            }
+
+            // Ưu tiên: profiles.full_name > author_name > 'Thành viên Góc Phim'
+            String displayName;
+            if (currentUserId != null && rowUserId == currentUserId) {
+              displayName = 'Bạn';
+            } else {
+              String? profileName;
+              if (hasProfileJoin) {
+                final profileData = row['profiles'];
+                profileName = (profileData is Map)
+                    ? profileData['full_name'] as String?
+                    : null;
+              }
+              final savedAuthorName = row['author_name'] as String?;
+
+              displayName = (profileName != null && profileName.isNotEmpty)
+                  ? profileName
+                  : (savedAuthorName != null && savedAuthorName.isNotEmpty
+                      ? savedAuthorName
+                      : 'Thành viên Góc Phim');
             }
 
             userReviews.add(ReviewModel(
               id: 'sb_${row['id']}',
-              author: (currentUserId != null && rowUserId == currentUserId)
-                  ? 'Bạn'
-                  : 'Thành viên Góc Phim',
+              author: displayName,
               avatarPath: null,
               rating: (row['rating'] as num?)?.toDouble() ?? 0.0,
               content: row['content'] as String? ?? '',
-              createdAt: row['updated_at'] as String? ?? DateTime.now().toIso8601String(),
+              createdAt: row['updated_at'] as String? ??
+                  DateTime.now().toIso8601String(),
             ));
           }
         }
@@ -112,7 +150,10 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
     if (user != null) {
       final meta = user.userMetadata;
       if (meta != null) {
-        authorName = meta['display_name'] ?? meta['name'] ?? meta['full_name'] ?? authorName;
+        authorName = meta['display_name'] ??
+            meta['name'] ??
+            meta['full_name'] ??
+            authorName;
       }
       if (authorName == 'Bạn' && user.email != null && user.email!.isNotEmpty) {
         authorName = user.email!.split('@').first;
@@ -138,6 +179,7 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
           'movie_id': movieId,
           'rating': rating,
           'content': content,
+          'author_name': authorName,
           'updated_at': DateTime.now().toIso8601String(),
         }, onConflict: 'user_id,movie_id');
       } catch (_) {

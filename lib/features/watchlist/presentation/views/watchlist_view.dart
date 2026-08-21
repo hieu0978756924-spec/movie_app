@@ -59,9 +59,12 @@ class _WatchlistContentState extends State<_WatchlistContent> {
 
     if (UserSession.instance.isGuestMode) {
       return Scaffold(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        backgroundColor:
+            isDark ? AppColors.darkBackground : AppColors.lightBackground,
         appBar: AppBar(
-          backgroundColor: (isDark ? AppColors.darkBackground : AppColors.lightBackground).withAlpha(200),
+          backgroundColor:
+              (isDark ? AppColors.darkBackground : AppColors.lightBackground)
+                  .withAlpha(200),
           elevation: 0,
           scrolledUnderElevation: 0,
           title: Text(
@@ -69,7 +72,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
             ),
           ),
         ),
@@ -108,7 +113,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -118,7 +125,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.5,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -162,9 +171,12 @@ class _WatchlistContentState extends State<_WatchlistContent> {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: (isDark ? AppColors.darkBackground : AppColors.lightBackground).withAlpha(200),
+        backgroundColor:
+            (isDark ? AppColors.darkBackground : AppColors.lightBackground)
+                .withAlpha(200),
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
@@ -172,7 +184,8 @@ class _WatchlistContentState extends State<_WatchlistContent> {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
         ),
       ),
@@ -232,7 +245,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                                   child: Text(
                                     opt,
                                     style: TextStyle(
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black87,
                                       fontWeight: _selectedSort == opt
                                           ? FontWeight.bold
                                           : FontWeight.normal,
@@ -242,12 +257,17 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                               }).toList();
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                                color: isDark
+                                    ? AppColors.darkCard
+                                    : AppColors.lightCard,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(12),
+                                  color: isDark
+                                      ? Colors.white.withAlpha(15)
+                                      : Colors.black.withAlpha(12),
                                 ),
                               ),
                               child: Row(
@@ -257,14 +277,18 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
-                                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                      color: isDark
+                                          ? AppColors.darkTextPrimary
+                                          : AppColors.lightTextPrimary,
                                     ),
                                   ),
                                   const SizedBox(width: 6),
                                   Icon(
                                     Icons.expand_more_rounded,
                                     size: 18,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
                                   ),
                                 ],
                               ),
@@ -281,16 +305,24 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                             child: Container(
                               padding: const EdgeInsets.all(9),
                               decoration: BoxDecoration(
-                                color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                                color: isDark
+                                    ? AppColors.darkCard
+                                    : AppColors.lightCard,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(12),
+                                  color: isDark
+                                      ? Colors.white.withAlpha(15)
+                                      : Colors.black.withAlpha(12),
                                 ),
                               ),
                               child: Icon(
-                                _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+                                _isGridView
+                                    ? Icons.view_list_rounded
+                                    : Icons.grid_view_rounded,
                                 size: 20,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
                               ),
                             ),
                           ),
@@ -304,7 +336,8 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           childAspectRatio: 0.62,
                           crossAxisSpacing: 14,
@@ -379,7 +412,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -388,7 +423,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
               ),
             ),
             const SizedBox(height: 28),
@@ -396,7 +433,8 @@ class _WatchlistContentState extends State<_WatchlistContent> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryRed,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -419,7 +457,11 @@ class _WatchlistContentState extends State<_WatchlistContent> {
   }
 
   Widget _buildListItem(BuildContext context, WatchlistItem item, bool isDark) {
-    final genres = item.theLoai.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    final genres = item.theLoai
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
 
     return Dismissible(
       key: Key('watchlist_item_${item.id}'),
@@ -472,7 +514,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(10),
+            color: isDark
+                ? Colors.white.withAlpha(15)
+                : Colors.black.withAlpha(10),
           ),
         ),
         child: InkWell(
@@ -530,7 +574,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                  color: isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary,
                                 ),
                               ),
                               const SizedBox(height: 6),
@@ -542,32 +588,42 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                                     item.namPhatHanh.toString(),
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                      color: isDark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.lightTextSecondary,
                                     ),
                                   ),
                                   Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 6),
                                     width: 4,
                                     height: 4,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                      color: isDark
+                                          ? AppColors.darkTextMuted
+                                          : AppColors.lightTextMuted,
                                     ),
                                   ),
                                   Text(
                                     '169m',
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                      color: isDark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.lightTextSecondary,
                                     ),
                                   ),
                                   Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 6),
                                     width: 4,
                                     height: 4,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                      color: isDark
+                                          ? AppColors.darkTextMuted
+                                          : AppColors.lightTextMuted,
                                     ),
                                   ),
                                   Row(
@@ -599,12 +655,17 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                                   runSpacing: 4,
                                   children: genres.take(2).map((g) {
                                     return Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: isDark ? Colors.white.withAlpha(12) : Colors.black.withAlpha(8),
+                                        color: isDark
+                                            ? Colors.white.withAlpha(12)
+                                            : Colors.black.withAlpha(8),
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
-                                          color: isDark ? Colors.white.withAlpha(20) : Colors.black.withAlpha(15),
+                                          color: isDark
+                                              ? Colors.white.withAlpha(20)
+                                              : Colors.black.withAlpha(15),
                                         ),
                                       ),
                                       child: Text(
@@ -612,7 +673,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                          color: isDark
+                                              ? AppColors.darkTextSecondary
+                                              : AppColors.lightTextSecondary,
                                         ),
                                       ),
                                     );
@@ -659,7 +722,8 @@ class _WatchlistContentState extends State<_WatchlistContent> {
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(10),
+          color:
+              isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(10),
         ),
       ),
       child: InkWell(
@@ -695,15 +759,18 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                 children: [
                   Positioned.fill(
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                      child: _buildPoster(item.hinhAnh, width: double.infinity, height: double.infinity),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: _buildPoster(item.hinhAnh,
+                          width: double.infinity, height: double.infinity),
                     ),
                   ),
                   Positioned(
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
                         color: Colors.black.withAlpha(180),
                         borderRadius: BorderRadius.circular(8),
@@ -711,7 +778,8 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star_rounded, color: AppColors.accentGold, size: 14),
+                          const Icon(Icons.star_rounded,
+                              color: AppColors.accentGold, size: 14),
                           const SizedBox(width: 2),
                           Text(
                             '${item.diemDanhGia.toStringAsFixed(1)}/10',
@@ -740,7 +808,9 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -751,12 +821,16 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                         item.namPhatHanh.toString(),
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                          color: isDark
+                              ? AppColors.darkTextMuted
+                              : AppColors.lightTextMuted,
                         ),
                       ),
                       GestureDetector(
                         onTap: () {
-                          context.read<WatchlistBloc>().add(RemoveFromWatchlistEvent(item.id));
+                          context
+                              .read<WatchlistBloc>()
+                              .add(RemoveFromWatchlistEvent(item.id));
                         },
                         child: const Icon(
                           Icons.delete_outline_rounded,
@@ -775,7 +849,8 @@ class _WatchlistContentState extends State<_WatchlistContent> {
     );
   }
 
-  Widget _buildPoster(String path, {required double width, required double height}) {
+  Widget _buildPoster(String path,
+      {required double width, required double height}) {
     final posterUrl = ImageUrlHelper.getPosterUrl(path);
     if (posterUrl != null && posterUrl.startsWith('http')) {
       return Image.network(
@@ -783,15 +858,19 @@ class _WatchlistContentState extends State<_WatchlistContent> {
         width: width,
         height: height,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildFallbackPoster(width: width, height: height),
+        errorBuilder: (_, __, ___) =>
+            _buildFallbackPoster(width: width, height: height),
       );
     } else if (path.isNotEmpty) {
       return Image.asset(
-        path.startsWith('assets/') ? path : ImageUrlHelper.getLocalFallbackImage(0),
+        path.startsWith('assets/')
+            ? path
+            : ImageUrlHelper.getLocalFallbackImage(0),
         width: width,
         height: height,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildFallbackPoster(width: width, height: height),
+        errorBuilder: (_, __, ___) =>
+            _buildFallbackPoster(width: width, height: height),
       );
     }
     return _buildFallbackPoster(width: width, height: height);

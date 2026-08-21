@@ -94,8 +94,7 @@ class WatchHistoryManager {
   Future<void> _saveHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonStr =
-          jsonEncode(history.value.map((e) => e.toJson()).toList());
+      final jsonStr = jsonEncode(history.value.map((e) => e.toJson()).toList());
       await prefs.setString(_currentUserKey, jsonStr);
     } catch (_) {}
   }

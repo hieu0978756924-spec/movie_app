@@ -18,7 +18,8 @@ void main() {
     );
   });
 
-  testWidgets('ProfileView renders Stitch UI layout and options correctly', (WidgetTester tester) async {
+  testWidgets('ProfileView renders Stitch UI layout and options correctly',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: ProfileView(),

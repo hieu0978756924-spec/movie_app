@@ -48,10 +48,12 @@ class CastSectionWidget extends StatelessWidget {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: AppColors.primaryRed.withAlpha(40),
-                  backgroundImage: directorAvatar != null && directorAvatar.startsWith('http')
+                  backgroundImage: directorAvatar != null &&
+                          directorAvatar.startsWith('http')
                       ? NetworkImage(directorAvatar)
                       : null,
-                  child: directorAvatar == null || !directorAvatar.startsWith('http')
+                  child: directorAvatar == null ||
+                          !directorAvatar.startsWith('http')
                       ? const Icon(
                           Icons.video_camera_front_rounded,
                           color: AppColors.primaryRed,

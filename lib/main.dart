@@ -87,9 +87,7 @@ class MovieApp extends StatelessWidget {
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                   FallbackMaterialLocalizationsDelegate(),
-
                 ],
-
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: themeMode,

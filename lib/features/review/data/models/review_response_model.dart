@@ -17,7 +17,9 @@ class ReviewResponseModel {
     final list = json['results'] as List? ?? [];
     return ReviewResponseModel(
       page: json['page'] as int? ?? 1,
-      results: list.map((e) => ReviewModel.fromJson(e as Map<String, dynamic>)).toList(),
+      results: list
+          .map((e) => ReviewModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       totalPages: json['total_pages'] as int? ?? 1,
       totalResults: json['total_results'] as int? ?? 0,
     );

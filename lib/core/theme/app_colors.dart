@@ -41,7 +41,7 @@ abstract class AppColors {
   static const Color neonCoral = Color(0xFFFF5070);
   static const Color neonCoralGlow = Color(0xFFFF2A5F);
   static const Color glassSurface = Color(0x0DFFFFFF); // rgba(255,255,255,0.05)
-  static const Color glassInputSurface = Color(0x1AFFFFFF); // rgba(255,255,255,0.1)
+  static const Color glassInputSurface =
+      Color(0x1AFFFFFF); // rgba(255,255,255,0.1)
   static const Color glassBorder = Color(0x1AFFFFFF); // rgba(255,255,255,0.1)
 }
-

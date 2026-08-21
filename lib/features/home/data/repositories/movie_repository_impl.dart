@@ -53,8 +53,7 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<Either<Failure, List<Movie>>> getTrendingMovies(
-      {int page = 1}) async {
+  Future<Either<Failure, List<Movie>>> getTrendingMovies({int page = 1}) async {
     return _fetchFromRemoteOrLocal(
       remoteCall: () => remoteDataSource.getTrendingMovies(page: page),
       fallbackList: HomeController.instance.danhSachPhimHot,
@@ -73,8 +72,7 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<Either<Failure, List<Movie>>> getPopularMovies(
-      {int page = 1}) async {
+  Future<Either<Failure, List<Movie>>> getPopularMovies({int page = 1}) async {
     return _fetchFromRemoteOrLocal(
       remoteCall: () => remoteDataSource.getPopularMovies(page: page),
       fallbackList: HomeController.instance.danhSachPhimPhoBien,
@@ -83,8 +81,7 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<Either<Failure, List<Movie>>> getTopRatedMovies(
-      {int page = 1}) async {
+  Future<Either<Failure, List<Movie>>> getTopRatedMovies({int page = 1}) async {
     return _fetchFromRemoteOrLocal(
       remoteCall: () => remoteDataSource.getTopRatedMovies(page: page),
       fallbackList: HomeController.instance.danhSachPhimDanhGiaCao,
@@ -93,8 +90,7 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<Either<Failure, List<Movie>>> getUpcomingMovies(
-      {int page = 1}) async {
+  Future<Either<Failure, List<Movie>>> getUpcomingMovies({int page = 1}) async {
     return _fetchFromRemoteOrLocal(
       remoteCall: () => remoteDataSource.getUpcomingMovies(page: page),
       fallbackList: HomeController.instance.danhSachPhimSapChieu,
@@ -109,7 +105,8 @@ class MovieRepositoryImpl implements MovieRepository {
     try {
       final detailModel = await remoteDataSource.getMovieDetail(realTmdbId);
       final entity = detailModel.toEntity();
-      return Right(movieId != realTmdbId ? entity.copyWith(id: movieId) : entity);
+      return Right(
+          movieId != realTmdbId ? entity.copyWith(id: movieId) : entity);
     } catch (_) {}
 
     try {
@@ -176,9 +173,11 @@ class MovieRepositoryImpl implements MovieRepository {
     final realTmdbId = YoutubeUtils.getRealTmdbId(movieId);
     try {
       final response = await remoteDataSource.getMovieTrailers(realTmdbId);
-      final trailers = response.results.map((model) => model.toEntity()).toList();
+      final trailers =
+          response.results.map((model) => model.toEntity()).toList();
       final validTrailers = trailers
-          .where((v) => v.site.toLowerCase() == 'youtube' && v.key.trim().isNotEmpty)
+          .where((v) =>
+              v.site.toLowerCase() == 'youtube' && v.key.trim().isNotEmpty)
           .toList();
       if (validTrailers.isNotEmpty) return Right(validTrailers);
     } catch (_) {}
@@ -191,19 +190,21 @@ class MovieRepositoryImpl implements MovieRepository {
       return Right([_buildDefaultVideo(movieId)]);
     }
 
-    final titleToSearch = movie!.originalTitle.isNotEmpty
-        ? movie!.originalTitle
-        : movie!.tenPhim;
+    final titleToSearch =
+        movie!.originalTitle.isNotEmpty ? movie!.originalTitle : movie!.tenPhim;
 
     if (titleToSearch.isNotEmpty) {
       try {
-        final searchModel = await remoteDataSource.searchMovies(query: titleToSearch);
+        final searchModel =
+            await remoteDataSource.searchMovies(query: titleToSearch);
         if (searchModel.results.isNotEmpty) {
           final tmdbId = searchModel.results.first.id;
-          final tmdbTrailersResp = await remoteDataSource.getMovieTrailers(tmdbId);
+          final tmdbTrailersResp =
+              await remoteDataSource.getMovieTrailers(tmdbId);
           final tmdbTrailers = tmdbTrailersResp.results
               .map((m) => m.toEntity())
-              .where((v) => v.site.toLowerCase() == 'youtube' && v.key.trim().isNotEmpty)
+              .where((v) =>
+                  v.site.toLowerCase() == 'youtube' && v.key.trim().isNotEmpty)
               .toList();
           if (tmdbTrailers.isNotEmpty) {
             return Right(tmdbTrailers);
@@ -261,7 +262,8 @@ class MovieRepositoryImpl implements MovieRepository {
       {required String query, int page = 1}) async {
     await _ensureInitialized();
     try {
-      final response = await remoteDataSource.searchMovies(query: query, page: page);
+      final response =
+          await remoteDataSource.searchMovies(query: query, page: page);
       final movies = response.results.map((model) => model.toEntity()).toList();
       if (movies.isNotEmpty) return Right(movies);
     } catch (_) {}

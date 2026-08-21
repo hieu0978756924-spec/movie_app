@@ -34,7 +34,8 @@ void main() {
   }
 
   group('SplashView Widget Tests', () {
-    testWidgets('Renders all required branding elements and triggers CheckAuthEvent',
+    testWidgets(
+        'Renders all required branding elements and triggers CheckAuthEvent',
         (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
 

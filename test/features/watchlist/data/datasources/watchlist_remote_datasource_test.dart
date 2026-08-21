@@ -5,6 +5,7 @@ import 'package:movie_app/features/watchlist/data/datasources/watchlist_remote_d
 import 'package:movie_app/features/watchlist/data/models/watchlist_item_model.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
+
 class MockSupabaseQueryBuilder extends Mock implements SupabaseQueryBuilder {}
 
 void main() {

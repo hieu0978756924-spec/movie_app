@@ -68,7 +68,6 @@ class Movie extends Equatable {
     this.genres = const [],
     this.genreIds = const [],
     required this.moTa,
-
     this.daoDien = 'Góc Phim',
     int? namPhatHanh,
     String? thoiLuong,
@@ -82,17 +81,17 @@ class Movie extends Equatable {
     this.cast = const [],
     this.yeuThich = false,
   })  : backdropPath = backdropPath ?? hinhAnh,
-        _namPhatHanhCustom = namPhatHanh ?? (int.tryParse(releaseDate.split('-').first) ?? 2024),
+        _namPhatHanhCustom =
+            namPhatHanh ?? (int.tryParse(releaseDate.split('-').first) ?? 2024),
         _thoiLuongCustom = thoiLuong ?? '$runtime phút';
 
   int get namPhatHanh => _namPhatHanhCustom;
   String get thoiLuong => _thoiLuongCustom;
 
   factory Movie.fromJson(Map<String, dynamic> json) {
-    final genreList = (json['genres'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        [];
+    final genreList =
+        (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+            [];
     final castList = (json['cast'] as List<dynamic>?)
             ?.map((e) => MovieCastMember.fromJson(e as Map<String, dynamic>))
             .toList() ??
@@ -108,11 +107,14 @@ class Movie extends Equatable {
       originalTitle: json['originalTitle'] ?? '',
       hinhAnh: json['posterPath'] ?? json['hinhAnh'] ?? '',
       backdropPath: json['backdropPath'] ?? json['posterPath'] ?? '',
-      diemDanhGia: (json['voteAverage'] ?? json['diemDanhGia'] ?? 0.0).toDouble(),
+      diemDanhGia:
+          (json['voteAverage'] ?? json['diemDanhGia'] ?? 0.0).toDouble(),
       voteCount: json['voteCount'] ?? 0,
       releaseDate: relDate,
       runtime: runTime,
-      theLoai: genreList.isNotEmpty ? genreList.first : (json['theLoai'] ?? 'Action'),
+      theLoai: genreList.isNotEmpty
+          ? genreList.first
+          : (json['theLoai'] ?? 'Action'),
       genres: genreList,
       moTa: json['overview'] ?? json['moTa'] ?? '',
       daoDien: json['daoDien'] ?? 'Góc Phim',

@@ -41,7 +41,8 @@ class SubmitReviewEvent extends ReviewEvent {
   });
 
   @override
-  List<Object?> get props => [movieId, movieTitle, moviePoster, rating, content];
+  List<Object?> get props =>
+      [movieId, movieTitle, moviePoster, rating, content];
 }
 
 class DeleteReviewEvent extends ReviewEvent {

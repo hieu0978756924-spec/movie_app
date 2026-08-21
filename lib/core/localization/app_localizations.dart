@@ -32,7 +32,8 @@ class AppLocalizations {
       'rating': 'Đánh giá',
       'minutes': 'phút',
       'login_title': 'Chào mừng đến Góc Phim',
-      'login_subtitle': 'Đăng nhập để xem phim HD và đồng bộ danh sách yêu thích cá nhân',
+      'login_subtitle':
+          'Đăng nhập để xem phim HD và đồng bộ danh sách yêu thích cá nhân',
       'login_google': 'Đăng nhập bằng Google',
       'login_facebook': 'Đăng nhập bằng Facebook',
       'login_guest': 'Dùng thử không đăng nhập',
@@ -76,7 +77,8 @@ class AppLocalizations {
       'rating': 'Rating',
       'minutes': 'mins',
       'login_title': 'Welcome to Movie Corner',
-      'login_subtitle': 'Sign in to watch HD movies & sync your favorite list to cloud',
+      'login_subtitle':
+          'Sign in to watch HD movies & sync your favorite list to cloud',
       'login_google': 'Continue with Google',
       'login_facebook': 'Continue with Facebook',
       'login_guest': 'Continue as Guest',
@@ -99,7 +101,6 @@ class AppLocalizations {
       'no_results': 'No matching results found',
       'because_you_added': 'Because you added',
     },
-
   };
 
   String translate(String key) {
@@ -109,8 +110,7 @@ class AppLocalizations {
   }
 }
 
-class AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const AppLocalizationsDelegate();
 
   @override

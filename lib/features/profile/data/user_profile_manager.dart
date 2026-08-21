@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../review/data/datasources/user_review_manager.dart';
 
-
 class UserProfile {
   final String name;
   final String dob;
@@ -64,7 +63,9 @@ class UserProfileManager {
   }) {
     final defaultName = (name != null && name.isNotEmpty)
         ? name
-        : (email.contains('@') ? email.split('@').first : 'Thành viên Góc Phim');
+        : (email.contains('@')
+            ? email.split('@').first
+            : 'Thành viên Góc Phim');
     final freshProfile = UserProfile(
       name: defaultName,
       dob: dob ?? '',
@@ -88,8 +89,10 @@ class UserProfileManager {
         }
       } catch (_) {}
 
-      final emailKey = currentEmail.isNotEmpty ? '_${currentEmail.toLowerCase()}' : '';
-      final savedEmail = prefs.getString('profile_email$emailKey') ?? prefs.getString('profile_email');
+      final emailKey =
+          currentEmail.isNotEmpty ? '_${currentEmail.toLowerCase()}' : '';
+      final savedEmail = prefs.getString('profile_email$emailKey') ??
+          prefs.getString('profile_email');
       var savedName = prefs.getString('profile_name$emailKey');
       final savedDob = prefs.getString('profile_dob$emailKey');
       final savedGender = prefs.getString('profile_gender$emailKey');
@@ -97,27 +100,37 @@ class UserProfileManager {
 
       try {
         final supabaseUser = Supabase.instance.client.auth.currentUser;
-        final metaName = supabaseUser?.userMetadata?['name'] ?? supabaseUser?.userMetadata?['full_name'];
+        final metaName = supabaseUser?.userMetadata?['name'] ??
+            supabaseUser?.userMetadata?['full_name'];
         if (metaName != null && metaName.toString().isNotEmpty) {
           savedName = metaName.toString();
         }
       } catch (_) {}
 
-      final finalEmail = currentEmail.isNotEmpty ? currentEmail : (savedEmail ?? profile.value.email);
+      final finalEmail = currentEmail.isNotEmpty
+          ? currentEmail
+          : (savedEmail ?? profile.value.email);
       final defaultName = (savedName != null && savedName.isNotEmpty)
           ? savedName
           : (profile.value.name.isNotEmpty
               ? profile.value.name
-              : (finalEmail.contains('@') ? finalEmail.split('@').first : 'Thành viên Góc Phim'));
+              : (finalEmail.contains('@')
+                  ? finalEmail.split('@').first
+                  : 'Thành viên Góc Phim'));
 
       profile.value = UserProfile(
         name: defaultName,
-        dob: (savedDob != null && savedDob.isNotEmpty) ? savedDob : profile.value.dob,
-        gender: (savedGender != null && savedGender.isNotEmpty) ? savedGender : profile.value.gender,
+        dob: (savedDob != null && savedDob.isNotEmpty)
+            ? savedDob
+            : profile.value.dob,
+        gender: (savedGender != null && savedGender.isNotEmpty)
+            ? savedGender
+            : profile.value.gender,
         email: finalEmail,
-        avatarPath: (savedAvatar != null && savedAvatar.isNotEmpty) ? savedAvatar : profile.value.avatarPath,
+        avatarPath: (savedAvatar != null && savedAvatar.isNotEmpty)
+            ? savedAvatar
+            : profile.value.avatarPath,
       );
-
 
       fetchReviewCount();
     } catch (_) {}
@@ -133,7 +146,8 @@ class UserProfileManager {
             .eq('user_id', user.id);
         reviewCountNotifier.value = response.length;
       } else {
-        reviewCountNotifier.value = UserReviewManager.instance.userReviews.length;
+        reviewCountNotifier.value =
+            UserReviewManager.instance.userReviews.length;
       }
     } catch (_) {
       reviewCountNotifier.value = UserReviewManager.instance.userReviews.length;
@@ -147,15 +161,20 @@ class UserProfileManager {
     String? email,
     String? avatarPath,
   }) {
-    String newEmail = (email != null && email.isNotEmpty) ? email : profile.value.email;
-    String newName = (name != null && name.isNotEmpty) ? name : profile.value.name;
+    String newEmail =
+        (email != null && email.isNotEmpty) ? email : profile.value.email;
+    String newName =
+        (name != null && name.isNotEmpty) ? name : profile.value.name;
 
     final updated = UserProfile(
       name: newName,
       dob: (dob != null && dob.isNotEmpty) ? dob : profile.value.dob,
-      gender: (gender != null && gender.isNotEmpty) ? gender : profile.value.gender,
+      gender:
+          (gender != null && gender.isNotEmpty) ? gender : profile.value.gender,
       email: newEmail,
-      avatarPath: (avatarPath != null && avatarPath.isNotEmpty) ? avatarPath : profile.value.avatarPath,
+      avatarPath: (avatarPath != null && avatarPath.isNotEmpty)
+          ? avatarPath
+          : profile.value.avatarPath,
     );
     profile.value = updated;
     _saveProfile(updated);
@@ -164,7 +183,9 @@ class UserProfileManager {
   Future<void> _saveProfile(UserProfile userProfile) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final emailKey = userProfile.email.isNotEmpty ? '_${userProfile.email.toLowerCase()}' : '';
+      final emailKey = userProfile.email.isNotEmpty
+          ? '_${userProfile.email.toLowerCase()}'
+          : '';
       await prefs.setString('profile_name$emailKey', userProfile.name);
       await prefs.setString('profile_dob$emailKey', userProfile.dob);
       await prefs.setString('profile_gender$emailKey', userProfile.gender);
@@ -174,7 +195,8 @@ class UserProfileManager {
       final user = Supabase.instance.client.auth.currentUser;
       if (user != null) {
         await Supabase.instance.client.auth.updateUser(
-          UserAttributes(data: {'full_name': userProfile.name, 'name': userProfile.name}),
+          UserAttributes(
+              data: {'full_name': userProfile.name, 'name': userProfile.name}),
         );
         await Supabase.instance.client.from('profiles').upsert({
           'id': user.id,

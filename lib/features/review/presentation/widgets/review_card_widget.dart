@@ -28,7 +28,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        backgroundColor:
+            isDark ? AppColors.darkSurface : AppColors.lightSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Xác nhận xóa',
@@ -86,9 +87,7 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isMine
-            ? (isDark
-                ? const Color(0xFF1E1C14)
-                : const Color(0xFFFFFBEB))
+            ? (isDark ? const Color(0xFF1E1C14) : const Color(0xFFFFFBEB))
             : (isDark ? AppColors.darkCard : AppColors.lightCard),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
@@ -261,7 +260,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
           Text(
             review.content,
             maxLines: _isExpanded ? null : 4,
-            overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+            overflow:
+                _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 14,
               height: 1.4,

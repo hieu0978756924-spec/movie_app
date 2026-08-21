@@ -92,16 +92,13 @@ void main() {
       expect(homeBloc.state, equals(HomeInitialState()));
     });
 
-    test('emits [HomeLoadingState, HomeLoadedState] when FetchHomeMoviesEvent succeeds',
+    test(
+        'emits [HomeLoadingState, HomeLoadedState] when FetchHomeMoviesEvent succeeds',
         () async {
-      when(() => mockGetTrending())
-          .thenAnswer((_) async => Right([tMovie]));
-      when(() => mockGetNowPlaying())
-          .thenAnswer((_) async => Right([tMovie]));
-      when(() => mockGetPopular())
-          .thenAnswer((_) async => Right([tMovie]));
-      when(() => mockGetTopRated())
-          .thenAnswer((_) async => Right([tMovie]));
+      when(() => mockGetTrending()).thenAnswer((_) async => Right([tMovie]));
+      when(() => mockGetNowPlaying()).thenAnswer((_) async => Right([tMovie]));
+      when(() => mockGetPopular()).thenAnswer((_) async => Right([tMovie]));
+      when(() => mockGetTopRated()).thenAnswer((_) async => Right([tMovie]));
       when(() => mockGetUpcoming())
           .thenAnswer((_) async => Right([tUpcomingMovie]));
       when(() => mockWatchlistLocal.getWatchlist())
@@ -128,4 +125,3 @@ void main() {
     });
   });
 }
-

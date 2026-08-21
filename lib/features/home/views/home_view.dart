@@ -29,9 +29,8 @@ class HomeView extends StatelessWidget {
             backgroundColor:
                 isDark ? AppColors.darkBackground : AppColors.lightBackground,
             appBar: AppBar(
-              backgroundColor: isDark
-                  ? AppColors.darkBackground
-                  : AppColors.lightBackground,
+              backgroundColor:
+                  isDark ? AppColors.darkBackground : AppColors.lightBackground,
               elevation: 0,
               title: Row(
                 children: [
@@ -97,7 +96,6 @@ class HomeView extends StatelessWidget {
                     return const MovieSkeletonLoader();
                   }
 
-
                   if (state is HomeErrorState) {
                     return Center(
                       child: Column(
@@ -137,9 +135,7 @@ class HomeView extends StatelessWidget {
                       color: AppColors.primaryRed,
                       backgroundColor: AppColors.darkSurface,
                       onRefresh: () async {
-                        context
-                            .read<HomeBloc>()
-                            .add(RefreshHomeMoviesEvent());
+                        context.read<HomeBloc>().add(RefreshHomeMoviesEvent());
                       },
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -168,8 +164,7 @@ class HomeView extends StatelessWidget {
                               title: locale.translate('popular'),
                               movies: state.popularMovies,
                               onSeeAll: () {
-                                context
-                                    .push(RoutePath.categoryPath('popular'));
+                                context.push(RoutePath.categoryPath('popular'));
                               },
                             ),
                             MovieSectionWidget(

@@ -52,16 +52,19 @@ class ReviewModel {
       avatarPath: avatar ?? json['avatar_url'] as String?,
       rating: score,
       content: json['content'] as String? ?? '',
-      createdAt: json['created_at'] as String? ?? DateTime.now().toIso8601String(),
+      createdAt:
+          json['created_at'] as String? ?? DateTime.now().toIso8601String(),
     );
   }
 
   Review toEntity() {
     String? fullAvatar = avatarPath;
     if (fullAvatar != null) {
-      if (fullAvatar.startsWith('/http://') || fullAvatar.startsWith('/https://')) {
+      if (fullAvatar.startsWith('/http://') ||
+          fullAvatar.startsWith('/https://')) {
         fullAvatar = fullAvatar.substring(1);
-      } else if (!fullAvatar.startsWith('http://') && !fullAvatar.startsWith('https://')) {
+      } else if (!fullAvatar.startsWith('http://') &&
+          !fullAvatar.startsWith('https://')) {
         fullAvatar = ImageUrlHelper.getProfileUrl(fullAvatar);
       }
     }

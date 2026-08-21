@@ -35,7 +35,8 @@ class WatchlistRemoteDataSourceImpl implements WatchlistRemoteDataSource {
           theLoai: row['genre'] as String? ?? 'Phim',
           namPhatHanh: row['release_year'] as int? ?? 2026,
           daXem: row['watched'] as bool? ?? false,
-          addedAt: row['added_at'] as String? ?? DateTime.now().toIso8601String(),
+          addedAt:
+              row['added_at'] as String? ?? DateTime.now().toIso8601String(),
         ));
       }
     }
@@ -43,7 +44,8 @@ class WatchlistRemoteDataSourceImpl implements WatchlistRemoteDataSource {
   }
 
   @override
-  Future<void> upsertRemoteWatchlist(String userId, WatchlistItemModel item) async {
+  Future<void> upsertRemoteWatchlist(
+      String userId, WatchlistItemModel item) async {
     await supabaseClient.from(SupabaseConstants.watchlistTable).upsert(
       {
         'user_id': userId,

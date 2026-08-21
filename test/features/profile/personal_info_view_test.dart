@@ -17,7 +17,9 @@ void main() {
     );
   });
 
-  testWidgets('PersonalInfoView renders name, date of birth, gender, and email fields', (WidgetTester tester) async {
+  testWidgets(
+      'PersonalInfoView renders name, date of birth, gender, and email fields',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: PersonalInfoView(),
@@ -43,7 +45,8 @@ void main() {
     expect(find.text('Lưu thay đổi'), findsOneWidget);
   });
 
-  testWidgets('Updating PersonalInfo updates UserProfileManager state', (WidgetTester tester) async {
+  testWidgets('Updating PersonalInfo updates UserProfileManager state',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: PersonalInfoView(),
@@ -51,7 +54,8 @@ void main() {
     );
 
     // Enter new name and email
-    final nameFinder = find.widgetWithText(TextFormField, 'Nguyễn Ngọc Như Hiếu');
+    final nameFinder =
+        find.widgetWithText(TextFormField, 'Nguyễn Ngọc Như Hiếu');
     await tester.enterText(nameFinder, 'Trần Văn A');
 
     final emailFinder = find.widgetWithText(TextFormField, 'nhuhieu@gmail.com');
@@ -65,10 +69,12 @@ void main() {
 
     // Verify UserProfileManager updated
     expect(UserProfileManager.instance.profile.value.name, 'Trần Văn A');
-    expect(UserProfileManager.instance.profile.value.email, 'tranvana@gmail.com');
+    expect(
+        UserProfileManager.instance.profile.value.email, 'tranvana@gmail.com');
   });
 
-  testWidgets('ProfileView reflects updated name and email dynamically', (WidgetTester tester) async {
+  testWidgets('ProfileView reflects updated name and email dynamically',
+      (WidgetTester tester) async {
     UserProfileManager.instance.updateProfile(
       name: 'Lê Thị B',
       email: 'lethib@gmail.com',

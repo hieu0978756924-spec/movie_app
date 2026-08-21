@@ -10,7 +10,9 @@ void main() {
     interceptor = ErrorInterceptor();
   });
 
-  test('should throw ServerException when DioException response status is 4xx or 5xx', () {
+  test(
+      'should throw ServerException when DioException response status is 4xx or 5xx',
+      () {
     final response = Response(
       requestOptions: RequestOptions(path: '/movie/1'),
       statusCode: 404,

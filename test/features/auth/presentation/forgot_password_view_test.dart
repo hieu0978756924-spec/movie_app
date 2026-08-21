@@ -40,8 +40,8 @@ void main() {
       expect(find.text('Khôi phục mật khẩu'), findsOneWidget);
       expect(find.byKey(const Key('forgot_email_field')), findsOneWidget);
       expect(find.byKey(const Key('forgot_submit_button')), findsOneWidget);
-      expect(find.byKey(const Key('forgot_back_to_login_button')),
-          findsOneWidget);
+      expect(
+          find.byKey(const Key('forgot_back_to_login_button')), findsOneWidget);
     });
 
     testWidgets('Shows validation errors for empty and invalid email',

@@ -125,16 +125,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final upcomingResult = results[4];
 
     var trending = trendingResult.fold((_) => <Movie>[], (movies) => movies);
-    var nowPlaying = nowPlayingResult.fold((_) => <Movie>[], (movies) => movies);
+    var nowPlaying =
+        nowPlayingResult.fold((_) => <Movie>[], (movies) => movies);
     var popular = popularResult.fold((_) => <Movie>[], (movies) => movies);
     var topRated = topRatedResult.fold((_) => <Movie>[], (movies) => movies);
     var upcoming = upcomingResult.fold((_) => <Movie>[], (movies) => movies);
 
     if (trending.isEmpty) trending = HomeController.instance.danhSachPhimHot;
-    if (nowPlaying.isEmpty) nowPlaying = HomeController.instance.danhSachPhimDangChieu;
+    if (nowPlaying.isEmpty)
+      nowPlaying = HomeController.instance.danhSachPhimDangChieu;
     if (popular.isEmpty) popular = HomeController.instance.danhSachPhimPhoBien;
-    if (topRated.isEmpty) topRated = HomeController.instance.danhSachPhimDanhGiaCao;
-    if (upcoming.isEmpty) upcoming = HomeController.instance.danhSachPhimSapChieu;
+    if (topRated.isEmpty)
+      topRated = HomeController.instance.danhSachPhimDanhGiaCao;
+    if (upcoming.isEmpty)
+      upcoming = HomeController.instance.danhSachPhimSapChieu;
 
     final nowPlayingIds = nowPlaying.map((m) => m.id).toSet();
     upcoming = upcoming.where((m) => !nowPlayingIds.contains(m.id)).toList();
@@ -168,4 +172,3 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 }
-

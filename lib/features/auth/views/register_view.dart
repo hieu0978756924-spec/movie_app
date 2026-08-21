@@ -126,12 +126,14 @@ class _RegisterViewState extends State<RegisterView> {
                               SnackBar(
                                 content: Row(
                                   children: [
-                                    const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                                    const Icon(Icons.error_outline,
+                                        color: Colors.white, size: 20),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         state.message,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ),
                                   ],
@@ -142,7 +144,6 @@ class _RegisterViewState extends State<RegisterView> {
                             );
                           }
                         },
-
                         builder: (context, state) {
                           final isLoading = state is AuthLoadingState;
 
@@ -155,14 +156,17 @@ class _RegisterViewState extends State<RegisterView> {
                                 height: 72,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(18),
-                                  color: AppColors.darkSurface.withValues(alpha: 0.8),
+                                  color: AppColors.darkSurface
+                                      .withValues(alpha: 0.8),
                                   border: Border.all(
-                                    color: AppColors.neonCoral.withValues(alpha: 0.3),
+                                    color: AppColors.neonCoral
+                                        .withValues(alpha: 0.3),
                                     width: 1.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.neonCoral.withValues(alpha: 0.25),
+                                      color: AppColors.neonCoral
+                                          .withValues(alpha: 0.25),
                                       blurRadius: 24,
                                       spreadRadius: 1,
                                     ),
@@ -199,13 +203,16 @@ class _RegisterViewState extends State<RegisterView> {
                               GlassCard(
                                 blur: 40,
                                 borderRadius: BorderRadius.circular(24),
-                                backgroundColor: Colors.white.withValues(alpha: 0.06),
-                                borderColor: Colors.white.withValues(alpha: 0.12),
+                                backgroundColor:
+                                    Colors.white.withValues(alpha: 0.06),
+                                borderColor:
+                                    Colors.white.withValues(alpha: 0.12),
                                 padding: const EdgeInsets.all(24),
                                 child: Form(
                                   key: _formKey,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Accent line
                                       Container(
@@ -215,7 +222,8 @@ class _RegisterViewState extends State<RegisterView> {
                                           gradient: LinearGradient(
                                             colors: [
                                               Colors.transparent,
-                                              AppColors.neonCoral.withValues(alpha: 0.6),
+                                              AppColors.neonCoral
+                                                  .withValues(alpha: 0.6),
                                               Colors.transparent,
                                             ],
                                           ),
@@ -229,7 +237,8 @@ class _RegisterViewState extends State<RegisterView> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.6),
                                           letterSpacing: 1.1,
                                         ),
                                       ),
@@ -238,9 +247,11 @@ class _RegisterViewState extends State<RegisterView> {
                                         key: const Key('register_name_field'),
                                         controller: nameController,
                                         enabled: !isLoading,
-                                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 15),
                                         validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
                                             return "Vui lòng nhập họ và tên";
                                           }
                                           if (value.trim().length < 2) {
@@ -251,28 +262,42 @@ class _RegisterViewState extends State<RegisterView> {
                                         decoration: InputDecoration(
                                           hintText: "Nhập họ và tên của bạn",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.person_outline_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 14),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: const BorderSide(color: AppColors.neonCoral, width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                                color: AppColors.neonCoral,
+                                                width: 1.5),
                                           ),
                                         ),
                                       ),
@@ -284,7 +309,8 @@ class _RegisterViewState extends State<RegisterView> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.6),
                                           letterSpacing: 1.1,
                                         ),
                                       ),
@@ -294,20 +320,26 @@ class _RegisterViewState extends State<RegisterView> {
                                         controller: dobController,
                                         readOnly: true,
                                         enabled: !isLoading,
-                                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 15),
                                         onTap: () async {
-                                          final pickedDate = await showDatePicker(
+                                          final pickedDate =
+                                              await showDatePicker(
                                             context: context,
                                             initialDate: DateTime(2000, 1, 1),
                                             firstDate: DateTime(1930),
                                             lastDate: DateTime.now(),
                                             builder: (context, child) {
                                               return Theme(
-                                                data: Theme.of(context).copyWith(
-                                                  colorScheme: const ColorScheme.dark(
-                                                    primary: AppColors.neonCoral,
+                                                data:
+                                                    Theme.of(context).copyWith(
+                                                  colorScheme:
+                                                      const ColorScheme.dark(
+                                                    primary:
+                                                        AppColors.neonCoral,
                                                     onPrimary: Colors.white,
-                                                    surface: AppColors.darkSurface,
+                                                    surface:
+                                                        AppColors.darkSurface,
                                                     onSurface: Colors.white,
                                                   ),
                                                 ),
@@ -321,41 +353,58 @@ class _RegisterViewState extends State<RegisterView> {
                                           }
                                         },
                                         validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
                                             return "Vui lòng chọn ngày tháng năm sinh";
                                           }
                                           return null;
                                         },
                                         decoration: InputDecoration(
-                                          hintText: "DD/MM/YYYY (Nhấn chọn ngày sinh)",
+                                          hintText:
+                                              "DD/MM/YYYY (Nhấn chọn ngày sinh)",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.calendar_today_outlined,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           suffixIcon: Icon(
                                             Icons.arrow_drop_down_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 24,
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 14),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: const BorderSide(color: AppColors.neonCoral, width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                                color: AppColors.neonCoral,
+                                                width: 1.5),
                                           ),
                                         ),
                                       ),
@@ -367,7 +416,8 @@ class _RegisterViewState extends State<RegisterView> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.6),
                                           letterSpacing: 1.1,
                                         ),
                                       ),
@@ -375,44 +425,64 @@ class _RegisterViewState extends State<RegisterView> {
                                       TextFormField(
                                         key: const Key('register_email_field'),
                                         controller: emailController,
-                                        keyboardType: TextInputType.emailAddress,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
                                         enabled: !isLoading,
-                                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 15),
                                         validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
                                             return "Vui lòng nhập địa chỉ email";
                                           }
-                                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                                          if (!emailRegex.hasMatch(value.trim())) {
+                                          final emailRegex = RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                          if (!emailRegex
+                                              .hasMatch(value.trim())) {
                                             return "Email không đúng định dạng (vd: name@domain.com)";
                                           }
                                           return null;
                                         },
                                         decoration: InputDecoration(
-                                          hintText: "Nhập địa chỉ email của bạn",
+                                          hintText:
+                                              "Nhập địa chỉ email của bạn",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.mail_outline_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 14),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: const BorderSide(color: AppColors.neonCoral, width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                                color: AppColors.neonCoral,
+                                                width: 1.5),
                                           ),
                                         ),
                                       ),
@@ -424,17 +494,20 @@ class _RegisterViewState extends State<RegisterView> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.6),
                                           letterSpacing: 1.1,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
                                       TextFormField(
-                                        key: const Key('register_password_field'),
+                                        key: const Key(
+                                            'register_password_field'),
                                         controller: passwordController,
                                         obscureText: hidePassword,
                                         enabled: !isLoading,
-                                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 15),
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
                                             return "Vui lòng nhập mật khẩu";
@@ -442,8 +515,10 @@ class _RegisterViewState extends State<RegisterView> {
                                           if (value.length < 6) {
                                             return "Mật khẩu phải từ 6 ký tự trở lên";
                                           }
-                                          final hasLetter = value.contains(RegExp(r'[a-zA-Z]'));
-                                          final hasDigits = value.contains(RegExp(r'[0-9]'));
+                                          final hasLetter = value
+                                              .contains(RegExp(r'[a-zA-Z]'));
+                                          final hasDigits =
+                                              value.contains(RegExp(r'[0-9]'));
                                           if (!hasLetter || !hasDigits) {
                                             return "Mật khẩu bảo mật phải chứa cả chữ và số";
                                           }
@@ -452,18 +527,24 @@ class _RegisterViewState extends State<RegisterView> {
                                         decoration: InputDecoration(
                                           hintText: "Ít nhất 6 ký tự",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.lock_outline_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           suffixIcon: IconButton(
                                             icon: Icon(
-                                              hidePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                              color: Colors.white.withValues(alpha: 0.6),
+                                              hidePassword
+                                                  ? Icons.visibility_outlined
+                                                  : Icons
+                                                      .visibility_off_outlined,
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.6),
                                               size: 20,
                                             ),
                                             onPressed: () {
@@ -473,19 +554,31 @@ class _RegisterViewState extends State<RegisterView> {
                                             },
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 14),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: const BorderSide(color: AppColors.neonCoral, width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                                color: AppColors.neonCoral,
+                                                width: 1.5),
                                           ),
                                         ),
                                       ),
@@ -497,22 +590,26 @@ class _RegisterViewState extends State<RegisterView> {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.6),
                                           letterSpacing: 1.1,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
                                       TextFormField(
-                                        key: const Key('register_confirm_password_field'),
+                                        key: const Key(
+                                            'register_confirm_password_field'),
                                         controller: confirmController,
                                         obscureText: hideConfirmPassword,
                                         enabled: !isLoading,
-                                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 15),
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
                                             return "Vui lòng xác nhận mật khẩu";
                                           }
-                                          if (value != passwordController.text) {
+                                          if (value !=
+                                              passwordController.text) {
                                             return "Mật khẩu không khớp";
                                           }
                                           return null;
@@ -520,40 +617,59 @@ class _RegisterViewState extends State<RegisterView> {
                                         decoration: InputDecoration(
                                           hintText: "Xác nhận lại mật khẩu",
                                           hintStyle: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.35),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.35),
                                             fontSize: 14,
                                           ),
                                           prefixIcon: Icon(
                                             Icons.lock_outline_rounded,
-                                            color: Colors.white.withValues(alpha: 0.6),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.6),
                                             size: 20,
                                           ),
                                           suffixIcon: IconButton(
                                             icon: Icon(
-                                              hideConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                              color: Colors.white.withValues(alpha: 0.6),
+                                              hideConfirmPassword
+                                                  ? Icons.visibility_outlined
+                                                  : Icons
+                                                      .visibility_off_outlined,
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.6),
                                               size: 20,
                                             ),
                                             onPressed: () {
                                               setState(() {
-                                                hideConfirmPassword = !hideConfirmPassword;
+                                                hideConfirmPassword =
+                                                    !hideConfirmPassword;
                                               });
                                             },
                                           ),
                                           filled: true,
-                                          fillColor: AppColors.glassInputSurface,
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                          fillColor:
+                                              AppColors.glassInputSurface,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 14),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: BorderSide(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.1)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                            borderSide: const BorderSide(color: AppColors.neonCoral, width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            borderSide: const BorderSide(
+                                                color: AppColors.neonCoral,
+                                                width: 1.5),
                                           ),
                                         ),
                                       ),
@@ -564,22 +680,30 @@ class _RegisterViewState extends State<RegisterView> {
                                         width: double.infinity,
                                         height: 52,
                                         child: ElevatedButton(
-                                          key: const Key('register_submit_button'),
-                                          onPressed: isLoading ? null : () => _onRegisterPressed(context, authBloc),
+                                          key: const Key(
+                                              'register_submit_button'),
+                                          onPressed: isLoading
+                                              ? null
+                                              : () => _onRegisterPressed(
+                                                  context, authBloc),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.neonCoral,
+                                            backgroundColor:
+                                                AppColors.neonCoral,
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(14),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
                                             ),
                                             elevation: 8,
-                                            shadowColor: AppColors.neonCoral.withValues(alpha: 0.4),
+                                            shadowColor: AppColors.neonCoral
+                                                .withValues(alpha: 0.4),
                                           ),
                                           child: isLoading
                                               ? const SizedBox(
                                                   height: 22,
                                                   width: 22,
-                                                  child: CircularProgressIndicator(
+                                                  child:
+                                                      CircularProgressIndicator(
                                                     strokeWidth: 2.5,
                                                     color: Colors.white,
                                                   ),
@@ -608,7 +732,8 @@ class _RegisterViewState extends State<RegisterView> {
                                     "Đã có tài khoản? ",
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.white.withValues(alpha: 0.6),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.6),
                                     ),
                                   ),
                                   GestureDetector(

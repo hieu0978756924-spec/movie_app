@@ -27,7 +27,8 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     final profile = UserProfileManager.instance.profile.value;
     _nameController = TextEditingController(text: profile.name);
     _emailController = TextEditingController(text: profile.email);
-    _selectedGender = _genderOptions.contains(profile.gender) ? profile.gender : 'Nam';
+    _selectedGender =
+        _genderOptions.contains(profile.gender) ? profile.gender : 'Nam';
     _dobController = TextEditingController(text: profile.dob);
   }
 
@@ -106,19 +107,23 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        backgroundColor:
+            isDark ? AppColors.darkSurface : AppColors.lightSurface,
         elevation: 0,
         title: Text(
           'Thông tin cá nhân',
           style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
         iconTheme: IconThemeData(
-          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          color:
+              isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       body: SingleChildScrollView(
@@ -175,7 +180,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                       TextFormField(
                         controller: _nameController,
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                         decoration: _buildInputDecoration(
                           hintText: 'Nhập họ và tên',
@@ -199,7 +206,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                         readOnly: true,
                         onTap: () => _selectDate(context),
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                         decoration: _buildInputDecoration(
                           hintText: 'Chọn ngày tháng năm sinh',
@@ -220,9 +229,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         initialValue: _selectedGender,
-                        dropdownColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                        dropdownColor:
+                            isDark ? AppColors.darkCard : AppColors.lightCard,
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                         decoration: _buildInputDecoration(
                           hintText: 'Chọn giới tính',
@@ -235,7 +247,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                             child: Text(
                               gender,
                               style: TextStyle(
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
                               ),
                             ),
                           );
@@ -257,7 +271,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                         decoration: _buildInputDecoration(
                           hintText: 'Nhập địa chỉ email',
@@ -268,7 +284,8 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                           if (value == null || value.trim().isEmpty) {
                             return 'Vui lòng nhập email';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              .hasMatch(value)) {
                             return 'Email không hợp lệ';
                           }
                           return null;
@@ -316,7 +333,8 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
       style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+        color:
+            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
       ),
     );
   }
@@ -333,10 +351,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
       ),
       prefixIcon: Icon(
         icon,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+        color:
+            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
       ),
       filled: true,
-      fillColor: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+      fillColor:
+          isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

@@ -53,6 +53,7 @@ class _ProfileViewState extends State<ProfileView> {
         try {
           await context.push(RoutePath.personalInfo);
         } catch (_) {
+          if (!context.mounted) return;
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -73,6 +74,7 @@ class _ProfileViewState extends State<ProfileView> {
         try {
           await context.push(RoutePath.watchedVideos);
         } catch (_) {
+          if (!context.mounted) return;
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -93,6 +95,7 @@ class _ProfileViewState extends State<ProfileView> {
         try {
           await context.push(RoutePath.userReviews);
         } catch (_) {
+          if (!context.mounted) return;
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -118,7 +121,6 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-
   ThemeCubit _getOrCreateThemeCubit(BuildContext context) {
     try {
       return BlocProvider.of<ThemeCubit>(context);
@@ -143,27 +145,35 @@ class _ProfileViewState extends State<ProfileView> {
           context: context,
           builder: (ctx) {
             return AlertDialog(
-              backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+              backgroundColor:
+                  isDark ? AppColors.darkCard : AppColors.lightCard,
               title: Text(
                 'Đổi Tên Hiển Thị',
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               content: TextField(
                 controller: controller,
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
                 decoration: InputDecoration(
                   labelText: 'Họ và Tên',
                   hintText: 'Nhập tên mới...',
                   labelStyle: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                   focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.primaryRed, width: 1.5),
+                    borderSide:
+                        BorderSide(color: AppColors.primaryRed, width: 1.5),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -176,7 +186,9 @@ class _ProfileViewState extends State<ProfileView> {
                   child: Text(
                     'Hủy',
                     style: TextStyle(
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                   ),
                 ),
@@ -197,7 +209,8 @@ class _ProfileViewState extends State<ProfileView> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryRed,
                   ),
-                  child: const Text('Lưu', style: TextStyle(color: Colors.white)),
+                  child:
+                      const Text('Lưu', style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -213,7 +226,6 @@ class _ProfileViewState extends State<ProfileView> {
       actionName: 'thay đổi ảnh đại diện',
       onAuthenticated: () {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        final urlController = TextEditingController();
 
         final presets = [
           'assets/images/avatar.jpg',
@@ -229,9 +241,15 @@ class _ProfileViewState extends State<ProfileView> {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
+          isScrollControlled: true,
           builder: (ctx) {
             return Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -242,7 +260,9 @@ class _ProfileViewState extends State<ProfileView> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -257,7 +277,8 @@ class _ProfileViewState extends State<ProfileView> {
                           final isAsset = item.startsWith('assets/');
                           return GestureDetector(
                             onTap: () {
-                              UserProfileManager.instance.updateProfile(avatarPath: item);
+                              UserProfileManager.instance
+                                  .updateProfile(avatarPath: item);
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -275,57 +296,6 @@ class _ProfileViewState extends State<ProfileView> {
                           );
                         },
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Hoặc nhập URL ảnh:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: urlController,
-                            style: TextStyle(
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'https://example.com/avatar.jpg',
-                              hintStyle: TextStyle(
-                                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            final url = urlController.text.trim();
-                            if (url.isNotEmpty) {
-                              UserProfileManager.instance.updateProfile(avatarPath: url);
-                              Navigator.pop(ctx);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Đã cập nhật ảnh đại diện mới!'),
-                                  backgroundColor: AppColors.success,
-                                ),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryRed,
-                          ),
-                          child: const Text('Áp dụng', style: TextStyle(color: Colors.white)),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -348,14 +318,18 @@ class _ProfileViewState extends State<ProfileView> {
           title: Text(
             'Đăng Xuất',
             style: TextStyle(
-              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng Góc Phim?',
             style: TextStyle(
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
             ),
           ),
           actions: [
@@ -364,7 +338,9 @@ class _ProfileViewState extends State<ProfileView> {
               child: Text(
                 'Hủy',
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
             ),
@@ -403,11 +379,11 @@ class _ProfileViewState extends State<ProfileView> {
                   }
                 }
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryRed,
               ),
-              child: const Text('Đăng Xuất', style: TextStyle(color: Colors.white)),
+              child: const Text('Đăng Xuất',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -416,6 +392,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<int> _fetchWatchlistCount() async {
+    if (UserSession.instance.isGuestMode) return 0;
     try {
       final list = await getIt<WatchlistLocalDataSource>().getWatchlist();
       return list.length;
@@ -441,19 +418,15 @@ class _ProfileViewState extends State<ProfileView> {
           final isDark = themeMode == ThemeMode.dark;
 
           return Scaffold(
-            backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+            backgroundColor:
+                isDark ? AppColors.darkBackground : AppColors.lightBackground,
             appBar: AppBar(
-              backgroundColor: (isDark ? AppColors.darkBackground : AppColors.lightBackground)
+              backgroundColor: (isDark
+                      ? AppColors.darkBackground
+                      : AppColors.lightBackground)
                   .withAlpha(200),
               elevation: 0,
               centerTitle: true,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.menu,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                ),
-                onPressed: () {},
-              ),
               title: const Text(
                 'Tài Khoản',
                 style: TextStyle(
@@ -462,15 +435,6 @@ class _ProfileViewState extends State<ProfileView> {
                   color: AppColors.primaryRed,
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.notifications_outlined,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                  ),
-                  onPressed: () {},
-                ),
-              ],
             ),
             body: RefreshIndicator(
               color: AppColors.primaryRed,
@@ -480,349 +444,352 @@ class _ProfileViewState extends State<ProfileView> {
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
-                children: [
-                  //-----------------------------------------
-                  // PROFILE HEADER (AVATAR, NAME, VIP BADGE, EMAIL)
-                  //-----------------------------------------
-                  ValueListenableBuilder<UserProfile>(
-                    valueListenable: UserProfileManager.instance.profile,
-                    builder: (context, profile, child) {
-                      final isGuest = UserSession.instance.isGuestMode;
-                      final displayName = isGuest ? 'Khách Trải Nghiệm' : profile.name;
-                      final displayEmail = isGuest ? 'Chưa đăng nhập tài khoản' : profile.email;
+                  children: [
+                    //-----------------------------------------
+                    // PROFILE HEADER (AVATAR, NAME, VIP BADGE, EMAIL)
+                    //-----------------------------------------
+                    ValueListenableBuilder<UserProfile>(
+                      valueListenable: UserProfileManager.instance.profile,
+                      builder: (context, profile, child) {
+                        final isGuest = UserSession.instance.isGuestMode;
+                        final displayName =
+                            isGuest ? 'Khách Trải Nghiệm' : profile.name;
+                        final displayEmail = isGuest
+                            ? 'Chưa đăng nhập tài khoản'
+                            : profile.email;
 
-                      return Column(
-                        children: [
-                          Center(
-                            child: Stack(
-                              children: [
-                                GestureDetector(
-                                  onTap: () => _showAvatarPickerDialog(context),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.primaryRed,
-                                        width: 2.5,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppColors.primaryRed.withAlpha(80),
-                                          blurRadius: 16,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                    child: CircleAvatar(
-                                      radius: 52,
-                                      backgroundImage: isGuest
-                                          ? const AssetImage('assets/images/avatar.jpg') as ImageProvider
-                                          : _getAvatarImage(profile.avatarPath),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () => _showAvatarPickerDialog(context),
+                        return Column(
+                          children: [
+                            Center(
+                              child: Stack(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () =>
+                                        _showAvatarPickerDialog(context),
                                     child: Container(
-                                      padding: const EdgeInsets.all(7),
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.primaryRed,
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
                                         shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.primaryRed,
+                                          width: 2.5,
+                                        ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black38,
-                                            blurRadius: 6,
+                                            color: AppColors.primaryRed
+                                                .withAlpha(80),
+                                            blurRadius: 16,
+                                            spreadRadius: 2,
                                           ),
                                         ],
                                       ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 16,
+                                      child: CircleAvatar(
+                                        radius: 52,
+                                        backgroundImage: isGuest
+                                            ? const AssetImage(
+                                                    'assets/images/avatar.jpg')
+                                                as ImageProvider
+                                            : _getAvatarImage(
+                                                profile.avatarPath),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Name + VIP / Guest Badge Row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () => _showEditNameDialog(context, displayName),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      displayName,
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: isDark
-                                            ? AppColors.darkTextPrimary
-                                            : AppColors.lightTextPrimary,
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          _showAvatarPickerDialog(context),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(7),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.primaryRed,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black38,
+                                              blurRadius: 6,
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
-                                    Icon(
-                                      Icons.edit,
-                                      size: 18,
-                                      color: isDark
-                                          ? AppColors.darkTextSecondary
-                                          : AppColors.lightTextSecondary,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: isGuest
-                                      ? AppColors.primaryRed.withAlpha(40)
-                                      : const Color(0xFFFFB800).withAlpha(40),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: isGuest
-                                        ? AppColors.primaryRed.withAlpha(120)
-                                        : const Color(0xFFFFB800).withAlpha(100),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Name + VIP / Guest Badge Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () =>
+                                      _showEditNameDialog(context, displayName),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        displayName,
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? AppColors.darkTextPrimary
+                                              : AppColors.lightTextPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color: isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.lightTextSecondary,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      isGuest ? Icons.person_outline : Icons.star_rounded,
-                                      color: isGuest ? AppColors.primaryRed : const Color(0xFFFFB800),
-                                      size: 13,
+                                if (isGuest) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryRed.withAlpha(40),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color:
+                                            AppColors.primaryRed.withAlpha(120),
+                                      ),
                                     ),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                      isGuest ? 'Khách' : 'VIP',
+                                    child: const Text(
+                                      'Khách',
                                       style: TextStyle(
-                                        color: isGuest ? AppColors.primaryRed : const Color(0xFFFFB800),
+                                        color: AppColors.primaryRed,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-
-                          // Email or Guest Prompt
-                          Text(
-                            displayEmail,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.lightTextSecondary,
+                                  ),
+                                ],
+                              ],
                             ),
+                            const SizedBox(height: 6),
+
+                            // Email or Guest Prompt
+                            Text(
+                              displayEmail,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.lightTextSecondary,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    //-----------------------------------------
+                    // STATS CARDS SECTION (3 GLASS CARDS)
+                    //-----------------------------------------
+                    ValueListenableBuilder<List<WatchedVideoItem>>(
+                      valueListenable: WatchHistoryManager.instance.history,
+                      builder: (context, watchedList, child) {
+                        return Row(
+                          children: [
+                            // Phim đã xem Card
+                            Expanded(
+                              child: _buildStatCard(
+                                context,
+                                title: 'Phim đã xem',
+                                count: watchedList.length.toString(),
+                                accentColor: AppColors.primaryRed,
+                                isDark: isDark,
+                                onTap: () => _navigateToWatchedVideos(context),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+
+                            // Watchlist Card
+                            Expanded(
+                              child: FutureBuilder<int>(
+                                future: _fetchWatchlistCount(),
+                                builder: (context, snapshot) {
+                                  final count =
+                                      snapshot.data?.toString() ?? '0';
+                                  return _buildStatCard(
+                                    context,
+                                    title: 'Watchlist',
+                                    count: count,
+                                    accentColor: AppColors.accentGold,
+                                    isDark: isDark,
+                                    onTap: () => _navigateToWatchlist(context),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+
+                            // Đánh giá Card
+                            Expanded(
+                              child: ValueListenableBuilder<
+                                  Map<int, UserReviewItem>>(
+                                valueListenable: UserReviewManager
+                                    .instance.userReviewsNotifier,
+                                builder: (context, userReviews, child) {
+                                  return _buildStatCard(
+                                    context,
+                                    title: 'Đánh giá',
+                                    count: userReviews.length.toString(),
+                                    accentColor: AppColors.accentGold,
+                                    isDark: isDark,
+                                    onTap: () =>
+                                        _navigateToUserReviews(context),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    //-----------------------------------------
+                    // MENU LIST SECTION (GLASS PANEL CONTAINER)
+                    //-----------------------------------------
+                    Material(
+                      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                      borderRadius: BorderRadius.circular(16),
+                      clipBehavior: Clip.antiAlias,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withAlpha(15)
+                                : Colors.black.withAlpha(10),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  //-----------------------------------------
-                  // STATS CARDS SECTION (3 GLASS CARDS)
-                  //-----------------------------------------
-                  ValueListenableBuilder<List<WatchedVideoItem>>(
-                    valueListenable: WatchHistoryManager.instance.history,
-                    builder: (context, watchedList, child) {
-                      return Row(
-                        children: [
-                          // Phim đã xem Card
-                          Expanded(
-                            child: _buildStatCard(
+                          boxShadow: isDark
+                              ? []
+                              : [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(8),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                        ),
+                        child: Column(
+                          children: [
+                            _buildMenuItem(
                               context,
-                              title: 'Phim đã xem',
-                              count: watchedList.length.toString(),
-                              accentColor: AppColors.primaryRed,
+                              icon: Icons.person_outline,
+                              title: 'Chỉnh sửa profile',
+                              isDark: isDark,
+                              onTap: () => _navigateToPersonalInfo(context),
+                            ),
+                            _buildDivider(isDark),
+                            _buildMenuItem(
+                              context,
+                              icon: Icons.history,
+                              title: 'Video đã xem',
                               isDark: isDark,
                               onTap: () => _navigateToWatchedVideos(context),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-
-                          // Watchlist Card
-                          Expanded(
-                            child: FutureBuilder<int>(
-                              future: _fetchWatchlistCount(),
-                              builder: (context, snapshot) {
-                                final count = snapshot.data?.toString() ?? '0';
-                                return _buildStatCard(
-                                  context,
-                                  title: 'Watchlist',
-                                  count: count,
-                                  accentColor: AppColors.accentGold,
-                                  isDark: isDark,
-                                  onTap: () => _navigateToWatchlist(context),
+                            _buildDivider(isDark),
+                            _buildMenuItemWithSwitch(
+                              context,
+                              icon: isDark
+                                  ? Icons.dark_mode_outlined
+                                  : Icons.light_mode_outlined,
+                              title: 'Chế độ Giao diện (Tối / Sáng)',
+                              value: isDark,
+                              isDark: isDark,
+                              onChanged: (val) {
+                                getIt<ThemeCubit>().setThemeMode(
+                                  val ? ThemeMode.dark : ThemeMode.light,
                                 );
                               },
                             ),
-                          ),
-                          const SizedBox(width: 12),
-
-                          // Đánh giá Card
-                          Expanded(
-                            child: ValueListenableBuilder<Map<int, UserReviewItem>>(
-                              valueListenable: UserReviewManager.instance.userReviewsNotifier,
-                              builder: (context, userReviews, child) {
-                                return _buildStatCard(
-                                  context,
-                                  title: 'Đánh giá',
-                                  count: userReviews.length.toString(),
-                                  accentColor: AppColors.accentGold,
-                                  isDark: isDark,
-                                  onTap: () => _navigateToUserReviews(context),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  //-----------------------------------------
-                  // MENU LIST SECTION (GLASS PANEL CONTAINER)
-                  //-----------------------------------------
-                  Material(
-                    color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                    borderRadius: BorderRadius.circular(16),
-                    clipBehavior: Clip.antiAlias,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(10),
+                          ],
                         ),
-                        boxShadow: isDark
-                            ? []
-                            : [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(8),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                      ),
-                      child: Column(
-                        children: [
-                          _buildMenuItem(
-                            context,
-                            icon: Icons.person_outline,
-                            title: 'Chỉnh sửa profile',
-                            isDark: isDark,
-                            onTap: () => _navigateToPersonalInfo(context),
-                          ),
-                          _buildDivider(isDark),
-                          _buildMenuItem(
-                            context,
-                            icon: Icons.history,
-                            title: 'Video đã xem',
-                            isDark: isDark,
-                            onTap: () => _navigateToWatchedVideos(context),
-                          ),
-                          _buildDivider(isDark),
-                          _buildMenuItem(
-                            context,
-                            icon: Icons.rate_review_outlined,
-                            title: 'Đánh giá & Bình luận của tôi',
-                            isDark: isDark,
-                            onTap: () => _navigateToUserReviews(context),
-                          ),
-                          _buildDivider(isDark),
-                          _buildMenuItemWithSwitch(
-                            context,
-                            icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                            title: 'Chế độ Giao diện (Tối / Sáng)',
-                            value: isDark,
-                            isDark: isDark,
-                            onChanged: (val) {
-                              getIt<ThemeCubit>().setThemeMode(
-                                val ? ThemeMode.dark : ThemeMode.light,
-                              );
-                            },
-                          ),
-                        ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  //-----------------------------------------
-                  // AUTH ACTION BUTTON (LOGIN/LOGOUT)
-                  //-----------------------------------------
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        if (UserSession.instance.isGuestMode) {
-                          UserSession.instance.setGuestMode(false);
-                          try {
-                            context.push(RoutePath.login);
-                          } catch (_) {
-                            context.go(RoutePath.login);
+                    //-----------------------------------------
+                    // AUTH ACTION BUTTON (LOGIN/LOGOUT)
+                    //-----------------------------------------
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (UserSession.instance.isGuestMode) {
+                            UserSession.instance.setGuestMode(false);
+                            try {
+                              context.push(RoutePath.login);
+                            } catch (_) {
+                              context.go(RoutePath.login);
+                            }
+                          } else {
+                            _showLogoutConfirmDialog(context);
                           }
-                        } else {
-                          _showLogoutConfirmDialog(context);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryRed,
-                        foregroundColor: Colors.white,
-                        elevation: 6,
-                        shadowColor: AppColors.primaryRed.withAlpha(120),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryRed,
+                          foregroundColor: Colors.white,
+                          elevation: 6,
+                          shadowColor: AppColors.primaryRed.withAlpha(120),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
-                      ),
-                      icon: Icon(
-                        UserSession.instance.isGuestMode ? Icons.login_rounded : Icons.logout,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        UserSession.instance.isGuestMode ? 'Đăng Nhập / Đăng Ký' : 'Đăng Xuất',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        icon: Icon(
+                          UserSession.instance.isGuestMode
+                              ? Icons.login_rounded
+                              : Icons.logout,
                           color: Colors.white,
                         ),
+                        label: Text(
+                          UserSession.instance.isGuestMode
+                              ? 'Đăng Nhập / Đăng Ký'
+                              : 'Đăng Xuất',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildStatCard(
     BuildContext context, {
@@ -840,7 +807,9 @@ class _ProfileViewState extends State<ProfileView> {
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark ? Colors.white.withAlpha(15) : Colors.black.withAlpha(10),
+            color: isDark
+                ? Colors.white.withAlpha(15)
+                : Colors.black.withAlpha(10),
           ),
         ),
         child: Column(
@@ -882,14 +851,16 @@ class _ProfileViewState extends State<ProfileView> {
       onTap: onTap,
       leading: Icon(
         icon,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+        color:
+            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
       ),
       title: Text(
         title,
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w500,
-          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          color:
+              isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       trailing: Icon(
@@ -910,14 +881,16 @@ class _ProfileViewState extends State<ProfileView> {
     return ListTile(
       leading: Icon(
         icon,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+        color:
+            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
       ),
       title: Text(
         title,
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w500,
-          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          color:
+              isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       trailing: Switch(

@@ -9,7 +9,9 @@ void main() {
     interceptor = AuthInterceptor();
   });
 
-  test('should append api_key and language to queryParameters when onRequest is called', () {
+  test(
+      'should append api_key and language to queryParameters when onRequest is called',
+      () {
     final options = RequestOptions(path: '/trending/movie/week');
     final handler = RequestInterceptorHandler();
 

@@ -2,9 +2,9 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'route_names.dart';
-import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
+import '../../features/auth/views/forgot_password_view.dart';
 import '../../features/favorites/views/favorites_view.dart';
 import '../../features/watchlist/presentation/views/watchlist_view.dart';
 import '../../features/home/models/movie.dart';
@@ -22,7 +22,6 @@ import '../../features/actor/presentation/pages/actor_detail_page.dart';
 import '../../features/movie_detail/presentation/pages/movie_player_page.dart';
 import '../../features/home/controllers/home_controller.dart';
 import '../utils/user_session.dart';
-
 
 class AppRouter {
   static bool Function()? _authCheckOverride;
@@ -52,9 +51,7 @@ class AppRouter {
       final isSplash = state.matchedLocation == RoutePath.splash;
       final isLoggingIn = state.matchedLocation == RoutePath.login;
       final isRegistering = state.matchedLocation == RoutePath.register;
-      final isForgotPassword = state.matchedLocation == RoutePath.forgotPassword;
-
-      if (isSplash || isRegistering || isForgotPassword) {
+      if (isSplash || isRegistering) {
         return null;
       }
 
@@ -203,7 +200,10 @@ class AppRouter {
           if (movieExtra is Movie) {
             return MoviePlayerPage(
               movie: movieExtra,
-              youtubeKey: keyQuery ?? (movieExtra.trailerUrl.isNotEmpty ? movieExtra.trailerUrl : null),
+              youtubeKey: keyQuery ??
+                  (movieExtra.trailerUrl.isNotEmpty
+                      ? movieExtra.trailerUrl
+                      : null),
             );
           }
           if (movieExtra is Map<String, dynamic>) {
@@ -229,4 +229,3 @@ class AppRouter {
     ],
   );
 }
-

@@ -4,7 +4,6 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/youtube_utils.dart';
-import 'package:movie_app/features/profile/data/watch_history_manager.dart';
 import 'package:movie_app/features/home/models/movie.dart';
 import 'package:movie_app/features/home/domain/usecases/get_movie_trailers_usecase.dart';
 
@@ -31,7 +30,7 @@ class PipTrailerManager {
     required String youtubeKey,
     required String title,
     Movie? movie,
-    bool startInPip = false,
+    bool startIn = false,
   }) {
     String keyToPlay = YoutubeUtils.extractYoutubeKey(youtubeKey);
     if (keyToPlay.isEmpty && movie != null) {
@@ -55,7 +54,7 @@ class PipTrailerManager {
                 youtubeKey: apiKey,
                 title: title,
                 movie: movie,
-                startInPip: startInPip,
+                startIn: startIn,
               );
             }
           }
@@ -78,7 +77,7 @@ class PipTrailerManager {
     }
 
     if (_youtubeKey != keyToPlay || _controller == null) {
-      closePip();
+      close();
       _youtubeKey = keyToPlay;
       _title = title;
       _controller = YoutubePlayerController(
@@ -91,14 +90,14 @@ class PipTrailerManager {
       );
     }
 
-    if (startInPip) {
-      switchToPip(context);
+    if (startIn) {
+      switchTo(context);
     } else {
       _showDialogMode(context);
     }
   }
 
-  void playInPip(
+  void playIn(
     BuildContext context, {
     required String youtubeKey,
     required String title,
@@ -109,7 +108,7 @@ class PipTrailerManager {
       youtubeKey: youtubeKey,
       title: title,
       movie: movie,
-      startInPip: true,
+      startIn: true,
     );
   }
 
@@ -131,8 +130,10 @@ class PipTrailerManager {
           builder: (dContext, setDialogState) {
             return Dialog(
               backgroundColor: AppColors.darkSurface,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              insetPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: maxHeight,
@@ -144,7 +145,8 @@ class PipTrailerManager {
                     children: [
                       // Header
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         child: Row(
                           children: [
                             Expanded(
@@ -169,23 +171,26 @@ class PipTrailerManager {
                                 switchToVerticalDock(context);
                               },
                             ),
-                            // Button PiP Mode
+                            // Button  Mode
                             IconButton(
-                              tooltip: 'Thu nhỏ PiP (1/10 màn hình)',
-                              icon: const Icon(Icons.picture_in_picture_alt_rounded,
-                                  color: AppColors.primaryRed, size: 20),
+                              tooltip: 'Thu nhỏ  (1/10 màn hình)',
+                              icon: const Icon(
+                                  Icons.picture_in_picture_alt_rounded,
+                                  color: AppColors.primaryRed,
+                                  size: 20),
                               onPressed: () {
                                 Navigator.of(dialogContext).pop();
-                                switchToPip(context);
+                                switchTo(context);
                               },
                             ),
                             // Button Close
                             IconButton(
                               tooltip: 'Đóng',
-                              icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                              icon: const Icon(Icons.close,
+                                  color: Colors.white70, size: 20),
                               onPressed: () {
                                 Navigator.of(dialogContext).pop();
-                                closePip();
+                                close();
                               },
                             ),
                           ],
@@ -214,11 +219,12 @@ class PipTrailerManager {
 
                       // Player Control Toolbar: Fast Seek, Speed, Rotation, Fullscreen
                       Container(
-                        padding: const EdgeInsets.only(bottom: 6, top: 0, left: 6, right: 6),
+                        padding: const EdgeInsets.only(
+                            bottom: 6, top: 0, left: 6, right: 6),
                         decoration: const BoxDecoration(
                           color: Color(0xFF0F0F12),
-                          borderRadius:
-                              BorderRadius.vertical(bottom: Radius.circular(16)),
+                          borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(16)),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -226,16 +232,22 @@ class PipTrailerManager {
                             // 1. Timeline Progress Bar
                             if (_controller != null)
                               Builder(builder: (ctx) {
-                                final posMs = _controller!.value.position.inMilliseconds.toDouble();
-                                final durMs = _controller!.value.metaData.duration.inMilliseconds.toDouble();
+                                final posMs = _controller!
+                                    .value.position.inMilliseconds
+                                    .toDouble();
+                                final durMs = _controller!
+                                    .value.metaData.duration.inMilliseconds
+                                    .toDouble();
                                 final maxMs = durMs > 0 ? durMs : 1.0;
                                 final currentVal = posMs.clamp(0.0, maxMs);
 
                                 return SliderTheme(
                                   data: const SliderThemeData(
                                     trackHeight: 3.0,
-                                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5.0),
-                                    overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
+                                    thumbShape: RoundSliderThumbShape(
+                                        enabledThumbRadius: 5.0),
+                                    overlayShape: RoundSliderOverlayShape(
+                                        overlayRadius: 10.0),
                                     activeTrackColor: AppColors.primaryRed,
                                     inactiveTrackColor: Colors.white24,
                                     thumbColor: AppColors.primaryRed,
@@ -245,7 +257,8 @@ class PipTrailerManager {
                                     min: 0.0,
                                     max: maxMs,
                                     onChanged: (val) {
-                                      _controller?.seekTo(Duration(milliseconds: val.toInt()));
+                                      _controller?.seekTo(
+                                          Duration(milliseconds: val.toInt()));
                                     },
                                   ),
                                 );
@@ -262,7 +275,10 @@ class PipTrailerManager {
                                   IconButton(
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
-                                    tooltip: (_controller?.value.isPlaying ?? false) ? 'Tạm dừng' : 'Phát',
+                                    tooltip:
+                                        (_controller?.value.isPlaying ?? false)
+                                            ? 'Tạm dừng'
+                                            : 'Phát',
                                     icon: Icon(
                                       (_controller?.value.isPlaying ?? false)
                                           ? Icons.pause_rounded
@@ -271,7 +287,8 @@ class PipTrailerManager {
                                       size: 24,
                                     ),
                                     onPressed: () {
-                                      if (_controller?.value.isPlaying ?? false) {
+                                      if (_controller?.value.isPlaying ??
+                                          false) {
                                         _controller?.pause();
                                       } else {
                                         _controller?.play();
@@ -284,7 +301,11 @@ class PipTrailerManager {
                                   IconButton(
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
-                                    tooltip: ((_controller?.value.volume ?? 100) == 0) ? 'Bật âm' : 'Tắt âm',
+                                    tooltip:
+                                        ((_controller?.value.volume ?? 100) ==
+                                                0)
+                                            ? 'Bật âm'
+                                            : 'Tắt âm',
                                     icon: Icon(
                                       ((_controller?.value.volume ?? 100) == 0)
                                           ? Icons.volume_off_rounded
@@ -293,7 +314,8 @@ class PipTrailerManager {
                                       size: 20,
                                     ),
                                     onPressed: () {
-                                      if ((_controller?.value.volume ?? 100) == 0) {
+                                      if ((_controller?.value.volume ?? 100) ==
+                                          0) {
                                         _controller?.unMute();
                                         _controller?.setVolume(100);
                                       } else {
@@ -315,8 +337,11 @@ class PipTrailerManager {
                                           : '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
                                     }
 
-                                    final p = _controller?.value.position ?? Duration.zero;
-                                    final d = _controller?.value.metaData.duration ?? Duration.zero;
+                                    final p = _controller?.value.position ??
+                                        Duration.zero;
+                                    final d =
+                                        _controller?.value.metaData.duration ??
+                                            Duration.zero;
                                     return Text(
                                       '${fmt(p)} / ${fmt(d)}',
                                       style: const TextStyle(
@@ -334,11 +359,17 @@ class PipTrailerManager {
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     tooltip: 'Tua lùi 10s',
-                                    icon: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 20),
+                                    icon: const Icon(Icons.replay_10_rounded,
+                                        color: Colors.white, size: 20),
                                     onPressed: () {
-                                      final currentPos = _controller?.value.position ?? Duration.zero;
-                                      final target = currentPos - const Duration(seconds: 10);
-                                      _controller?.seekTo(target < Duration.zero ? Duration.zero : target);
+                                      final currentPos =
+                                          _controller?.value.position ??
+                                              Duration.zero;
+                                      final target = currentPos -
+                                          const Duration(seconds: 10);
+                                      _controller?.seekTo(target < Duration.zero
+                                          ? Duration.zero
+                                          : target);
                                     },
                                   ),
                                   const SizedBox(width: 6),
@@ -348,23 +379,36 @@ class PipTrailerManager {
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     tooltip: 'Tua tới 10s',
-                                    icon: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 20),
+                                    icon: const Icon(Icons.forward_10_rounded,
+                                        color: Colors.white, size: 20),
                                     onPressed: () {
-                                      final currentPos = _controller?.value.position ?? Duration.zero;
-                                      final duration = _controller?.value.metaData.duration ?? Duration.zero;
-                                      final target = currentPos + const Duration(seconds: 10);
-                                      _controller?.seekTo(duration > Duration.zero && target > duration ? duration : target);
+                                      final currentPos =
+                                          _controller?.value.position ??
+                                              Duration.zero;
+                                      final duration = _controller
+                                              ?.value.metaData.duration ??
+                                          Duration.zero;
+                                      final target = currentPos +
+                                          const Duration(seconds: 10);
+                                      _controller?.seekTo(
+                                          duration > Duration.zero &&
+                                                  target > duration
+                                              ? duration
+                                              : target);
                                     },
                                   ),
                                   const SizedBox(width: 6),
 
                                   // Speed Badge
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: AppColors.primaryRed.withAlpha(40),
                                       borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(color: AppColors.primaryRed, width: 0.8),
+                                      border: Border.all(
+                                          color: AppColors.primaryRed,
+                                          width: 0.8),
                                     ),
                                     child: Text(
                                       '${playbackSpeed}x',
@@ -381,12 +425,15 @@ class PipTrailerManager {
                                   PopupMenuButton<dynamic>(
                                     tooltip: 'Cài đặt (Tốc độ & Xoay)',
                                     color: const Color(0xFF24242A),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    icon: const Icon(Icons.settings_rounded, color: Colors.white, size: 20),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
+                                    icon: const Icon(Icons.settings_rounded,
+                                        color: Colors.white, size: 20),
                                     onSelected: (value) {
                                       if (value == 'exit') {
                                         Navigator.of(dialogContext).pop();
-                                        closePip();
+                                        close();
                                       } else if (value is double) {
                                         setDialogState(() {
                                           playbackSpeed = value;
@@ -395,7 +442,8 @@ class PipTrailerManager {
                                       } else if (value == 'rotate_left') {
                                         setDialogState(() {
                                           quarterTurns = (quarterTurns - 1) % 4;
-                                          if (quarterTurns < 0) quarterTurns += 4;
+                                          if (quarterTurns < 0)
+                                            quarterTurns += 4;
                                         });
                                       } else if (value == 'rotate_right') {
                                         setDialogState(() {
@@ -410,33 +458,89 @@ class PipTrailerManager {
                                     itemBuilder: (ctx) => [
                                       const PopupMenuItem<dynamic>(
                                         enabled: false,
-                                        child: Text('⚡ TỐC ĐỘ PHÁT', style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        child: Text('⚡ TỐC ĐỘ PHÁT',
+                                            style: TextStyle(
+                                                color: Colors.amber,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold)),
                                       ),
-                                      ...[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((s) => PopupMenuItem<dynamic>(
+                                      ...[
+                                        0.25,
+                                        0.5,
+                                        0.75,
+                                        1.0,
+                                        1.25,
+                                        1.5,
+                                        1.75,
+                                        2.0
+                                      ].map((s) => PopupMenuItem<dynamic>(
                                             value: s,
-                                            child: Text(s == 1.0 ? '1.0x (Chuẩn)' : '${s}x', style: TextStyle(color: s == playbackSpeed ? AppColors.primaryRed : Colors.white)),
+                                            child: Text(
+                                                s == 1.0
+                                                    ? '1.0x (Chuẩn)'
+                                                    : '${s}x',
+                                                style: TextStyle(
+                                                    color: s == playbackSpeed
+                                                        ? AppColors.primaryRed
+                                                        : Colors.white)),
                                           )),
                                       const PopupMenuDivider(),
                                       const PopupMenuItem<dynamic>(
                                         enabled: false,
-                                        child: Text('🔄 XOAY MÀN HÌNH', style: TextStyle(color: Colors.cyanAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        child: Text('🔄 XOAY MÀN HÌNH',
+                                            style: TextStyle(
+                                                color: Colors.cyanAccent,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       const PopupMenuItem<dynamic>(
                                         value: 'rotate_left',
-                                        child: Row(children: [Icon(Icons.rotate_left_rounded, color: Colors.cyanAccent, size: 16), SizedBox(width: 6), Text('Xoay Trái 90°', style: TextStyle(color: Colors.white))]),
+                                        child: Row(children: [
+                                          Icon(Icons.rotate_left_rounded,
+                                              color: Colors.cyanAccent,
+                                              size: 16),
+                                          SizedBox(width: 6),
+                                          Text('Xoay Trái 90°',
+                                              style: TextStyle(
+                                                  color: Colors.white))
+                                        ]),
                                       ),
                                       const PopupMenuItem<dynamic>(
                                         value: 'rotate_right',
-                                        child: Row(children: [Icon(Icons.rotate_right_rounded, color: Colors.cyanAccent, size: 16), SizedBox(width: 6), Text('Xoay Phải 90°', style: TextStyle(color: Colors.white))]),
+                                        child: Row(children: [
+                                          Icon(Icons.rotate_right_rounded,
+                                              color: Colors.cyanAccent,
+                                              size: 16),
+                                          SizedBox(width: 6),
+                                          Text('Xoay Phải 90°',
+                                              style: TextStyle(
+                                                  color: Colors.white))
+                                        ]),
                                       ),
                                       const PopupMenuItem<dynamic>(
                                         value: 'reset_rotate',
-                                        child: Row(children: [Icon(Icons.screen_rotation_rounded, color: Colors.amber, size: 16), SizedBox(width: 6), Text('Đặt lại góc xoay', style: TextStyle(color: Colors.white))]),
+                                        child: Row(children: [
+                                          Icon(Icons.screen_rotation_rounded,
+                                              color: Colors.amber, size: 16),
+                                          SizedBox(width: 6),
+                                          Text('Đặt lại góc xoay',
+                                              style: TextStyle(
+                                                  color: Colors.white))
+                                        ]),
                                       ),
                                       const PopupMenuDivider(),
                                       const PopupMenuItem<dynamic>(
                                         value: 'exit',
-                                        child: Row(children: [Icon(Icons.exit_to_app_rounded, color: AppColors.primaryRed, size: 16), SizedBox(width: 6), Text('Thoát trình phát', style: TextStyle(color: AppColors.primaryRed, fontWeight: FontWeight.bold))]),
+                                        child: Row(children: [
+                                          Icon(Icons.exit_to_app_rounded,
+                                              color: AppColors.primaryRed,
+                                              size: 16),
+                                          SizedBox(width: 6),
+                                          Text('Thoát trình phát',
+                                              style: TextStyle(
+                                                  color: AppColors.primaryRed,
+                                                  fontWeight: FontWeight.bold))
+                                        ]),
                                       ),
                                     ],
                                   ),
@@ -446,7 +550,8 @@ class PipTrailerManager {
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     tooltip: 'Xem Toàn Màn Hình',
-                                    icon: const Icon(Icons.fullscreen_rounded, color: Colors.white, size: 24),
+                                    icon: const Icon(Icons.fullscreen_rounded,
+                                        color: Colors.white, size: 24),
                                     onPressed: () {
                                       _controller?.toggleFullScreenMode();
                                     },
@@ -458,10 +563,11 @@ class PipTrailerManager {
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     tooltip: 'Thoát trình phát',
-                                    icon: const Icon(Icons.exit_to_app_rounded, color: AppColors.primaryRed, size: 22),
+                                    icon: const Icon(Icons.exit_to_app_rounded,
+                                        color: AppColors.primaryRed, size: 22),
                                     onPressed: () {
                                       Navigator.of(dialogContext).pop();
-                                      closePip();
+                                      close();
                                     },
                                   ),
                                 ],
@@ -504,7 +610,8 @@ class PipTrailerManager {
           builder: (stfContext, setState) {
             final double leftPos = _isLeftDock
                 ? 12.0
-                : (screenWidth - dockWidth - 12.0).clamp(12.0, screenWidth - dockWidth);
+                : (screenWidth - dockWidth - 12.0)
+                    .clamp(12.0, screenWidth - dockWidth);
 
             return Positioned(
               left: leftPos,
@@ -531,10 +638,12 @@ class PipTrailerManager {
                     children: [
                       // Header with Controls & Left/Right Flip Button
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
                         decoration: const BoxDecoration(
                           color: Colors.black87,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(14)),
                         ),
                         child: Row(
                           children: [
@@ -598,7 +707,7 @@ class PipTrailerManager {
                                 size: 18,
                               ),
                               onPressed: () {
-                                closePip();
+                                close();
                               },
                             ),
                           ],
@@ -615,7 +724,8 @@ class PipTrailerManager {
                                 ? YoutubePlayer(
                                     controller: _controller!,
                                     showVideoProgressIndicator: true,
-                                    progressIndicatorColor: AppColors.primaryRed,
+                                    progressIndicatorColor:
+                                        AppColors.primaryRed,
                                   )
                                 : const SizedBox.shrink(),
                           ),
@@ -649,7 +759,7 @@ class PipTrailerManager {
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  void switchToPip(BuildContext context) {
+  void switchTo(BuildContext context) {
     if (_controller == null) return;
     _removeOverlay();
 
@@ -697,7 +807,8 @@ class PipTrailerManager {
                     decoration: BoxDecoration(
                       color: AppColors.darkSurface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primaryRed, width: 1.5),
+                      border:
+                          Border.all(color: AppColors.primaryRed, width: 1.5),
                       boxShadow: const [
                         BoxShadow(
                           color: Colors.black54,
@@ -709,7 +820,7 @@ class PipTrailerManager {
                     ),
                     child: Column(
                       children: [
-                        // PiP Title & Control Bar (Close Dock & Expand)
+                        //  Title & Control Bar (Close Dock & Expand)
                         Container(
                           height: 28,
                           padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -751,10 +862,10 @@ class PipTrailerManager {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // Close Dock (Close PiP)
+                              // Close Dock (Close )
                               GestureDetector(
                                 onTap: () {
-                                  closePip();
+                                  close();
                                 },
                                 child: const Icon(
                                   Icons.close,
@@ -765,7 +876,7 @@ class PipTrailerManager {
                             ],
                           ),
                         ),
-                        // PiP Video Player
+                        //  Video Player
                         Expanded(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(
@@ -802,7 +913,7 @@ class PipTrailerManager {
     _isVerticalDock = false;
   }
 
-  void closePip() {
+  void close() {
     _removeOverlay();
     _controller?.dispose();
     _controller = null;
@@ -811,4 +922,14 @@ class PipTrailerManager {
     _isPip = false;
     _isVerticalDock = false;
   }
+
+  void closePip() => close();
+
+  void playInPip(
+    BuildContext context, {
+    required String youtubeKey,
+    required String title,
+    Movie? movie,
+  }) =>
+      playIn(context, youtubeKey: youtubeKey, title: title, movie: movie);
 }

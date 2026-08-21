@@ -75,17 +75,23 @@ class _CategoryViewState extends State<CategoryView> {
           final isDark = Theme.of(context).brightness == Brightness.dark;
 
           return Scaffold(
-            backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+            backgroundColor:
+                isDark ? AppColors.darkBackground : AppColors.lightBackground,
             appBar: AppBar(
-              backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+              backgroundColor:
+                  isDark ? AppColors.darkBackground : AppColors.lightBackground,
               elevation: 0,
               iconTheme: IconThemeData(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
               ),
               title: Text(
                 _getCategoryTitle(widget.categoryType),
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -117,8 +123,7 @@ class _CategoryViewState extends State<CategoryView> {
                           ElevatedButton.icon(
                             onPressed: () {
                               _categoryBloc?.add(
-                                FetchCategoryMoviesEvent(
-                                    widget.categoryType),
+                                FetchCategoryMoviesEvent(widget.categoryType),
                               );
                             },
                             icon: const Icon(Icons.refresh),
@@ -146,7 +151,8 @@ class _CategoryViewState extends State<CategoryView> {
                           Expanded(
                             child: GridView.builder(
                               controller: _scrollController,
-                              padding: const EdgeInsets.only(top: 12, bottom: 16),
+                              padding:
+                                  const EdgeInsets.only(top: 12, bottom: 16),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,

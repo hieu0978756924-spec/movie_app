@@ -90,11 +90,13 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
             (v) =>
                 v.site.toLowerCase() == 'youtube' &&
                 v.type.toLowerCase() == 'trailer' &&
-                (v.official == true || v.name.toLowerCase().contains('official')),
+                (v.official == true ||
+                    v.name.toLowerCase().contains('official')),
             orElse: () => trailers.firstWhere(
               (v) =>
                   v.site.toLowerCase() == 'youtube' &&
-                  (v.type.toLowerCase() == 'trailer' || v.type.toLowerCase() == 'teaser'),
+                  (v.type.toLowerCase() == 'trailer' ||
+                      v.type.toLowerCase() == 'teaser'),
               orElse: () => trailers.firstWhere(
                 (v) => v.site.toLowerCase() == 'youtube',
                 orElse: () => trailers.first,
@@ -447,8 +449,10 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                       SliderTheme(
                         data: const SliderThemeData(
                           trackHeight: 3.0,
-                          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.0),
-                          overlayShape: RoundSliderOverlayShape(overlayRadius: 12.0),
+                          thumbShape:
+                              RoundSliderThumbShape(enabledThumbRadius: 6.0),
+                          overlayShape:
+                              RoundSliderOverlayShape(overlayRadius: 12.0),
                           activeTrackColor: AppColors.primaryRed,
                           inactiveTrackColor: Colors.white24,
                           thumbColor: AppColors.primaryRed,
@@ -458,7 +462,8 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                           min: 0.0,
                           max: maxMs,
                           onChanged: (val) {
-                            _controller.seekTo(Duration(milliseconds: val.toInt()));
+                            _controller
+                                .seekTo(Duration(milliseconds: val.toInt()));
                           },
                         ),
                       ),
@@ -476,7 +481,9 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                               IconButton(
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
-                                tooltip: _controller.value.isPlaying ? 'Tạm dừng' : 'Phát',
+                                tooltip: _controller.value.isPlaying
+                                    ? 'Tạm dừng'
+                                    : 'Phát',
                                 icon: Icon(
                                   _controller.value.isPlaying
                                       ? Icons.pause_rounded
@@ -498,7 +505,9 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                               IconButton(
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
-                                tooltip: _controller.value.volume == 0 ? 'Bật âm thanh' : 'Tắt âm thanh',
+                                tooltip: _controller.value.volume == 0
+                                    ? 'Bật âm thanh'
+                                    : 'Tắt âm thanh',
                                 icon: Icon(
                                   _controller.value.volume == 0
                                       ? Icons.volume_off_rounded
@@ -558,11 +567,13 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
 
                               // Speed Badge (e.g. x1.25, x1.5, x2)
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryRed.withAlpha(40),
                                   borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.primaryRed, width: 0.8),
+                                  border: Border.all(
+                                      color: AppColors.primaryRed, width: 0.8),
                                 ),
                                 child: Text(
                                   '${_playbackSpeed}x',
@@ -612,34 +623,38 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                                       ),
                                     ),
                                   ),
-                                  ..._availableSpeeds.map((s) => PopupMenuItem<dynamic>(
-                                        value: s,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              s == _playbackSpeed
-                                                  ? Icons.check_circle
-                                                  : Icons.circle_outlined,
-                                              color: s == _playbackSpeed
-                                                  ? AppColors.primaryRed
-                                                  : Colors.white38,
-                                              size: 16,
+                                  ..._availableSpeeds
+                                      .map((s) => PopupMenuItem<dynamic>(
+                                            value: s,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  s == _playbackSpeed
+                                                      ? Icons.check_circle
+                                                      : Icons.circle_outlined,
+                                                  color: s == _playbackSpeed
+                                                      ? AppColors.primaryRed
+                                                      : Colors.white38,
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  s == 1.0
+                                                      ? '1.0x (Chuẩn)'
+                                                      : '${s}x',
+                                                  style: TextStyle(
+                                                    color: s == _playbackSpeed
+                                                        ? AppColors.primaryRed
+                                                        : Colors.white,
+                                                    fontWeight:
+                                                        s == _playbackSpeed
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              s == 1.0 ? '1.0x (Chuẩn)' : '${s}x',
-                                              style: TextStyle(
-                                                color: s == _playbackSpeed
-                                                    ? AppColors.primaryRed
-                                                    : Colors.white,
-                                                fontWeight: s == _playbackSpeed
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )),
+                                          )),
                                   const PopupMenuDivider(),
                                   const PopupMenuItem<dynamic>(
                                     enabled: false,
@@ -656,9 +671,12 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                                     value: 'rotate_left',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.rotate_left_rounded, color: Colors.cyanAccent, size: 18),
+                                        Icon(Icons.rotate_left_rounded,
+                                            color: Colors.cyanAccent, size: 18),
                                         SizedBox(width: 8),
-                                        Text('Xoay Trái 90°', style: TextStyle(color: Colors.white)),
+                                        Text('Xoay Trái 90°',
+                                            style:
+                                                TextStyle(color: Colors.white)),
                                       ],
                                     ),
                                   ),
@@ -666,9 +684,12 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                                     value: 'rotate_right',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.rotate_right_rounded, color: Colors.cyanAccent, size: 18),
+                                        Icon(Icons.rotate_right_rounded,
+                                            color: Colors.cyanAccent, size: 18),
                                         SizedBox(width: 8),
-                                        Text('Xoay Phải 90°', style: TextStyle(color: Colors.white)),
+                                        Text('Xoay Phải 90°',
+                                            style:
+                                                TextStyle(color: Colors.white)),
                                       ],
                                     ),
                                   ),
@@ -676,9 +697,12 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                                     value: 'reset_rotate',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.screen_rotation_rounded, color: Colors.amber, size: 18),
+                                        Icon(Icons.screen_rotation_rounded,
+                                            color: Colors.amber, size: 18),
                                         SizedBox(width: 8),
-                                        Text('Đặt lại góc xoay', style: TextStyle(color: Colors.white)),
+                                        Text('Đặt lại góc xoay',
+                                            style:
+                                                TextStyle(color: Colors.white)),
                                       ],
                                     ),
                                   ),
@@ -687,7 +711,9 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                                     value: 'exit',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.exit_to_app_rounded, color: AppColors.primaryRed, size: 18),
+                                        Icon(Icons.exit_to_app_rounded,
+                                            color: AppColors.primaryRed,
+                                            size: 18),
                                         SizedBox(width: 8),
                                         Text(
                                           'Thoát trình phát',
@@ -707,7 +733,9 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
                               IconButton(
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
-                                tooltip: _isManualFullScreen ? 'Thoát toàn màn hình' : 'Toàn màn hình',
+                                tooltip: _isManualFullScreen
+                                    ? 'Thoát toàn màn hình'
+                                    : 'Toàn màn hình',
                                 icon: Icon(
                                   _isManualFullScreen
                                       ? Icons.fullscreen_exit_rounded
@@ -746,4 +774,3 @@ class _MoviePlayerPageState extends State<MoviePlayerPage> {
     );
   }
 }
-

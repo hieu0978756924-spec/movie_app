@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
 class MainLayoutView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 

@@ -198,7 +198,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     return result;
   }
 
-  void _emitStateWithContext(Emitter<SearchState> emit, SearchState currentState) {
+  void _emitStateWithContext(
+      Emitter<SearchState> emit, SearchState currentState) {
     if (currentState is SearchLoadedState) {
       emit(SearchLoadedState(
         movies: currentState.movies,

@@ -13,7 +13,9 @@ import 'package:movie_app/features/search/presentation/bloc/search_event.dart';
 import 'package:movie_app/features/search/presentation/bloc/search_state.dart';
 
 class MockSearchMoviesUseCase extends Mock implements SearchMoviesUseCase {}
+
 class MockGetGenresUseCase extends Mock implements GetGenresUseCase {}
+
 class MockDiscoverMoviesUseCase extends Mock implements DiscoverMoviesUseCase {}
 
 void main() {

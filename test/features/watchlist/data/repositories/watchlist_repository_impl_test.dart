@@ -14,7 +14,9 @@ class MockWatchlistRemoteDataSource extends Mock
     implements WatchlistRemoteDataSource {}
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
+
 class MockGoTrueClient extends Mock implements GoTrueClient {}
+
 class MockUser extends Mock implements User {}
 
 void main() {
@@ -74,7 +76,9 @@ void main() {
   );
 
   group('WatchlistRepositoryImpl Tests', () {
-    test('getWatchlist returns Right(List<WatchlistItem>) when local source succeeds', () async {
+    test(
+        'getWatchlist returns Right(List<WatchlistItem>) when local source succeeds',
+        () async {
       when(() => mockLocalDataSource.getWatchlist())
           .thenAnswer((_) async => [tModel]);
 
@@ -92,7 +96,9 @@ void main() {
       );
     });
 
-    test('addToWatchlist calls localDataSource.addToWatchlist and returns Right', () async {
+    test(
+        'addToWatchlist calls localDataSource.addToWatchlist and returns Right',
+        () async {
       when(() => mockLocalDataSource.addToWatchlist(any()))
           .thenAnswer((_) async {});
 
@@ -102,7 +108,9 @@ void main() {
       verify(() => mockLocalDataSource.addToWatchlist(any())).called(1);
     });
 
-    test('removeFromWatchlist calls localDataSource.removeFromWatchlist and returns Right', () async {
+    test(
+        'removeFromWatchlist calls localDataSource.removeFromWatchlist and returns Right',
+        () async {
       when(() => mockLocalDataSource.removeFromWatchlist(1))
           .thenAnswer((_) async {});
 
@@ -112,7 +120,8 @@ void main() {
       verify(() => mockLocalDataSource.removeFromWatchlist(1)).called(1);
     });
 
-    test('toggleWatched calls localDataSource.toggleWatched and returns Right', () async {
+    test('toggleWatched calls localDataSource.toggleWatched and returns Right',
+        () async {
       when(() => mockLocalDataSource.toggleWatched(1, true))
           .thenAnswer((_) async {});
 
@@ -122,12 +131,14 @@ void main() {
       verify(() => mockLocalDataSource.toggleWatched(1, true)).called(1);
     });
 
-    test('syncWatchlist returns Right(null) when user is not logged in', () async {
+    test('syncWatchlist returns Right(null) when user is not logged in',
+        () async {
       final result = await repository.syncWatchlist();
       expect(result.isRight(), isTrue);
     });
 
-    test('syncWatchlist performs bidirectional merge when user is logged in', () async {
+    test('syncWatchlist performs bidirectional merge when user is logged in',
+        () async {
       final mockUser = MockUser();
       when(() => mockUser.id).thenReturn('user_123');
       when(() => mockGoTrueClient.currentUser).thenReturn(mockUser);
@@ -142,7 +153,9 @@ void main() {
       final result = await repository.syncWatchlist();
 
       expect(result.isRight(), isTrue);
-      verify(() => mockRemoteDataSource.upsertRemoteWatchlist('user_123', tModel)).called(1);
+      verify(() =>
+              mockRemoteDataSource.upsertRemoteWatchlist('user_123', tModel))
+          .called(1);
     });
   });
 }

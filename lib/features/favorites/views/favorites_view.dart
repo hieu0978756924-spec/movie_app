@@ -177,7 +177,8 @@ class _FavoritesViewState extends State<FavoritesView> {
                               ),
                               const SizedBox(height: 8),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 32),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 32),
                                 child: Text(
                                   'Nhấn biểu tượng trái tim khi xem phim để lưu vào danh sách yêu thích và đồng bộ Đám mây!',
                                   style: TextStyle(
@@ -199,11 +200,15 @@ class _FavoritesViewState extends State<FavoritesView> {
                             final movie = favoriteList[index];
                             return Card(
                               margin: const EdgeInsets.only(bottom: 14),
-                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                              color: isDark
+                                  ? AppColors.darkCard
+                                  : AppColors.lightCard,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(
-                                  color: isDark ? AppColors.glassBorder : Colors.black12,
+                                  color: isDark
+                                      ? AppColors.glassBorder
+                                      : Colors.black12,
                                 ),
                               ),
                               elevation: isDark ? 0 : 2,
@@ -211,7 +216,8 @@ class _FavoritesViewState extends State<FavoritesView> {
                                 borderRadius: BorderRadius.circular(16),
                                 onTap: () async {
                                   await context.push(
-                                    RoutePath.movieDetailPath(movie.id.toString()),
+                                    RoutePath.movieDetailPath(
+                                        movie.id.toString()),
                                     extra: movie,
                                   );
                                   setState(() {});
@@ -227,7 +233,8 @@ class _FavoritesViewState extends State<FavoritesView> {
                                       const SizedBox(width: 14),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               movie.tenPhim,
@@ -238,25 +245,36 @@ class _FavoritesViewState extends State<FavoritesView> {
                                                 fontWeight: FontWeight.bold,
                                                 color: isDark
                                                     ? AppColors.darkTextPrimary
-                                                    : AppColors.lightTextPrimary,
+                                                    : AppColors
+                                                        .lightTextPrimary,
                                               ),
                                             ),
                                             const SizedBox(height: 6),
                                             Row(
                                               children: [
                                                 Container(
-                                                  padding: const EdgeInsets.symmetric(
-                                                      horizontal: 8, vertical: 3),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 3),
                                                   decoration: BoxDecoration(
-                                                    color: AppColors.primaryRed.withAlpha(25),
-                                                    borderRadius: BorderRadius.circular(6),
+                                                    color: AppColors.primaryRed
+                                                        .withAlpha(25),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6),
                                                   ),
                                                   child: Text(
-                                                    movie.theLoai.split(',').first.trim(),
+                                                    movie.theLoai
+                                                        .split(',')
+                                                        .first
+                                                        .trim(),
                                                     style: const TextStyle(
-                                                      color: AppColors.primaryRed,
+                                                      color:
+                                                          AppColors.primaryRed,
                                                       fontSize: 11,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -265,7 +283,8 @@ class _FavoritesViewState extends State<FavoritesView> {
                                                   children: [
                                                     const Icon(
                                                       Icons.star_rounded,
-                                                      color: AppColors.accentGold,
+                                                      color:
+                                                          AppColors.accentGold,
                                                       size: 16,
                                                     ),
                                                     const SizedBox(width: 3),
@@ -273,10 +292,13 @@ class _FavoritesViewState extends State<FavoritesView> {
                                                       '${movie.diemDanhGia.toStringAsFixed(1)} / 10',
                                                       style: TextStyle(
                                                         color: isDark
-                                                            ? AppColors.darkTextSecondary
-                                                            : AppColors.lightTextSecondary,
+                                                            ? AppColors
+                                                                .darkTextSecondary
+                                                            : AppColors
+                                                                .lightTextSecondary,
                                                         fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     ),
                                                   ],
@@ -342,7 +364,9 @@ class _FavoritesViewState extends State<FavoritesView> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -352,7 +376,9 @@ class _FavoritesViewState extends State<FavoritesView> {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -394,4 +420,3 @@ class _FavoritesViewState extends State<FavoritesView> {
     );
   }
 }
-

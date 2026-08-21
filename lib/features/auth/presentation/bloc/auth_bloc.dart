@@ -37,7 +37,8 @@ class RegisterSubmittedEvent extends AuthEvent {
   final String password;
   final String? name;
   final String? dob;
-  const RegisterSubmittedEvent(this.email, this.password, {this.name, this.dob});
+  const RegisterSubmittedEvent(this.email, this.password,
+      {this.name, this.dob});
   @override
   List<Object?> get props => [email, password, name, dob];
 }
@@ -80,7 +81,8 @@ class ResetPasswordSuccessState extends AuthState {
 class RegisterSuccessState extends AuthState {
   final String message;
   const RegisterSuccessState(
-      [this.message = 'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.']);
+      [this.message =
+          'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.']);
   @override
   List<Object?> get props => [message];
 }
@@ -120,7 +122,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-
   Future<void> _onLoginSubmitted(
       LoginSubmittedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
@@ -134,10 +135,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (response) async {
         if (response.user != null) {
           final loggedEmail = response.user!.email ?? event.email;
-          final metaName = response.user!.userMetadata?['name'] ?? response.user!.userMetadata?['full_name'];
-          final nameToUse = (metaName != null && metaName.toString().isNotEmpty)
-              ? metaName.toString()
-              : null;
 
           await Future.wait([
             WatchHistoryManager.instance.loadForUser(loggedEmail),
@@ -187,8 +184,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           } catch (_) {}
           UserProfileManager.instance.resetForUser(
             email: event.email,
-            name: (event.name != null && event.name!.isNotEmpty) ? event.name : null,
-            dob: (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
+            name: (event.name != null && event.name!.isNotEmpty)
+                ? event.name
+                : null,
+            dob:
+                (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
           );
           await WatchHistoryManager.instance.loadForUser(event.email);
           await UserReviewManager.instance.loadForUser(event.email);
@@ -198,11 +198,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             emit(const RegisterSuccessState());
           }
         },
-
       );
     } on TimeoutException {
       if (!emit.isDone) {
-        emit(const AuthErrorState('Quá thời gian kết nối (Timeout). Vui lòng thử lại!'));
+        emit(const AuthErrorState(
+            'Quá thời gian kết nối (Timeout). Vui lòng thử lại!'));
       }
     } catch (e) {
       if (!emit.isDone) {
@@ -221,4 +221,3 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 }
-

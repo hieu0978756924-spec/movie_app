@@ -39,7 +39,8 @@ void main() {
   });
 
   group('AppTheme Tests', () {
-    test('darkTheme has expected dark brightness and palette configuration', () {
+    test('darkTheme has expected dark brightness and palette configuration',
+        () {
       final theme = AppTheme.darkTheme;
       expect(theme.brightness, equals(Brightness.dark));
       expect(theme.scaffoldBackgroundColor, equals(AppColors.darkBackground));
@@ -48,7 +49,8 @@ void main() {
       expect(theme.useMaterial3, isTrue);
     });
 
-    test('lightTheme has expected light brightness and palette configuration', () {
+    test('lightTheme has expected light brightness and palette configuration',
+        () {
       final theme = AppTheme.lightTheme;
       expect(theme.brightness, equals(Brightness.light));
       expect(theme.scaffoldBackgroundColor, equals(AppColors.lightBackground));

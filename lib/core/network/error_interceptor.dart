@@ -15,7 +15,8 @@ class ErrorInterceptor extends Interceptor {
     }
 
     final statusCode = err.response?.statusCode;
-    final message = err.response?.statusMessage ?? err.message ?? 'Server error';
+    final message =
+        err.response?.statusMessage ?? err.message ?? 'Server error';
 
     if (statusCode != null && statusCode >= 400) {
       throw ServerException(message: message, statusCode: statusCode);

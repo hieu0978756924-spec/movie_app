@@ -55,7 +55,8 @@ class UserSession {
       builder: (ctx) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -106,7 +107,9 @@ class UserSession {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -118,7 +121,9 @@ class UserSession {
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.4,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -142,7 +147,9 @@ class UserSession {
                         child: Text(
                           'Để sau',
                           style: TextStyle(
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            color: isDark
+                                ? AppColors.darkTextMuted
+                                : AppColors.lightTextMuted,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -191,4 +198,3 @@ class UserSession {
     );
   }
 }
-

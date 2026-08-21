@@ -17,7 +17,8 @@ abstract class MovieRemoteDataSource {
   Future<CreditsResponseModel> getMovieCredits(int movieId);
   Future<VideoResponseModel> getMovieTrailers(int movieId);
   Future<MovieResponseModel> getSimilarMovies(int movieId);
-  Future<MovieResponseModel> searchMovies({required String query, int page = 1});
+  Future<MovieResponseModel> searchMovies(
+      {required String query, int page = 1});
   Future<GenreResponseModel> getGenres();
   Future<MovieResponseModel> discoverMovies({
     List<int>? withGenres,
@@ -111,7 +112,8 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   }
 
   @override
-  Future<MovieResponseModel> searchMovies({required String query, int page = 1}) async {
+  Future<MovieResponseModel> searchMovies(
+      {required String query, int page = 1}) async {
     final response = await dio.get(
       '/search/movie',
       queryParameters: {
@@ -144,10 +146,12 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
       queryParameters['with_genres'] = withGenres.join(',');
     }
     if (primaryReleaseYearGte != null) {
-      queryParameters['primary_release_date.gte'] = '$primaryReleaseYearGte-01-01';
+      queryParameters['primary_release_date.gte'] =
+          '$primaryReleaseYearGte-01-01';
     }
     if (primaryReleaseYearLte != null) {
-      queryParameters['primary_release_date.lte'] = '$primaryReleaseYearLte-12-31';
+      queryParameters['primary_release_date.lte'] =
+          '$primaryReleaseYearLte-12-31';
     }
     if (minRating != null && minRating > 0) {
       queryParameters['vote_average.gte'] = minRating;

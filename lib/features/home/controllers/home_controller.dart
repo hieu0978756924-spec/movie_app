@@ -102,14 +102,16 @@ class HomeController extends ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String>? savedIds = prefs.getStringList('${_currentUserKey}_ids');
+      final List<String>? savedIds =
+          prefs.getStringList('${_currentUserKey}_ids');
       if (savedIds != null && savedIds.isNotEmpty) {
         favoriteMovieIds.addAll(
           savedIds.map((e) => int.tryParse(e) ?? 0).where((id) => id != 0),
         );
       }
 
-      final String? savedMoviesStr = prefs.getString('${_currentUserKey}_movies');
+      final String? savedMoviesStr =
+          prefs.getString('${_currentUserKey}_movies');
       if (savedMoviesStr != null && savedMoviesStr.isNotEmpty) {
         final List<dynamic> listJson = jsonDecode(savedMoviesStr);
         for (final item in listJson) {
@@ -163,7 +165,8 @@ class HomeController extends ChangeNotifier {
         backdropPath: "assets/images/dune2.jpg",
         diemDanhGia: 8.7,
         theLoai: "Khoa học viễn tưởng",
-        moTa: "Paul Atreides hợp lực cùng Chani và người Fremen để trả thù những kẻ đã hủy hoại gia đình anh.",
+        moTa:
+            "Paul Atreides hợp lực cùng Chani và người Fremen để trả thù những kẻ đã hủy hoại gia đình anh.",
         isHot: true,
         isNowPlaying: true,
         isPopular: true,
@@ -179,7 +182,8 @@ class HomeController extends ChangeNotifier {
         backdropPath: "assets/images/oppenheimer.jpg",
         diemDanhGia: 8.9,
         theLoai: "Lịch sử • Chính kịch",
-        moTa: "Câu chuyện về nhà vật lý lý thuyết J. Robert Oppenheimer chế tạo bom nguyên tử.",
+        moTa:
+            "Câu chuyện về nhà vật lý lý thuyết J. Robert Oppenheimer chế tạo bom nguyên tử.",
         isHot: true,
         isPopular: true,
         isTopRated: true,
@@ -211,22 +215,30 @@ class HomeController extends ChangeNotifier {
         id: 101,
         name: "Timothée Chalamet",
         profilePath: "assets/images/actor_1.jpg",
-        biography: "Timothée Chalamet là nam diễn viên xuất sắc từng nhận đề cử giải Oscar.",
+        biography:
+            "Timothée Chalamet là nam diễn viên xuất sắc từng nhận đề cử giải Oscar.",
         birthday: "1995-12-27",
         placeOfBirth: "New York, USA",
         knownFor: [
-          KnownMovie(id: 1, title: "Dune: Part Two", posterPath: "assets/images/dune2.jpg"),
+          KnownMovie(
+              id: 1,
+              title: "Dune: Part Two",
+              posterPath: "assets/images/dune2.jpg"),
         ],
       ),
       const Actor(
         id: 102,
         name: "Zendaya",
         profilePath: "assets/images/actor_2.jpg",
-        biography: "Zendaya là nữ diễn viên, ca sĩ nổi tiếng đoạt nhiều giải Emmy.",
+        biography:
+            "Zendaya là nữ diễn viên, ca sĩ nổi tiếng đoạt nhiều giải Emmy.",
         birthday: "1996-09-01",
         placeOfBirth: "Oakland, California, USA",
         knownFor: [
-          KnownMovie(id: 1, title: "Dune: Part Two", posterPath: "assets/images/dune2.jpg"),
+          KnownMovie(
+              id: 1,
+              title: "Dune: Part Two",
+              posterPath: "assets/images/dune2.jpg"),
         ],
       ),
     ]);
@@ -259,7 +271,10 @@ class HomeController extends ChangeNotifier {
     final list = danhSachPhim.where((m) => m.isUpcoming).toList();
     if (list.isNotEmpty) return list;
     final nowPlayingIds = danhSachPhimDangChieu.map((m) => m.id).toSet();
-    return danhSachPhim.where((m) => !nowPlayingIds.contains(m.id)).take(4).toList();
+    return danhSachPhim
+        .where((m) => !nowPlayingIds.contains(m.id))
+        .take(4)
+        .toList();
   }
 
   //==========================================================

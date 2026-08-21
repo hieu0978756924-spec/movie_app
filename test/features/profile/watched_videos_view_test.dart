@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:movie_app/features/home/models/movie.dart';
 import 'package:movie_app/features/profile/data/watch_history_manager.dart';
 import 'package:movie_app/features/profile/views/watched_videos_view.dart';
@@ -57,7 +56,8 @@ final tSampleHistory = [
 ];
 
 void main() {
-  testWidgets('WatchedVideosView renders watched video items correctly', (WidgetTester tester) async {
+  testWidgets('WatchedVideosView renders watched video items correctly',
+      (WidgetTester tester) async {
     WatchHistoryManager.instance.history.value = List.from(tSampleHistory);
     await tester.pumpWidget(
       const MaterialApp(
@@ -80,7 +80,8 @@ void main() {
     expect(find.text('Đã xem 45%'), findsOneWidget);
   });
 
-  testWidgets('Can delete item from watched history', (WidgetTester tester) async {
+  testWidgets('Can delete item from watched history',
+      (WidgetTester tester) async {
     WatchHistoryManager.instance.history.value = List.from(tSampleHistory);
     await tester.pumpWidget(
       const MaterialApp(
@@ -100,4 +101,3 @@ void main() {
     expect(find.text('Dune: Hành Tinh Cát - Phần Hai'), findsNothing);
   });
 }
-

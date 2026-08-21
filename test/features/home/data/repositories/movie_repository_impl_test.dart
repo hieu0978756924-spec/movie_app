@@ -5,8 +5,7 @@ import 'package:movie_app/features/home/data/models/movie_model.dart';
 import 'package:movie_app/features/home/data/models/movie_response_model.dart';
 import 'package:movie_app/features/home/data/repositories/movie_repository_impl.dart';
 
-class MockMovieRemoteDataSource extends Mock
-    implements MovieRemoteDataSource {}
+class MockMovieRemoteDataSource extends Mock implements MovieRemoteDataSource {}
 
 void main() {
   late MockMovieRemoteDataSource mockRemoteDataSource;

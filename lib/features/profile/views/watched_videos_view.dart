@@ -13,14 +13,16 @@ class WatchedVideosView extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc chắn muốn xóa toàn bộ lịch sử video đã xem không?'),
+        content: const Text(
+            'Bạn có chắc chắn muốn xóa toàn bộ lịch sử video đã xem không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Hủy'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryRed),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.primaryRed),
             onPressed: () {
               WatchHistoryManager.instance.clearHistory();
               Navigator.pop(dialogContext);
@@ -31,7 +33,8 @@ class WatchedVideosView extends StatelessWidget {
                 ),
               );
             },
-            child: const Text('Xóa tất cả', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Xóa tất cả', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -56,14 +59,17 @@ class WatchedVideosView extends StatelessWidget {
         width: 80,
         height: 115,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildLocalPosterFallback(hinhAnhPath, movieId, isDark),
+        errorBuilder: (_, __, ___) =>
+            _buildLocalPosterFallback(hinhAnhPath, movieId, isDark),
       );
     }
     return _buildLocalPosterFallback(hinhAnhPath, movieId, isDark);
   }
 
   Widget _buildLocalPosterFallback(String path, int movieId, bool isDark) {
-    final localPath = path.startsWith('assets/') ? path : ImageUrlHelper.getLocalFallbackImage(movieId);
+    final localPath = path.startsWith('assets/')
+        ? path
+        : ImageUrlHelper.getLocalFallbackImage(movieId);
     return Image.asset(
       localPath,
       width: 80,
@@ -72,7 +78,9 @@ class WatchedVideosView extends StatelessWidget {
       errorBuilder: (_, __, ___) => Container(
         width: 80,
         height: 115,
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.lightSurfaceVariant,
         child: const Icon(Icons.movie, color: Colors.grey),
       ),
     );
@@ -86,7 +94,8 @@ class WatchedVideosView extends StatelessWidget {
         width: double.infinity,
         height: 90,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildLocalBackdropFallback(backdropPath, movieId, isDark),
+        errorBuilder: (_, __, ___) =>
+            _buildLocalBackdropFallback(backdropPath, movieId, isDark),
       );
     }
     return _buildLocalBackdropFallback(backdropPath, movieId, isDark);
@@ -104,7 +113,9 @@ class WatchedVideosView extends StatelessWidget {
       errorBuilder: (_, __, ___) => Container(
         width: double.infinity,
         height: 90,
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.lightSurfaceVariant,
       ),
     );
   }
@@ -117,25 +128,32 @@ class WatchedVideosView extends StatelessWidget {
       valueListenable: WatchHistoryManager.instance.history,
       builder: (context, watchedList, child) {
         return Scaffold(
-          backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          backgroundColor:
+              isDark ? AppColors.darkBackground : AppColors.lightBackground,
           appBar: AppBar(
-            backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            backgroundColor:
+                isDark ? AppColors.darkSurface : AppColors.lightSurface,
             elevation: 0,
             title: Text(
               'Video đã xem',
               style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
             iconTheme: IconThemeData(
-              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
             ),
             actions: [
               if (watchedList.isNotEmpty)
                 IconButton(
                   tooltip: 'Xóa toàn bộ lịch sử',
-                  icon: const Icon(Icons.delete_sweep_outlined, color: AppColors.error),
+                  icon: const Icon(Icons.delete_sweep_outlined,
+                      color: AppColors.error),
                   onPressed: () => _confirmClearHistory(context),
                 ),
             ],
@@ -148,14 +166,18 @@ class WatchedVideosView extends StatelessWidget {
                       Icon(
                         Icons.history_outlined,
                         size: 80,
-                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        color: isDark
+                            ? AppColors.darkTextMuted
+                            : AppColors.lightTextMuted,
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Bạn chưa xem video nào gần đây',
                         style: TextStyle(
                           fontSize: 16,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                     ],
@@ -179,13 +201,16 @@ class WatchedVideosView extends StatelessWidget {
                           color: AppColors.error,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
+                        child: const Icon(Icons.delete_outline,
+                            color: Colors.white, size: 28),
                       ),
-                      onDismissed: (_) => _removeItem(context, index, movie.tenPhim),
+                      onDismissed: (_) =>
+                          _removeItem(context, index, movie.tenPhim),
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                          color:
+                              isDark ? AppColors.darkCard : AppColors.lightCard,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: isDark
                               ? []
@@ -219,7 +244,8 @@ class WatchedVideosView extends StatelessWidget {
                               // Top Banner / Backdrop Synchronized Header
                               Stack(
                                 children: [
-                                  _buildBackdropBanner(movie.backdropPath, movie.id, isDark),
+                                  _buildBackdropBanner(
+                                      movie.backdropPath, movie.id, isDark),
                                   Container(
                                     height: 90,
                                     decoration: BoxDecoration(
@@ -228,7 +254,9 @@ class WatchedVideosView extends StatelessWidget {
                                         end: Alignment.bottomCenter,
                                         colors: [
                                           Colors.transparent,
-                                          (isDark ? AppColors.darkCard : AppColors.lightCard)
+                                          (isDark
+                                                  ? AppColors.darkCard
+                                                  : AppColors.lightCard)
                                               .withAlpha(220),
                                         ],
                                       ),
@@ -238,12 +266,15 @@ class WatchedVideosView extends StatelessWidget {
                                     top: 8,
                                     right: 8,
                                     child: IconButton(
-                                      icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.white, size: 20),
                                       style: IconButton.styleFrom(
-                                        backgroundColor: Colors.black.withAlpha(140),
+                                        backgroundColor:
+                                            Colors.black.withAlpha(140),
                                         padding: const EdgeInsets.all(4),
                                       ),
-                                      onPressed: () => _removeItem(context, index, movie.tenPhim),
+                                      onPressed: () => _removeItem(
+                                          context, index, movie.tenPhim),
                                     ),
                                   ),
                                 ],
@@ -251,7 +282,8 @@ class WatchedVideosView extends StatelessWidget {
 
                               // Movie Details & Poster Row
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                                padding:
+                                    const EdgeInsets.fromLTRB(14, 0, 14, 14),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -262,10 +294,12 @@ class WatchedVideosView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(10),
                                         child: Stack(
                                           children: [
-                                            _buildPosterImage(movie.hinhAnh, movie.id, isDark),
+                                            _buildPosterImage(movie.hinhAnh,
+                                                movie.id, isDark),
                                             Positioned.fill(
                                               child: Container(
-                                                color: Colors.black.withAlpha(50),
+                                                color:
+                                                    Colors.black.withAlpha(50),
                                                 child: const Center(
                                                   child: Icon(
                                                     Icons.play_circle_fill,
@@ -284,7 +318,8 @@ class WatchedVideosView extends StatelessWidget {
                                     // Details Column
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(height: 4),
                                           Text(
@@ -314,8 +349,10 @@ class WatchedVideosView extends StatelessWidget {
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.bold,
                                                   color: isDark
-                                                      ? AppColors.darkTextPrimary
-                                                      : AppColors.lightTextPrimary,
+                                                      ? AppColors
+                                                          .darkTextPrimary
+                                                      : AppColors
+                                                          .lightTextPrimary,
                                                 ),
                                               ),
                                               const SizedBox(width: 10),
@@ -323,12 +360,15 @@ class WatchedVideosView extends StatelessWidget {
                                                 child: Text(
                                                   movie.theLoai,
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     color: isDark
-                                                        ? AppColors.darkTextMuted
-                                                        : AppColors.lightTextMuted,
+                                                        ? AppColors
+                                                            .darkTextMuted
+                                                        : AppColors
+                                                            .lightTextMuted,
                                                   ),
                                                 ),
                                               ),
@@ -351,7 +391,8 @@ class WatchedVideosView extends StatelessWidget {
                                                   fontSize: 12,
                                                   color: isDark
                                                       ? AppColors.darkTextMuted
-                                                      : AppColors.lightTextMuted,
+                                                      : AppColors
+                                                          .lightTextMuted,
                                                 ),
                                               ),
                                             ],
@@ -360,16 +401,22 @@ class WatchedVideosView extends StatelessWidget {
 
                                           // Progress Bar
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               ClipRRect(
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
                                                 child: LinearProgressIndicator(
                                                   value: item.progress,
                                                   backgroundColor: isDark
-                                                      ? AppColors.darkSurfaceVariant
-                                                      : AppColors.lightSurfaceVariant,
-                                                  valueColor: const AlwaysStoppedAnimation<Color>(
+                                                      ? AppColors
+                                                          .darkSurfaceVariant
+                                                      : AppColors
+                                                          .lightSurfaceVariant,
+                                                  valueColor:
+                                                      const AlwaysStoppedAnimation<
+                                                          Color>(
                                                     AppColors.primaryRed,
                                                   ),
                                                   minHeight: 4,
@@ -382,7 +429,8 @@ class WatchedVideosView extends StatelessWidget {
                                                   fontSize: 11,
                                                   color: isDark
                                                       ? AppColors.darkTextMuted
-                                                      : AppColors.lightTextMuted,
+                                                      : AppColors
+                                                          .lightTextMuted,
                                                 ),
                                               ),
                                             ],

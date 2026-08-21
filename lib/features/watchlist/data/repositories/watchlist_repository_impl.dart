@@ -30,7 +30,8 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
       final userId = _currentUserId;
       if (userId != null) {
         try {
-          final remoteModels = await remoteDataSource.getRemoteWatchlist(userId);
+          final remoteModels =
+              await remoteDataSource.getRemoteWatchlist(userId);
           for (var rItem in remoteModels) {
             final isLocal = await localDataSource.isWatchlisted(rItem.id);
             if (!isLocal) {

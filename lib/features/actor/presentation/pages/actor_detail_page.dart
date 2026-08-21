@@ -96,7 +96,6 @@ class ActorDetailPage extends StatelessWidget {
                             ),
                           ),
                   ),
-
                 ),
               ),
               const SizedBox(height: 16),
@@ -126,7 +125,9 @@ class ActorDetailPage extends StatelessWidget {
                     actor.birthday,
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.white70 : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? Colors.white70
+                          : AppColors.lightTextSecondary,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -141,7 +142,9 @@ class ActorDetailPage extends StatelessWidget {
                       actor.placeOfBirth,
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? Colors.white70 : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? Colors.white70
+                            : AppColors.lightTextSecondary,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -163,7 +166,9 @@ class ActorDetailPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : AppColors.lightSurfaceVariant,
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurfaceVariant,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark ? Colors.white10 : Colors.black12,
@@ -174,8 +179,8 @@ class ActorDetailPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.6,
-                    color: isDark ? Colors.white70 : AppColors.lightTextSecondary,
-
+                    color:
+                        isDark ? Colors.white70 : AppColors.lightTextSecondary,
                   ),
                 ),
               ),

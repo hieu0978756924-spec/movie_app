@@ -22,7 +22,8 @@ void main() {
     const Genre(id: 35, name: 'Hài'),
   ];
 
-  test('should call getGenres on repository and return list of genres', () async {
+  test('should call getGenres on repository and return list of genres',
+      () async {
     when(() => mockRepository.getGenres())
         .thenAnswer((_) async => Right(tGenres));
 

@@ -5,8 +5,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:movie_app/features/review/data/datasources/review_remote_datasource.dart';
 
 class MockDio extends Mock implements Dio {}
+
 class MockSupabaseClient extends Mock implements SupabaseClient {}
+
 class MockGoTrueClient extends Mock implements GoTrueClient {}
+
 class MockUser extends Mock implements User {}
 
 void main() {
@@ -48,7 +51,8 @@ void main() {
         'total_results': 1,
       };
 
-      when(() => mockDio.get('/movie/123/reviews', queryParameters: {'page': 1}))
+      when(() =>
+              mockDio.get('/movie/123/reviews', queryParameters: {'page': 1}))
           .thenAnswer(
         (_) async => Response(
           data: mockData,

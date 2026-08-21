@@ -131,7 +131,8 @@ void main() {
             .thenAnswer((_) async => Right([tItem.copyWith(daXem: true)]));
         return watchlistBloc;
       },
-      act: (bloc) => bloc.add(const ToggleWatchedEvent(movieId: 1, daXem: true)),
+      act: (bloc) =>
+          bloc.add(const ToggleWatchedEvent(movieId: 1, daXem: true)),
       expect: () => [
         WatchlistLoadedState(items: [tItem.copyWith(daXem: true)]),
       ],

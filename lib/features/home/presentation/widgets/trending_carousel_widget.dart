@@ -69,8 +69,9 @@ class _TrendingCarouselWidgetState extends State<TrendingCarouselWidget> {
             itemCount: widget.movies.length,
             itemBuilder: (context, index) {
               final movie = widget.movies[index];
-              final backdropUrl = ImageUrlHelper.getBackdropUrl(movie.backdropPath) ??
-                  ImageUrlHelper.getPosterUrl(movie.hinhAnh);
+              final backdropUrl =
+                  ImageUrlHelper.getBackdropUrl(movie.backdropPath) ??
+                      ImageUrlHelper.getPosterUrl(movie.hinhAnh);
 
               return GestureDetector(
                 onTap: () {
@@ -90,14 +91,17 @@ class _TrendingCarouselWidgetState extends State<TrendingCarouselWidget> {
                             ? Image.network(
                                 backdropUrl,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallback(movie.id),
+                                errorBuilder: (_, __, ___) =>
+                                    _buildFallback(movie.id),
                               )
                             : Image.asset(
                                 movie.hinhAnh.startsWith('assets/')
                                     ? movie.hinhAnh
-                                    : ImageUrlHelper.getLocalFallbackImage(movie.id),
+                                    : ImageUrlHelper.getLocalFallbackImage(
+                                        movie.id),
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildFallback(movie.id),
+                                errorBuilder: (_, __, ___) =>
+                                    _buildFallback(movie.id),
                               ),
                         // Gradient overlay
                         Container(

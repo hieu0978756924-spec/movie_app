@@ -36,6 +36,7 @@ class FetchMovieDetailEvent extends MovieDetailEvent {
 }
 
 class ToggleFavoriteMovieEvent extends MovieDetailEvent {}
+
 class ToggleWatchlistMovieEvent extends MovieDetailEvent {}
 
 // States
@@ -87,7 +88,8 @@ class MovieDetailLoadedState extends MovieDetailState {
   }
 
   @override
-  List<Object?> get props => [movie, castList, trailers, similarMovies, isWatchlisted];
+  List<Object?> get props =>
+      [movie, castList, trailers, similarMovies, isWatchlisted];
 }
 
 class MovieDetailErrorState extends MovieDetailState {
@@ -124,7 +126,8 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
       FetchMovieDetailEvent event, Emitter<MovieDetailState> emit) async {
     emit(MovieDetailLoadingState(initialMovie: event.initialMovie));
 
-    final targetId = event.movieId != 0 ? event.movieId : (event.initialMovie?.id ?? 0);
+    final targetId =
+        event.movieId != 0 ? event.movieId : (event.initialMovie?.id ?? 0);
 
     if (targetId == 0) {
       if (event.initialMovie != null) {
@@ -168,9 +171,11 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
 
     bool initialFav = event.initialMovie?.yeuThich ?? false;
     if (targetId != 0) {
-      final existingIndex = HomeController.instance.danhSachPhim.indexWhere((m) => m.id == targetId);
+      final existingIndex = HomeController.instance.danhSachPhim
+          .indexWhere((m) => m.id == targetId);
       if (existingIndex != -1) {
-        initialFav = HomeController.instance.danhSachPhim[existingIndex].yeuThich;
+        initialFav =
+            HomeController.instance.danhSachPhim[existingIndex].yeuThich;
       }
     }
 
@@ -207,11 +212,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
             (v) =>
                 v.site.toLowerCase() == 'youtube' &&
                 v.type.toLowerCase() == 'trailer' &&
-                (v.official == true || v.name.toLowerCase().contains('official')),
+                (v.official == true ||
+                    v.name.toLowerCase().contains('official')),
             orElse: () => trailers.firstWhere(
               (v) =>
                   v.site.toLowerCase() == 'youtube' &&
-                  (v.type.toLowerCase() == 'trailer' || v.type.toLowerCase() == 'teaser'),
+                  (v.type.toLowerCase() == 'trailer' ||
+                      v.type.toLowerCase() == 'teaser'),
               orElse: () => trailers.firstWhere(
                 (v) => v.site.toLowerCase() == 'youtube',
                 orElse: () => trailers.first,
@@ -220,7 +227,8 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
           );
           final key = YoutubeUtils.extractYoutubeKey(officialTrailer.key);
           if (key.isNotEmpty) {
-            movie = movie.copyWith(trailerUrl: 'https://www.youtube.com/watch?v=$key');
+            movie = movie.copyWith(
+                trailerUrl: 'https://www.youtube.com/watch?v=$key');
           }
         }
       },
@@ -268,7 +276,8 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
       final currentState = state as MovieDetailLoadingState;
       if (currentState.initialMovie != null) {
         final newFav = !currentState.initialMovie!.yeuThich;
-        final updatedMovie = currentState.initialMovie!.copyWith(yeuThich: newFav);
+        final updatedMovie =
+            currentState.initialMovie!.copyWith(yeuThich: newFav);
         HomeController.instance.capNhatTrangThaiYeuThich(updatedMovie, newFav);
         emit(MovieDetailLoadingState(initialMovie: updatedMovie));
       }
@@ -292,12 +301,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
 
       try {
         if (newStatus) {
-          getIt<WatchlistBloc>().add(AddMovieToWatchlistEvent(currentState.movie));
+          getIt<WatchlistBloc>()
+              .add(AddMovieToWatchlistEvent(currentState.movie));
         } else {
-          getIt<WatchlistBloc>().add(RemoveFromWatchlistEvent(currentState.movie.id));
+          getIt<WatchlistBloc>()
+              .add(RemoveFromWatchlistEvent(currentState.movie.id));
         }
       } catch (_) {}
     }
   }
 }
-

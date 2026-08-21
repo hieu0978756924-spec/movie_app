@@ -73,8 +73,10 @@ abstract class ImageUrlHelper {
   }
 
   static final Map<String, String> _directorAvatars = {
-    'denis villeneuve': 'https://image.tmdb.org/t/p/w185/v301jJ51F5F7a1i94f83.jpg',
-    'christopher nolan': 'https://image.tmdb.org/t/p/w185/xuAIuF31nFWi4TBD3DqYnmUjVzB.jpg',
+    'denis villeneuve':
+        'https://image.tmdb.org/t/p/w185/v301jJ51F5F7a1i94f83.jpg',
+    'christopher nolan':
+        'https://image.tmdb.org/t/p/w185/xuAIuF31nFWi4TBD3DqYnmUjVzB.jpg',
     'shawn levy': 'https://image.tmdb.org/t/p/w185/j3b0iS6WvWk4R4H.jpg',
     'anthony russo': 'https://image.tmdb.org/t/p/w185/no1G9gMUp1e6n95v31.jpg',
     'jon watts': 'https://image.tmdb.org/t/p/w185/1p8p0i3j1f.jpg',
@@ -94,4 +96,3 @@ abstract class ImageUrlHelper {
     return null;
   }
 }
-

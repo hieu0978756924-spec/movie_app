@@ -28,7 +28,8 @@ void main() {
     ),
   ];
 
-  test('should call searchMovies on repository and return list of movies', () async {
+  test('should call searchMovies on repository and return list of movies',
+      () async {
     when(() => mockRepository.searchMovies(query: tQuery, page: 1))
         .thenAnswer((_) async => Right(tMovies));
 
