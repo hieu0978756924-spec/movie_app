@@ -5,7 +5,6 @@ abstract class AuthRemoteDataSource {
   User? getCurrentUser();
   Future<AuthResponse> login(String email, String password);
   Future<AuthResponse> register(String email, String password);
-  Future<void> resetPassword(String email);
   Future<void> logout();
 }
 
@@ -134,30 +133,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             email: email,
           ),
         );
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> resetPassword(String email) async {
-    try {
-      await supabaseClient.auth
-          .resetPasswordForEmail(
-            email,
-            redirectTo: 'io.supabase.movieapp://reset-callback/',
-          )
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      if (e is AuthException) rethrow;
-      final str = e.toString().toLowerCase();
-      if (str.contains('socketexception') ||
-          str.contains('failed host lookup') ||
-          str.contains('clientexception') ||
-          str.contains('connection refused') ||
-          str.contains('timeout')) {
-        throw const AuthException(
-            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng!');
       }
       rethrow;
     }

@@ -230,7 +230,7 @@ class _WatchlistContentState extends State<_WatchlistContent> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Sort Dropdown
+                          // menu đổ xuốnng
                           PopupMenuButton<String>(
                             initialValue: _selectedSort,
                             onSelected: (val) {
@@ -372,7 +372,7 @@ class _WatchlistContentState extends State<_WatchlistContent> {
               ),
             );
           }
-
+//TH không có trạng thái không có dữ liệu
           return _buildEmptyState(context, isDark);
         },
       ),

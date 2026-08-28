@@ -1,31 +1,34 @@
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'route_names.dart';
-import '../../features/auth/views/login_view.dart';
-import '../../features/auth/views/register_view.dart';
-import '../../features/favorites/views/favorites_view.dart';
-import '../../features/watchlist/presentation/views/watchlist_view.dart';
-import '../../features/home/models/movie.dart';
-import '../../features/home/views/category_view.dart';
-import '../../features/home/views/home_view.dart';
-import '../../features/home/views/main_layout_view.dart';
-import '../../features/home/views/movie_detail_view.dart';
-import '../../features/profile/views/personal_info_view.dart';
-import '../../features/profile/views/profile_view.dart';
-import '../../features/profile/views/watched_videos_view.dart';
-import '../../features/profile/views/user_reviews_view.dart';
-import '../../features/search/views/search_view.dart';
-import '../../features/splash/views/splash_view.dart';
-import '../../features/actor/presentation/pages/actor_detail_page.dart';
-import '../../features/movie_detail/presentation/pages/movie_player_page.dart';
-import '../../features/home/controllers/home_controller.dart';
-import '../utils/user_session.dart';
+import '../core/router/route_names.dart';
+import '../core/utils/user_session.dart';
+import '../features/auth/views/login_view.dart';
+import '../features/auth/views/register_view.dart';
+import '../features/favorites/views/favorites_view.dart';
+import '../features/watchlist/presentation/views/watchlist_view.dart';
+import '../features/home/models/movie.dart';
+import '../features/home/views/category_view.dart';
+import '../features/home/views/home_view.dart';
+import '../features/home/views/main_layout_view.dart';
+import '../features/home/views/movie_detail_view.dart';
+import '../features/profile/views/personal_info_view.dart';
+import '../features/profile/views/profile_view.dart';
+import '../features/profile/views/watched_videos_view.dart';
+import '../features/profile/views/user_reviews_view.dart';
+import '../features/search/views/search_view.dart';
+import '../features/splash/views/splash_view.dart';
+import '../features/actor/presentation/pages/actor_detail_page.dart';
+import '../features/movie_detail/presentation/pages/movie_player_page.dart';
+import '../features/home/controllers/home_controller.dart';
 
+export '../core/router/route_names.dart';
+
+/// Cấu hình điều hướng ứng dụng sử dụng go_router.
 class AppRouter {
   static bool Function()? _authCheckOverride;
 
-  /// For testing purposes to override Supabase auth check
+  /// Dùng cho mục đích testing để override Supabase auth check.
   static void setAuthCheckOverride(bool Function()? override) {
     _authCheckOverride = override;
   }
@@ -50,18 +53,12 @@ class AppRouter {
       final isSplash = state.matchedLocation == RoutePath.splash;
       final isLoggingIn = state.matchedLocation == RoutePath.login;
       final isRegistering = state.matchedLocation == RoutePath.register;
-      if (isSplash || isRegistering) {
-        return null;
-      }
 
-      if (!isAuthenticated && !isLoggingIn) {
-        return RoutePath.login;
-      }
-
+      if (isSplash || isRegistering) return null;
+      if (!isAuthenticated && !isLoggingIn) return RoutePath.login;
       if (isAuthenticated && !UserSession.instance.isGuestMode && isLoggingIn) {
         return RoutePath.home;
       }
-
       return null;
     },
     routes: [
@@ -214,10 +211,7 @@ class AppRouter {
             (m) => m.id == movieId,
             orElse: () => HomeController.instance.danhSachPhim.first,
           );
-          return MoviePlayerPage(
-            movie: movie,
-            youtubeKey: keyQuery,
-          );
+          return MoviePlayerPage(movie: movie, youtubeKey: keyQuery);
         },
       ),
     ],

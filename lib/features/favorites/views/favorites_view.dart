@@ -18,7 +18,7 @@ class FavoritesView extends StatefulWidget {
 
 class _FavoritesViewState extends State<FavoritesView> {
   bool _isSyncing = false;
-
+//Hàm xử lý bật tắt yêu thích
   void _toggleFavorite(Movie movie) {
     UserSession.instance.requireAuth(
       context,
@@ -54,7 +54,7 @@ class _FavoritesViewState extends State<FavoritesView> {
       },
     );
   }
-
+// Hàm giả lập
   Future<void> _syncToCloud() async {
     UserSession.instance.requireAuth(
       context,
@@ -104,7 +104,7 @@ class _FavoritesViewState extends State<FavoritesView> {
       ),
     );
   }
-
+//Hàm giao diện chính
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

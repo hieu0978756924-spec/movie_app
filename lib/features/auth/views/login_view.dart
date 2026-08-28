@@ -320,7 +320,7 @@ class _LoginViewState extends State<LoginView> {
                                       ),
                                       const SizedBox(height: 18),
 
-                                      // --- Password Label, Forgot Password & Field ---
+                                      // --- Password Label & Field ---
                                       Row(
                                         children: [
                                           Text(

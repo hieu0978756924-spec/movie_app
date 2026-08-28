@@ -19,7 +19,6 @@ void main() {
       expect(RouteName.splash, equals('splash'));
       expect(RouteName.login, equals('login'));
       expect(RouteName.register, equals('register'));
-      expect(RouteName.forgotPassword, equals('forgotPassword'));
       expect(RouteName.home, equals('home'));
       expect(RouteName.category, equals('category'));
       expect(RouteName.movieDetail, equals('movieDetail'));
@@ -32,7 +31,6 @@ void main() {
       expect(RoutePath.splash, equals('/splash'));
       expect(RoutePath.login, equals('/login'));
       expect(RoutePath.register, equals('/register'));
-      expect(RoutePath.forgotPassword, equals('/forgot-password'));
       expect(RoutePath.home, equals('/'));
       expect(RoutePath.category, equals('/category/:type'));
       expect(RoutePath.movieDetail, equals('/movie/:id'));
@@ -84,7 +82,6 @@ void main() {
       expect(routes, contains(RoutePath.splash));
       expect(routes, contains(RoutePath.login));
       expect(routes, contains(RoutePath.register));
-      expect(routes, contains(RoutePath.forgotPassword));
       expect(routes, contains(RoutePath.home));
       expect(routes, contains(RoutePath.category));
       expect(routes, contains(RoutePath.movieDetail));

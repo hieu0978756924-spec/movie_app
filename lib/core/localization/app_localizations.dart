@@ -55,6 +55,7 @@ class AppLocalizations {
       'reviews': 'Đánh giá & Bình luận',
       'no_results': 'Không tìm thấy kết quả phù hợp',
       'because_you_added': 'Vì bạn đã thêm',
+      'phim_trending': 'Phim Trending',
     },
     'en': {
       'app_title': 'Movie Corner',
@@ -100,6 +101,7 @@ class AppLocalizations {
       'reviews': 'Reviews & Comments',
       'no_results': 'No matching results found',
       'because_you_added': 'Because you added',
+      'phim_trending': 'Trending Movies',
     },
   };
 

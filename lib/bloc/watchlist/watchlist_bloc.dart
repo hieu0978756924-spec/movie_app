@@ -1,10 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../domain/entities/watchlist_item.dart';
-import '../../domain/repositories/watchlist_repository.dart';
+import '../../features/watchlist/domain/entities/watchlist_item.dart';
+import '../../features/watchlist/domain/repositories/watchlist_repository.dart';
 import 'watchlist_event.dart';
 import 'watchlist_state.dart';
+
+export 'watchlist_event.dart';
+export 'watchlist_state.dart';
 
 @injectable
 class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
@@ -19,7 +22,7 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     on<RemoveFromWatchlistEvent>(_onRemoveFromWatchlist);
     on<ToggleWatchedEvent>(_onToggleWatched);
   }
-// nạp ds phim
+
   Future<void> _onLoadWatchlist(
     LoadWatchlistEvent event,
     Emitter<WatchlistState> emit,
@@ -31,7 +34,7 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       (items) => emit(WatchlistLoadedState(items: items)),
     );
   }
-//đồng bọo dữ liệu lên server
+
   Future<void> _onSyncWatchlist(
     SyncWatchlistEvent event,
     Emitter<WatchlistState> emit,
@@ -45,7 +48,7 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     }
     await _fetchAndEmitWatchlist(emit);
   }
-// thêm phim vào ds mới( đối tượng)
+
   Future<void> _onAddMovieToWatchlist(
     AddMovieToWatchlistEvent event,
     Emitter<WatchlistState> emit,
@@ -58,7 +61,7 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       await _fetchAndEmitWatchlist(emit);
     }
   }
-  // thêm trực tiếp
+
   Future<void> _onAddItemToWatchlist(
     AddItemToWatchlistEvent event,
     Emitter<WatchlistState> emit,
@@ -71,7 +74,7 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       await _fetchAndEmitWatchlist(emit);
     }
   }
-// xóa phim
+
   Future<void> _onRemoveFromWatchlist(
     RemoveFromWatchlistEvent event,
     Emitter<WatchlistState> emit,
@@ -80,12 +83,12 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     if (state is WatchlistLoadedState) {
       final currentItems = (state as WatchlistLoadedState).items;
       try {
-        removedItem =
-            currentItems.firstWhere((item) => item.id == event.movieId);
+        removedItem = currentItems.firstWhere((item) => item.id == event.movieId);
       } catch (_) {}
     }
 
-    final result = await watchlistRepository.removeFromWatchlist(event.movieId);
+    final result =
+        await watchlistRepository.removeFromWatchlist(event.movieId);
     if (result.isLeft()) {
       final failure = result.fold((l) => l, (_) => null)!;
       emit(WatchlistErrorState(failure.message));
@@ -98,11 +101,12 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       (items) => emit(WatchlistLoadedState(
         items: items,
         lastRemovedItem: removedItem,
-        message: removedItem != null ? 'Đã xóa "${removedItem.tenPhim}"' : null,
+        message:
+            removedItem != null ? 'Đã xóa "${removedItem.tenPhim}"' : null,
       )),
     );
   }
-// đánh giấu đã xem
+
   Future<void> _onToggleWatched(
     ToggleWatchedEvent event,
     Emitter<WatchlistState> emit,

@@ -148,8 +148,7 @@ class HomeView extends StatelessWidget {
                             ),
                             if (state.recommendedMovies.isNotEmpty)
                               MovieSectionWidget(
-                                title:
-                                    '${locale.translate('because_you_added')} "${state.recommendedSourceTitle ?? ''}"',
+                                title: locale.translate('phim_trending'),
                                 movies: state.recommendedMovies,
                               ),
                             MovieSectionWidget(

@@ -1,82 +1,22 @@
 import 'dart:async';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
-import '../../../../core/di/injection.dart';
-import '../../../home/controllers/home_controller.dart';
-import '../../../profile/data/user_profile_manager.dart';
-import '../../../profile/data/watch_history_manager.dart';
-import '../../../review/data/datasources/user_review_manager.dart';
-import '../../../watchlist/data/datasources/watchlist_local_datasource.dart';
-import '../../domain/usecases/get_current_user_usecase.dart';
-import '../../domain/usecases/login_usecase.dart';
-import '../../domain/usecases/register_usecase.dart';
+import '../../core/di/injection.dart';
+import '../../features/home/controllers/home_controller.dart';
+import '../../features/profile/data/user_profile_manager.dart';
+import '../../features/profile/data/watch_history_manager.dart';
+import '../../features/review/data/datasources/user_review_manager.dart';
+import '../../features/watchlist/data/datasources/watchlist_local_datasource.dart';
+import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/domain/usecases/login_usecase.dart';
+import '../../features/auth/domain/usecases/register_usecase.dart';
+import 'auth_event.dart';
+import 'auth_state.dart';
 
-// Events
-abstract class AuthEvent extends Equatable {
-  const AuthEvent();
-  @override
-  List<Object?> get props => [];
-}
-
-class CheckAuthEvent extends AuthEvent {}
-
-class LoginSubmittedEvent extends AuthEvent {
-  final String email;
-  final String password;
-  const LoginSubmittedEvent(this.email, this.password);
-  @override
-  List<Object?> get props => [email, password];
-}
-
-class RegisterSubmittedEvent extends AuthEvent {
-  final String email;
-  final String password;
-  final String? name;
-  final String? dob;
-  const RegisterSubmittedEvent(this.email, this.password,
-      {this.name, this.dob});
-  @override
-  List<Object?> get props => [email, password, name, dob];
-}
-
-// States
-abstract class AuthState extends Equatable {
-  const AuthState();
-  @override
-  List<Object?> get props => [];
-}
-
-class AuthInitialState extends AuthState {}
-
-class AuthLoadingState extends AuthState {}
-
-class AuthenticatedState extends AuthState {
-  final User user;
-  const AuthenticatedState(this.user);
-  @override
-  List<Object?> get props => [user];
-}
-
-class UnauthenticatedState extends AuthState {}
-
-class RegisterSuccessState extends AuthState {
-  final String message;
-  const RegisterSuccessState(
-      [this.message =
-          'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.']);
-  @override
-  List<Object?> get props => [message];
-}
-
-class AuthErrorState extends AuthState {
-  final String message;
-  const AuthErrorState(this.message);
-  @override
-  List<Object?> get props => [message];
-}
+export 'auth_event.dart';
+export 'auth_state.dart';
 
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -168,8 +108,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             name: (event.name != null && event.name!.isNotEmpty)
                 ? event.name
                 : null,
-            dob:
-                (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
+            dob: (event.dob != null && event.dob!.isNotEmpty) ? event.dob : null,
           );
           await WatchHistoryManager.instance.loadForUser(event.email);
           await UserReviewManager.instance.loadForUser(event.email);
